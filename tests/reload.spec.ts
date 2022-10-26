@@ -47,5 +47,7 @@ test.group('Reload', (group) => {
     await sleep(500)
 
     await server.close()
-  }).disableTimeout()
+  })
+    .disableTimeout()
+    .skip(!!process.env.CI)
 })
