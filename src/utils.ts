@@ -13,8 +13,7 @@ export const resolveDevServerUrl = (address: AddressInfo, config: ResolvedConfig
 
   const configHmrHost = typeof config.server.hmr === 'object' ? config.server.hmr.host : null
   const configHost = typeof config.server.host === 'string' ? config.server.host : null
-  const serverAddress = address.family === 'IPv6' ? `[${address.address}]` : address.address
-  let host = configHmrHost ?? configHost ?? serverAddress
+  let host = configHmrHost ?? configHost ?? address.address
   if (host === '::1') {
     host = 'localhost'
   }
