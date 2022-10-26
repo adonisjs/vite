@@ -1,6 +1,0 @@
-{
-  "url": "http://localhost:5173",
-  "entrypoints": {
-    "__entrypoint_app_0__": "http://localhost:5173/tests/fixtures/app.ts"
-  }
-}
