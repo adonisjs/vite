@@ -20,7 +20,7 @@ configure({
   ...{
     files: ['tests/**/*.spec.ts'],
     plugins: [assert()],
-    reporters: [specReporter()],
+    reporters: [specReporter({ stackLinesCount: 2 })],
     importer: (filePath) => import(filePath),
   },
 })

@@ -1,8 +1,7 @@
 import { AddressInfo } from 'node:net'
 import { InternalModuleFormat, OutputChunk } from 'rollup'
-import { ResolvedConfig } from 'vite'
+import { normalizePath, ResolvedConfig } from 'vite'
 import path from 'node:path'
-import os from 'node:os'
 
 /**
  * Resolve the dev server URL from the server address and configuration.
@@ -24,25 +23,6 @@ export const resolveDevServerUrl = (address: AddressInfo, config: ResolvedConfig
   }
 
   return `${protocol}://${host}:${address.port}`
-}
-
-/**
- * Is the current platform Windows?
- */
-export const isWindows = os.platform() === 'win32'
-
-/**
- * Replace backslashes with forward slashes.
- */
-export function slash(p: string): string {
-  return p.replace(/\\/g, '/')
-}
-
-/**
- * Normalize a path and use forward slashes.
- */
-export function normalizePath(id: string): string {
-  return path.posix.normalize(isWindows ? slash(id) : id)
 }
 
 /**

@@ -1,5 +1,4 @@
 import defu from 'defu'
-import { join } from 'node:path'
 import { ConfigEnv, Plugin, UserConfig } from 'vite'
 import { PluginFullOptions } from './contracts'
 
@@ -23,6 +22,8 @@ export const configHook = (
     logLevel: 'warn',
 
     build: {
+      assetsDir: '',
+
       /**
        * Generate a manifest file at build-time
        */
@@ -36,7 +37,7 @@ export const configHook = (
       /**
        * Set the output directory relative to the "public" directory
        */
-      outDir: join('public', options.publicPath),
+      outDir: options.outputPath,
 
       rollupOptions: {
         /**

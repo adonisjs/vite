@@ -2,9 +2,9 @@ import { AddressInfo } from 'node:net'
 import { join } from 'node:path'
 import { Plugin, ResolvedConfig } from 'vite'
 import { PluginFullOptions } from './contracts'
-import { getChunkName, resolveDevServerUrl } from './utils'
-import type { OutputChunk } from 'rollup'
+import { resolveDevServerUrl } from './utils'
 import { EntryPointFile } from './entry_point_file'
+import { readFileSync } from 'node:fs'
 
 /**
  * Write the entrypoints.json file in dev and build mode
@@ -20,30 +20,27 @@ export const entrypoints = (options: PluginFullOptions): Plugin => {
     name: 'vite-plugin-adonis:entrypoints',
 
     /**
-     * Write the entrypoints.json file in build mode.
+     * Write the entrypoints.json file in build mode
+     *
+     * We just parse the manifest and create the entrypoints.json file based
+     * on it
      */
-    generateBundle({ format }, bundle) {
+    writeBundle() {
+      const manifestPath = join(resolvedConfig.root, options.outputPath, 'manifest.json')
+      const manifest = JSON.parse(readFileSync(manifestPath, 'utf-8')) as Record<string, any>
+
       const entryFile = new EntryPointFile(options.publicPath)
-
-      for (const file of Object.values(bundle)) {
-        if (file.type !== 'chunk') return
-
-        // From the OutputChunk file, we get the original file name, not hashed
-        const name = getChunkName(format, file as OutputChunk, resolvedConfig)
-
-        console.log(name)
-
+      for (const chunk of Object.values(manifest)) {
         // Let's check if this file is defined as an entry point from the user config
         const matchingEntrypointFile = Object.entries(options.entryPoints).find(([_, files]) => {
-          return files.includes(name)
+          return files.some((filename) => filename.endsWith(chunk.src))
         })
 
         if (!matchingEntrypointFile) continue
 
-        // If it is, we add it to the entrypoints.json file, with the hashed file
+        // If it is, we add it to entrypoints.json, with the hashed file
         // name so the server will be able to serve it.
-        const filePath = [options.publicPath, file.fileName].join('/')
-        entryFile.addFilesToEntryPoint(matchingEntrypointFile[0], [filePath])
+        entryFile.addFilesToEntryPoint(matchingEntrypointFile[0], [chunk.file])
       }
 
       entryFile.writeToDisk(fileDest)
