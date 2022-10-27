@@ -43,10 +43,6 @@ These two files are used by AdonisJS to correctly load the assets in the views. 
 
 However the entrypoints.json file is needed by AdonisJS, basically for the `entryPointStyles('entryPointName')` and `entryPointScripts('entryPointName')` helpers. This plugin will generate the entrypoints.json file based on the entryPoints option you pass to the plugin.
 
-Also note that Rollup ( that is used internally by Vite for building ) doesn't support entrypoint with multiple files. So, some fiddling was done in this plugin to also support that feature.
-
-This will allow us to ship Vite to AdonisJS without any breaking changes.
-
 ### Reload
 
 The plugin also add a little method that will watch your `.edge` files and full-reload the page when a change is detected. 

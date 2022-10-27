@@ -1,29 +1,20 @@
-import { mkdirSync, writeFileSync } from 'node:fs'
 import { AddressInfo } from 'node:net'
 import { join } from 'node:path'
 import { Plugin, ResolvedConfig } from 'vite'
 import { PluginFullOptions } from './contracts'
-import { resolveDevServerUrl } from './utils'
+import { getChunkName, resolveDevServerUrl } from './utils'
+import type { OutputChunk } from 'rollup'
+import { EntryPointFile } from './entry_point_file'
 
 /**
  * Write the entrypoints.json file in dev and build mode
+ *
+ * In dev mode, we need to prefix the file names with the dev server URL
+ * In build mode, we need to write hashed file names to the entrypoints.json file
  */
-export const entrypoints = (_options: PluginFullOptions): Plugin => {
-  let outDir = ''
+export const entrypoints = (options: PluginFullOptions): Plugin => {
   let resolvedConfig: ResolvedConfig
-  let devServerUrl = ''
-
-  let entryPointsMap: Record<string, string> = {}
-
-  /**
-   * Write the entrypoints.json file
-   */
-  const writeEntryPointsFile = () => {
-    const data = { url: devServerUrl, entrypoints: entryPointsMap }
-
-    mkdirSync(join(outDir, 'assets'), { recursive: true })
-    writeFileSync(join(outDir, 'assets/entrypoints.json'), JSON.stringify(data, null, 2))
-  }
+  let fileDest: string
 
   return {
     name: 'vite-plugin-adonis:entrypoints',
@@ -31,48 +22,60 @@ export const entrypoints = (_options: PluginFullOptions): Plugin => {
     /**
      * Write the entrypoints.json file in build mode.
      */
-    writeBundle(_, bundle) {
-      entryPointsMap = {}
+    generateBundle({ format }, bundle) {
+      const entryFile = new EntryPointFile(options.publicPath)
 
-      Object.keys(bundle)
-        .filter((fileName) => fileName.match(/__entrypoint_/))
-        .forEach((fileName) => {
-          const entryPointName = fileName.match(/__entrypoint_(.+)_\d+__/)
-          entryPointsMap[entryPointName![0]] = fileName
+      for (const file of Object.values(bundle)) {
+        if (file.type !== 'chunk') return
+
+        // From the OutputChunk file, we get the original file name, not hashed
+        const name = getChunkName(format, file as OutputChunk, resolvedConfig)
+
+        console.log(name)
+
+        // Let's check if this file is defined as an entry point from the user config
+        const matchingEntrypointFile = Object.entries(options.entryPoints).find(([_, files]) => {
+          return files.includes(name)
         })
 
-      writeEntryPointsFile()
+        if (!matchingEntrypointFile) continue
+
+        // If it is, we add it to the entrypoints.json file, with the hashed file
+        // name so the server will be able to serve it.
+        const filePath = [options.publicPath, file.fileName].join('/')
+        entryFile.addFilesToEntryPoint(matchingEntrypointFile[0], [filePath])
+      }
+
+      entryFile.writeToDisk(fileDest)
     },
 
     /**
      * Write the entrypoints.json file in dev mode.
+     *
      * We are writing the file from this hook because we need
      * to resolve the dev server url that is only exposed
      * at this time.
+     *
+     * The files paths in the entrypoints.json file will be
+     * prefixed with the dev server url.
      */
     configureServer(server) {
       server.httpServer?.once('listening', () => {
-        devServerUrl = resolveDevServerUrl(
+        const devServerUrl = resolveDevServerUrl(
           server.httpServer?.address() as AddressInfo,
           server.config
         )
 
-        const entryPoints = resolvedConfig.build.rollupOptions.input
-        outDir = join(resolvedConfig.root, resolvedConfig.build.outDir)
-
-        for (const [name, entryPoint] of Object.entries(entryPoints || {})) {
-          entryPointsMap[name] = `${devServerUrl}/${entryPoint}`
-        }
-
-        writeEntryPointsFile()
+        EntryPointFile.fromPluginInput(options.entryPoints, devServerUrl).writeToDisk(fileDest)
       })
     },
 
     /**
-     * Store the resolved config to use it later.
+     * Store the resolved config to in other hooks.
      */
     configResolved: async (userConfig) => {
       resolvedConfig = userConfig
+      fileDest = join(resolvedConfig.root, resolvedConfig.build.outDir, 'entrypoints.json')
     },
   }
 }

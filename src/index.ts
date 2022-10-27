@@ -10,6 +10,7 @@ import { reload } from './reload'
  */
 export default function Adonis(options: PluginOptions): PluginOption[] {
   const fullOptions = defu<PluginFullOptions, [Partial<PluginOptions>]>(options, {
+    publicPath: '/assets',
     reloadOnEdgeChanges: true,
   })
 

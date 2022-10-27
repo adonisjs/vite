@@ -26,7 +26,9 @@ test.group('Entrypoints', (group) => {
     assert.deepEqual(entrypoints, {
       url: 'http://localhost:9484',
       entrypoints: {
-        __entrypoint_app_0__: 'http://localhost:9484/resources/js/app.ts',
+        app: {
+          files: ['http://localhost:9484/resources/js/app.ts'],
+        },
       },
     })
   })
@@ -48,27 +50,10 @@ test.group('Entrypoints', (group) => {
     assert.deepEqual(entrypoints, {
       url: 'http://localhost:5278',
       entrypoints: {
-        __entrypoint_app_0__: 'http://localhost:5278/resources/js/app.ts',
+        app: {
+          files: ['http://localhost:5278/resources/js/app.ts'],
+        },
       },
     })
   })
-
-  test('Should also write the file in build mode with correct publicPath', async ({ assert }) => {
-    await fs.add(join(fs.basePath, 'resources/js/app.ts'), 'console.log("Hello world")')
-
-    await build({
-      root: fs.basePath,
-      logLevel: 'silent',
-      plugins: [Adonis({ publicPath: '/assets', entryPoints: { app: ['resources/js/app.ts'] } })],
-    })
-
-    const entrypoints = JSON.parse(await fs.get('public/assets/entrypoints.json'))
-
-    assert.deepEqual(entrypoints, {
-      url: 'http://localhost:5173',
-      entrypoints: {
-        __entrypoint_app_0__: 'http://localhost:5173/assets/resources/js/app.ts',
-      },
-    })
-  }).skip()
 })
