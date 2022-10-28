@@ -10,7 +10,7 @@ import { addTrailingslash, resolveDevServerUrl } from './utils'
 export const configHook = (
   options: PluginFullOptions,
   baseConfig: UserConfig,
-  _env: ConfigEnv
+  { command }: ConfigEnv
 ): UserConfig => {
   const entryPoints = Object.entries(options.entryPoints).flatMap(([, files]) => files)
 
@@ -23,7 +23,7 @@ export const configHook = (
      */
     logLevel: 'warn',
 
-    base: addTrailingslash(options.publicPath),
+    base: command === 'build' ? addTrailingslash(options.publicPath) : '/',
 
     server: {
       /**
