@@ -1,8 +1,8 @@
 import defu from 'defu'
 import { AddressInfo } from 'node:net'
-import { ConfigEnv, Plugin, ResolvedConfig, UserConfig } from 'vite'
+import { ConfigEnv, Plugin, UserConfig } from 'vite'
 import { PluginFullOptions } from './contracts'
-import { resolveDevServerUrl } from './utils'
+import { addTrailingslash, resolveDevServerUrl } from './utils'
 
 /**
  * Vite config hook
@@ -22,6 +22,8 @@ export const configHook = (
      * the dev server within the same process as Adonis.
      */
     logLevel: 'warn',
+
+    base: addTrailingslash(options.publicPath),
 
     server: {
       /**
@@ -65,19 +67,11 @@ export const configHook = (
  * Update the user vite config to match the Adonis requirements
  */
 export const config = (options: PluginFullOptions): Plugin => {
-  let resolvedConfig: ResolvedConfig
   let devServerUrl: string
 
   return {
     name: 'vite-plugin-adonis:config',
     config: configHook.bind(null, options),
-
-    /**
-     * Store the config for further usage
-     */
-    configResolved(userConfig) {
-      resolvedConfig = userConfig
-    },
 
     /**
      * Store the dev server url for further usage when rewriting URLs

@@ -45,3 +45,7 @@ export const getChunkName = (
     return `_` + path.basename(chunk.fileName)
   }
 }
+
+export const addTrailingslash = (url: string) => {
+  return url.endsWith('/') ? url : url + '/'
+}
