@@ -32,7 +32,7 @@ export const entrypoints = (options: PluginFullOptions): Plugin => {
       const entryFile = new EntryPointFile(options.publicPath)
       for (const chunk of Object.values(manifest)) {
         // Let's check if this file is defined as an entry point from the user config
-        const matchingEntrypointFile = Object.entries(options.entryPoints).find(([_, files]) => {
+        const matchingEntrypointFile = Object.entries(options.entryPoints).filter(([_, files]) => {
           return files.some((filename) => filename.endsWith(chunk.src))
         })
 
@@ -40,7 +40,9 @@ export const entrypoints = (options: PluginFullOptions): Plugin => {
 
         // If it is, we add it to entrypoints.json, with the hashed file
         // name so the server will be able to serve it.
-        entryFile.addFilesToEntryPoint(matchingEntrypointFile[0], [chunk.file])
+        for (const [name] of matchingEntrypointFile) {
+          entryFile.addFilesToEntryPoint(name, [chunk.file])
+        }
       }
 
       entryFile.writeToDisk(fileDest)

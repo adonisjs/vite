@@ -1,6 +1,8 @@
 import defu from 'defu'
-import { ConfigEnv, Plugin, UserConfig } from 'vite'
+import { AddressInfo } from 'node:net'
+import { ConfigEnv, Plugin, ResolvedConfig, UserConfig } from 'vite'
 import { PluginFullOptions } from './contracts'
+import { resolveDevServerUrl } from './utils'
 
 /**
  * Vite config hook
@@ -20,6 +22,14 @@ export const configHook = (
      * the dev server within the same process as Adonis.
      */
     logLevel: 'warn',
+
+    server: {
+      /**
+       * Will allow to rewrite the URL to the public path
+       * in dev mode
+       */
+      origin: '__adonis_vite__',
+    },
 
     build: {
       assetsDir: '',
@@ -54,7 +64,41 @@ export const configHook = (
 /**
  * Update the user vite config to match the Adonis requirements
  */
-export const config = (options: PluginFullOptions): Plugin => ({
-  name: 'vite-plugin-adonis:config',
-  config: configHook.bind(null, options),
-})
+export const config = (options: PluginFullOptions): Plugin => {
+  let resolvedConfig: ResolvedConfig
+  let devServerUrl: string
+
+  return {
+    name: 'vite-plugin-adonis:config',
+    config: configHook.bind(null, options),
+
+    /**
+     * Store the config for further usage
+     */
+    configResolved(userConfig) {
+      resolvedConfig = userConfig
+    },
+
+    /**
+     * Store the dev server url for further usage when rewriting URLs
+     */
+    configureServer(server) {
+      server.httpServer?.once('listening', () => {
+        devServerUrl = resolveDevServerUrl(
+          server.httpServer?.address() as AddressInfo,
+          server.config
+        )
+      })
+    },
+
+    /**
+     * Rewrite URL to the public path in dev mode
+     *
+     * See : https://nystudio107.com/blog/using-vite-js-next-generation-frontend-tooling-with-craft-cms#vite-processed-assets
+     */
+    transform: (code) => ({
+      code: code.replace(/__adonis_vite__/g, devServerUrl),
+      map: null,
+    }),
+  }
+}

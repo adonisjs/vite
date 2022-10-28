@@ -177,4 +177,34 @@ test.group('Entrypoints', (group) => {
     assert.match(entrypoints.entrypoints.app.css[0], /\/assets\/c\.[a-z0-9]{8}\.css/)
     assert.match(entrypoints.entrypoints.app.css[1], /\/assets\/d\.[a-z0-9]{8}\.css/)
   })
+
+  test('Multiple entrypoints with shared files', async ({ assert }) => {
+    await fs.add(join(fs.basePath, 'resources/js/app.ts'), 'console.log("Hello world")')
+    await fs.add(join(fs.basePath, 'resources/js/admin.ts'), 'console.log("Hello world")')
+    await fs.add(join(fs.basePath, 'resources/js/shared.ts'), 'console.log("Hello world")')
+
+    await build({
+      ...BASE_CONFIG,
+      plugins: [
+        Adonis({
+          publicPath: '/assets',
+          entryPoints: {
+            app: [
+              resolve(__dirname, './app/resources/js/app.ts'),
+              resolve(__dirname, './app/resources/js/shared.ts'),
+            ],
+            admin: [
+              resolve(__dirname, './app/resources/js/admin.ts'),
+              resolve(__dirname, './app/resources/js/shared.ts'),
+            ],
+          },
+        }),
+      ],
+    })
+
+    const entrypoints = JSON.parse(await fs.get('public/assets/entrypoints.json'))
+
+    assert.deepEqual(entrypoints.entrypoints.app.js.length, 2)
+    assert.deepEqual(entrypoints.entrypoints.admin.js.length, 2)
+  }).pin()
 })
