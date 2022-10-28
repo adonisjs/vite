@@ -206,5 +206,5 @@ test.group('Entrypoints', (group) => {
 
     assert.deepEqual(entrypoints.entrypoints.app.js.length, 2)
     assert.deepEqual(entrypoints.entrypoints.admin.js.length, 2)
-  }).pin()
+  })
 })
