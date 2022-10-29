@@ -1,4 +1,4 @@
-import defu from 'defu'
+import { defu } from 'defu'
 import { normalizePath, PluginOption } from 'vite'
 import { config } from './config'
 import { PluginFullOptions, PluginOptions } from './contracts'

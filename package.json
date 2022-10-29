@@ -8,6 +8,11 @@
       "types": "./dist/index.d.ts",
       "require": "./dist/index.cjs",
       "import": "./dist/index.mjs"
+    },
+    "./inertia": {
+      "types": "./dist/inertia.d.ts",
+      "require": "./dist/inertia.cjs",
+      "import": "./dist/inertia.mjs"
     }
   },
   "main": "./dist/index.cjs",

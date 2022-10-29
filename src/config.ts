@@ -1,4 +1,4 @@
-import defu from 'defu'
+import { defu } from 'defu'
 import { AddressInfo } from 'node:net'
 import { ConfigEnv, Plugin, UserConfig } from 'vite'
 import { PluginFullOptions } from './contracts'

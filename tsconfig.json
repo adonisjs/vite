@@ -6,6 +6,7 @@
   },
 
   "compilerOptions": {
-    "strict": true
+    "strict": true,
+    "lib": ["ES2021"]
   }
 }
