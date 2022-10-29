@@ -207,4 +207,28 @@ test.group('Entrypoints', (group) => {
     assert.deepEqual(entrypoints.entrypoints.app.js.length, 2)
     assert.deepEqual(entrypoints.entrypoints.admin.js.length, 2)
   })
+
+  test('Internal css import should be inclued in entrypoints[name].css', async ({ assert }) => {
+    await fs.add(join(fs.basePath, 'resources/js/app.ts'), 'import "../css/app.css"')
+    await fs.add(join(fs.basePath, 'resources/js/admin.ts'), 'import "../css/app.css"')
+    await fs.add(join(fs.basePath, 'resources/css/app.css'), 'body { background: red }')
+
+    await build({
+      ...BASE_CONFIG,
+      plugins: [
+        Adonis({
+          publicPath: '/assets',
+          entryPoints: {
+            app: [resolve(__dirname, './app/resources/js/app.ts')],
+            admin: [resolve(__dirname, './app/resources/js/admin.ts')],
+          },
+        }),
+      ],
+    })
+
+    const entrypoints = JSON.parse(await fs.get('public/assets/entrypoints.json'))
+
+    assert.deepEqual(entrypoints.entrypoints.app.css.length, 1)
+    assert.deepEqual(entrypoints.entrypoints.admin.css.length, 1)
+  })
 })

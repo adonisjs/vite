@@ -41,7 +41,8 @@ export const entrypoints = (options: PluginFullOptions): Plugin => {
         // If it is, we add it to entrypoints.json, with the hashed file
         // name so the server will be able to serve it.
         for (const [name] of matchingEntrypointFile) {
-          entryFile.addFilesToEntryPoint(name, [chunk.file])
+          const chunkCss = chunk.css || []
+          entryFile.addFilesToEntryPoint(name, [chunk.file, ...chunkCss])
         }
       }
 
