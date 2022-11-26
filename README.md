@@ -51,10 +51,10 @@ The plugin also add a little method that will watch your `.edge` files and full-
 
 The last thing this plugin is doing, is, basically just pre-configuring Vite for you. It will add all configuration needed to make AdonisJS work with Vite.
 
-[npm-image]: https://img.shields.io/npm/v/vite-plugin-adonis.svg?style=for-the-badge&logo=npm
+[npm-image]: https://img.shields.io/npm/v/@adonisjs/vite-plugin-adonis.svg?style=for-the-badge&logo=npm
 [npm-url]: https://npmjs.org/package/vite-plugin-adonis "npm"
 
-[license-image]: https://img.shields.io/npm/l/vite-plugin-adonis?color=blueviolet&style=for-the-badge
+[license-image]: https://img.shields.io/npm/l/@adonisjs/vite-plugin-adonis?color=blueviolet&style=for-the-badge
 [license-url]: LICENSE.md "license"
 
 [typescript-image]: https://img.shields.io/badge/Typescript-294E80.svg?style=for-the-badge&logo=typescript
