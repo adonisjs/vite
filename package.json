@@ -51,6 +51,9 @@
     "vite",
     "plugin"
   ],
+  "publishConfig": {
+    "access": "public"
+  },
   "author": "Julien Ripouteau <julien@ripouteau.com>",
   "license": "MIT",
   "dependencies": {
