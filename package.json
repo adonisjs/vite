@@ -1,6 +1,6 @@
 {
   "name": "@adonisjs/vite-plugin-adonis",
-  "version": "1.0.0",
+  "version": "1.0.0-beta.0",
   "description": "Vite plugin for AdonisJS applications",
   "sideEffects": false,
   "exports": {
@@ -42,7 +42,7 @@
     "lint": "eslint . --ext=.ts",
     "format": "prettier --write .",
     "commit": "git-cz",
-    "release": "np --message=\"chore(release): %s\"",
+    "release": "bumpp --commit --push --tag && pnpm publish",
     "version": "npm run build",
     "sync-labels": "github-label-sync --labels ./node_modules/@adonisjs/mrm-preset/gh-labels.json Julien-R44/vite-plugin-adonis"
   },
@@ -67,6 +67,7 @@
     "@japa/runner": "^2.2.2",
     "@japa/spec-reporter": "^1.3.2",
     "@types/node": "^18.11.3",
+    "bumpp": "^8.2.1",
     "c8": "^7.12.0",
     "commitizen": "^4.2.5",
     "cz-conventional-changelog": "^3.3.0",
@@ -78,7 +79,6 @@
     "github-label-sync": "^2.2.0",
     "husky": "^8.0.1",
     "mrm": "^4.1.13",
-    "np": "^7.6.2",
     "prettier": "^2.7.1",
     "rollup": "^3.2.3",
     "sass": "^1.55.0",
