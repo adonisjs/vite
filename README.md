@@ -1,61 +1,36 @@
-# vite-plugin-adonis
-> Vite plugin for AdonisJS
+# @adonisjs/vite
 
-[![npm-image]][npm-url] [![license-image]][license-url] [![typescript-image]][typescript-url]
+<br />
 
-This plugin allows you to use AdonisJS with Vite as the assets bundler.
+[![gh-workflow-image]][gh-workflow-url] [![npm-image]][npm-url] ![][typescript-image] [![license-image]][license-url] [![snyk-image]][snyk-url]
 
-## Installation
+## Introduction
+Package to add [Vite](https://vitejs.dev/) as an assets bundler to AdonisJS.
 
-```bash
-npm i -D vite-plugin-adonis
-```
+## Official Documentation
+The documentation is available on the [AdonisJS website](https://docs.adonisjs.com/guides/assets-bundlers/vite)
 
-## Usage
+## Contributing
+One of the primary goals of AdonisJS is to have a vibrant community of users and contributors who believes in the principles of the framework.
 
-```ts
+We encourage you to read the [contribution guide](https://github.com/adonisjs/.github/blob/main/docs/CONTRIBUTING.md) before contributing to the framework.
 
-import { defineConfig } from 'vite'
-import Adonis from 'vite-plugin-adonis'
+## Code of Conduct
+In order to ensure that the AdonisJS community is welcoming to all, please review and abide by the [Code of Conduct](https://github.com/adonisjs/.github/blob/main/docs/CODE_OF_CONDUCT.md).
 
-export default defineConfig({
-  plugins: [
-    Adonis({
-      entryPoints: {
-        app: ['resources/js/app.ts'],
-      }
-    })
-  ]
-})
-```
+## License
+AdonisJS static files middleware is open-sourced software licensed under the [MIT license](LICENSE.md).
 
-## Why and how ? 
+[gh-workflow-image]: https://img.shields.io/github/actions/workflow/status/adonisjs/vite/test.yml?style=for-the-badge
+[gh-workflow-url]: https://github.com/adonisjs/vite/actions/workflows/test.yml "Github action"
 
-This plugin is needed for the following reasons:
-
-### Keep compatible API
-
-The first Assets Bundler that was implemented for AdonisJS was Webpack Encore. Two things webpack encore is doing when you run the dev server, is :
-- Generating a manifest.json file that contains all the assets with some metadata
-- Generating a entrypoints.json file
-
-These two files are used by AdonisJS to correctly load the assets in the views. Vite doesn't generate manifest file in dev mode, but we won't need it. The only drawback is, while in dev mode, AdonisJS won't be able to throw an error if you try to load an asset that doesn't exist.
-
-However the entrypoints.json file is needed by AdonisJS, basically for the `entryPointStyles('entryPointName')` and `entryPointScripts('entryPointName')` helpers. This plugin will generate the entrypoints.json file based on the entryPoints option you pass to the plugin.
-
-### Reload
-
-The plugin also add a little method that will watch your `.edge` files and full-reload the page when a change is detected. 
-
-### Configuration
-
-The last thing this plugin is doing, is, basically just pre-configuring Vite for you. It will add all configuration needed to make AdonisJS work with Vite.
-
-[npm-image]: https://img.shields.io/npm/v/@adonisjs/vite-plugin-adonis.svg?style=for-the-badge&logo=npm
-[npm-url]: https://npmjs.org/package/vite-plugin-adonis "npm"
-
-[license-image]: https://img.shields.io/npm/l/@adonisjs/vite-plugin-adonis?color=blueviolet&style=for-the-badge
-[license-url]: LICENSE.md "license"
+[npm-image]: https://img.shields.io/npm/v/@adonisjs/vite/latest.svg?style=for-the-badge&logo=npm
+[npm-url]: https://www.npmjs.com/package/@adonisjs/vite/v/latest "npm"
 
 [typescript-image]: https://img.shields.io/badge/Typescript-294E80.svg?style=for-the-badge&logo=typescript
-[typescript-url]:  "typescript"
+
+[license-url]: LICENSE.md
+[license-image]: https://img.shields.io/github/license/adonisjs/vite?style=for-the-badge
+
+[snyk-image]: https://img.shields.io/snyk/vulnerabilities/github/adonisjs/vite?label=Snyk%20Vulnerabilities&style=for-the-badge
+[snyk-url]: https://snyk.io/test/github/adonisjs/vite?targetFile=package.json "snyk"
