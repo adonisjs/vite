@@ -10,6 +10,7 @@
 		"src",
 		"services",
 		"providers",
+    "build/stubs",
 		"build/configure.js",
 		"build/configure.d.ts",
 		"build/configure.d.ts.map",
