@@ -1,94 +1,88 @@
 {
-  "name": "@adonisjs/vite-plugin-adonis",
-  "version": "1.0.0-beta.0",
-  "description": "Vite plugin for AdonisJS applications",
-  "sideEffects": false,
-  "exports": {
-    ".": {
-      "types": "./dist/index.d.ts",
-      "require": "./dist/index.cjs",
-      "import": "./dist/index.mjs"
-    },
-    "./inertia": {
-      "types": "./dist/inertia.d.ts",
-      "require": "./dist/inertia.cjs",
-      "import": "./dist/inertia.mjs"
-    }
-  },
-  "main": "./dist/index.cjs",
-  "module": "./dist/index.mjs",
-  "types": "./dist/index.d.ts",
-  "typesVersions": {
-    "*": {
-      "*": [
-        "./dist/*",
-        "./dist/index.d.ts"
-      ]
-    }
-  },
+  "name": "@adonisjs/vite",
+  "version": "0.0.0",
+  "description": "Vite plugin for Adonis.js",
+  "type": "module",
+  "main": "build/index.js",
   "files": [
-    "dist"
+    "src",
+    "providers",
+    "index.ts",
+    "build/src",
+    "build/providers",
+    "build/stubs",
+    "build/index.d.ts",
+    "build/index.d.ts.map",
+    "build/index.js"
   ],
+  "exports": {
+    ".": "./build/index.js",
+    "./services/main": "./build/services/vite.js",
+    "./providers/vite_provider": "./build/providers/vite_provider.js",
+    "./plugin": "./build/src/vite_plugin/index.js",
+    "./types": "./build/src/backend/types.js",
+    "./types/extended": "./build/src/backend/types/extended.js"
+  },
   "scripts": {
-    "mrm": "mrm --preset=@adonisjs/mrm-preset",
-    "pretest": "npm run lint",
-    "test": "node -r ts-node/register bin/test.ts",
-    "coverage": "c8 pnpm test",
     "clean": "del-cli build",
-    "compile": "npm run lint && npm run clean && tsc",
-    "dev": "unbuild --stub",
-    "build": "unbuild",
-    "prepublishOnly": "npm run build",
+    "copy:templates": "copyfiles \"stubs/**/*.stub\" build",
+    "typecheck": "tsc --no-emit",
     "lint": "eslint . --ext=.ts",
     "format": "prettier --write .",
-    "commit": "git-cz",
-    "release": "bumpp --commit --push --tag && pnpm publish",
+    "quick:test": "node --loader=ts-node/esm bin/test.ts",
+    "pretest": "npm run lint",
+    "test": "c8 npm run quick:test",
+    "prebuild": "npm run lint && npm run clean",
+    "build": "tsc",
+    "postbuild": "npm run copy:templates",
+    "release": "np",
     "version": "npm run build",
-    "sync-labels": "github-label-sync --labels ./node_modules/@adonisjs/mrm-preset/gh-labels.json Julien-R44/vite-plugin-adonis"
+    "prepublishOnly": "npm run build"
   },
   "keywords": [
-    "adonisjs",
     "vite",
-    "plugin"
+    "adonisjs"
   ],
-  "publishConfig": {
-    "access": "public"
-  },
   "author": "Julien Ripouteau <julien@ripouteau.com>",
   "license": "MIT",
   "dependencies": {
-    "@poppinss/dev-utils": "^2.0.3",
-    "defu": "^6.1.0"
-  },
-  "peerDependencies": {
-    "vite": "^3.0.0"
+    "defu": "^6.1.2",
+    "edge-error": "^3.0.0",
+    "vite-plugin-restart": "^0.3.1"
   },
   "devDependencies": {
-    "@adonisjs/mrm-preset": "^5.0.3",
-    "@adonisjs/require-ts": "^2.0.13",
-    "@japa/assert": "^1.3.6",
-    "@japa/runner": "^2.2.2",
-    "@japa/spec-reporter": "^1.3.2",
-    "@types/node": "^18.11.3",
-    "bumpp": "^8.2.1",
-    "c8": "^7.12.0",
-    "commitizen": "^4.2.5",
-    "cz-conventional-changelog": "^3.3.0",
+    "@adonisjs/core": "^6.1.5-4",
+    "@adonisjs/view": "7.0.0-0",
+    "@commitlint/cli": "^17.6.1",
+    "@commitlint/config-conventional": "^17.6.1",
+    "@japa/assert": "^1.4.1",
+    "@japa/expect-type": "^1.0.3",
+    "@japa/file-system": "^1.0.1",
+    "@japa/run-failed-tests": "^1.1.1",
+    "@japa/runner": "^2.5.1",
+    "@japa/spec-reporter": "^1.3.3",
+    "@poppinss/dev-utils": "^2.0.3",
+    "@swc/core": "^1.3.53",
+    "@types/node": "^18.16.0",
+    "c8": "^7.13.0",
+    "copyfiles": "^2.4.1",
     "del-cli": "^5.0.0",
-    "eslint": "^8.26.0",
-    "eslint-config-prettier": "^8.5.0",
-    "eslint-plugin-adonis": "^2.1.1",
+    "desm": "^1.3.0",
+    "eslint": "^8.39.0",
+    "eslint-config-prettier": "^8.8.0",
+    "eslint-plugin-adonis": "^3.0.3",
     "eslint-plugin-prettier": "^4.2.1",
-    "github-label-sync": "^2.2.0",
-    "husky": "^8.0.1",
-    "mrm": "^4.1.13",
-    "prettier": "^2.7.1",
-    "rollup": "^3.2.3",
-    "sass": "^1.55.0",
+    "husky": "^8.0.3",
+    "np": "^7.7.0",
+    "prettier": "^2.8.8",
+    "rollup": "^3.21.0",
     "ts-node": "^10.9.1",
-    "typescript": "^4.8.4",
-    "unbuild": "^0.9.4",
-    "vite": "^3.1.8"
+    "typescript": "^5.0.4",
+    "vite": "^4.3.1"
+  },
+  "peerDependencies": {
+    "@adonisjs/core": "^6.1.1-0",
+    "@adonisjs/view": "7.0.0-0"
   },
   "eslintConfig": {
     "extends": [
@@ -120,21 +114,28 @@
     "arrowParens": "always",
     "printWidth": 100
   },
-  "config": {
-    "commitizen": {
-      "path": "cz-conventional-changelog"
-    }
+  "commitlint": {
+    "extends": [
+      "@commitlint/config-conventional"
+    ]
+  },
+  "publishConfig": {
+    "access": "public",
+    "tag": "next"
   },
   "np": {
-    "contents": ".",
+    "message": "chore(release): %s",
+    "tag": "next",
+    "branch": "main",
     "anyBranch": false
   },
-  "pnpm": {
-    "peerDependencyRules": {
-      "ignoreMissing": [
-        "@japa/core",
-        "openapi-types"
-      ]
-    }
+  "c8": {
+    "reporter": [
+      "text",
+      "html"
+    ],
+    "exclude": [
+      "tests/**"
+    ]
   }
 }

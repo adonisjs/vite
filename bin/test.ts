@@ -1,6 +1,11 @@
 import { assert } from '@japa/assert'
 import { specReporter } from '@japa/spec-reporter'
+import { fileSystem } from '@japa/file-system'
+import { expectTypeOf } from '@japa/expect-type'
+import { runFailedTests } from '@japa/run-failed-tests'
 import { processCliArgs, configure, run } from '@japa/runner'
+import { pathToFileURL } from 'node:url'
+import { join } from 'desm'
 
 /*
 |--------------------------------------------------------------------------
@@ -19,9 +24,17 @@ configure({
   ...processCliArgs(process.argv.slice(2)),
   ...{
     files: ['tests/**/*.spec.ts'],
-    plugins: [assert()],
+    plugins: [
+      assert(),
+      fileSystem({
+        autoClean: true,
+        basePath: join(import.meta.url, '..', 'tests', '__app'),
+      }),
+      expectTypeOf(),
+      runFailedTests(),
+    ],
     reporters: [specReporter({ stackLinesCount: 2 })],
-    importer: (filePath) => import(filePath),
+    importer: (filePath) => import(pathToFileURL(filePath).href),
   },
 })
 

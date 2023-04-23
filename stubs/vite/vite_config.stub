@@ -1,0 +1,14 @@
+---
+to: {{ destination }}
+---
+
+import { defineConfig } from 'vite'
+import Adonis from '@adonisjs/vite/plugin'
+
+export default defineConfig({
+  plugins: [
+    Adonis({
+      entrypoints: ['resources/js/vue.js'],
+    }),
+  ],
+})
