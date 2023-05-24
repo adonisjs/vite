@@ -58,7 +58,7 @@
   },
   "devDependencies": {
     "@adonisjs/core": "^6.1.5-4",
-    "@adonisjs/view": "7.0.0-0",
+    "@adonisjs/view": "^7.0.0-2",
     "@commitlint/cli": "^17.6.1",
     "@commitlint/config-conventional": "^17.6.1",
     "@japa/assert": "^1.4.1",
