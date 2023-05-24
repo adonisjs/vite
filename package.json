@@ -49,7 +49,7 @@
     "vite",
     "adonisjs"
   ],
-  "author": "Julien Ripouteau <julien@ripouteau.com>",
+  "author": "Julien Ripouteau <julien@ripouteau.com>,virk,adonisjs",
   "license": "MIT",
   "dependencies": {
     "defu": "^6.1.2",
