@@ -49,7 +49,11 @@
     "vite",
     "adonisjs"
   ],
-  "author": "Julien Ripouteau <julien@ripouteau.com>,virk,adonisjs",
+  "author": "Julien Ripouteau <julien@ripouteau.com>",
+  "contributors": [
+    "virk",
+    "adonisjs"
+  ],
   "license": "MIT",
   "dependencies": {
     "defu": "^6.1.2",
@@ -143,5 +147,17 @@
     "exclude": [
       "tests/**"
     ]
-  }
+  },
+  "types": "./build/index.d.ts",
+  "directories": {
+    "test": "tests"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/adonisjs/vite.git"
+  },
+  "bugs": {
+    "url": "https://github.com/adonisjs/vite/issues"
+  },
+  "homepage": "https://github.com/adonisjs/vite#readme"
 }
