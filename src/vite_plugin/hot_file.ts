@@ -30,7 +30,6 @@ export class HotFile {
     process.on('SIGTERM', process.exit)
     process.on('SIGHUP', process.exit)
     process.on('SIGBREAK', process.exit)
-    process.on('SIGKILL', process.exit)
   }
 
   constructor(path: string) {

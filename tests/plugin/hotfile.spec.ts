@@ -17,7 +17,7 @@ async function setupEntrypoint(fs: any) {
 }
 
 test.group('Hotfile', () => {
-  test('Should create hotfile with dev server url', async ({ assert, fs }) => {
+  test('Should create hotfile with dev server url', async ({ assert, fs, cleanup }) => {
     await setupEntrypoint(fs)
 
     const server = await createServer({
@@ -25,17 +25,16 @@ test.group('Hotfile', () => {
       logLevel: 'warn',
       plugins: [Adonis({ entrypoints: ['resources/js/app.ts'] })],
     })
+    cleanup(() => server.close())
 
     await server.listen(9484)
     await sleep(100)
 
     const hotContent = await fs.contents('public/assets/hot.json')
-    assert.deepEqual(JSON.parse(hotContent), { url: 'http://localhost:9484' })
-
-    await server.close()
+    assert.deepEqual(JSON.parse(hotContent), { url: 'http://127.0.0.1:9484' })
   })
 
-  test('should clean hotfile on exit', async ({ assert, fs }) => {
+  test('should clean hotfile on exit', async ({ assert, fs, cleanup }) => {
     await setupEntrypoint(fs)
 
     const server = await createServer({
@@ -43,18 +42,18 @@ test.group('Hotfile', () => {
       logLevel: 'warn',
       plugins: [Adonis({ entrypoints: ['resources/js/app.ts'] })],
     })
+    cleanup(() => server.close())
 
     await server.listen(9484)
     await sleep(100)
 
     assert.isTrue(await fs.exists('public/assets/hot.json'))
-
     await server.close()
 
     assert.isFalse(await fs.exists('public/assets/hot.json'))
   })
 
-  test('should be able to customize the hotfile path', async ({ assert, fs }) => {
+  test('should be able to customize the hotfile path', async ({ assert, fs, cleanup }) => {
     await setupEntrypoint(fs)
 
     const server = await createServer({
@@ -62,12 +61,11 @@ test.group('Hotfile', () => {
       logLevel: 'warn',
       plugins: [Adonis({ entrypoints: ['resources/js/app.ts'], hotFile: 'directory/custom.json' })],
     })
+    cleanup(() => server.close())
 
     await server.listen(9484)
     await sleep(100)
 
     assert.isTrue(await fs.exists('directory/custom.json'))
-
-    await server.close()
   })
 })
