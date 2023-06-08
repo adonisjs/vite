@@ -31,7 +31,7 @@ test.group('Hotfile', () => {
     await sleep(100)
 
     const hotContent = await fs.contents('public/assets/hot.json')
-    assert.deepEqual(JSON.parse(hotContent), { url: 'http://127.0.0.1:9484' })
+    assert.deepEqual(JSON.parse(hotContent), { url: 'http://localhost:9484' })
   })
 
   test('should clean hotfile on exit', async ({ assert, fs, cleanup }) => {
