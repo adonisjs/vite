@@ -257,6 +257,4 @@ test.group('Vite provider', () => {
       '<script type="module" data-test-3="42" src="http://localhost:9484/test-3.js"></script>'
     )
   })
-
-  test('should provide a ')
 })
