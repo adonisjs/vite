@@ -82,6 +82,7 @@ export default class ViteServiceProvider {
     const vite = await this.app.container.make('vite')
 
     view.global('vite', vite)
+    view.global('asset', vite.assetPath.bind(vite))
 
     this.#registerViteTag(view)
     this.#registerViteReactTag(view)

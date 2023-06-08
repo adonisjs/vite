@@ -18,6 +18,13 @@ test.group('Vite provider', () => {
     assert.includeMembers(tags, ['vite', 'viteReactRefresh'])
   })
 
+  test('register asset global helper to view', async ({ assert }) => {
+    const { app } = await setupApp('web')
+    const view = await app.container.make('view')
+
+    assert.isFunction(view.GLOBALS['asset'])
+  })
+
   test('should output @vite/client script', async ({ assert, fs }) => {
     const { app } = await setupApp('web')
     const vite = await app.container.make('vite')
@@ -250,4 +257,6 @@ test.group('Vite provider', () => {
       '<script type="module" data-test-3="42" src="http://localhost:9484/test-3.js"></script>'
     )
   })
+
+  test('should provide a ')
 })
