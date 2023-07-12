@@ -136,19 +136,6 @@ export class Vite {
   }
 
   /**
-   * Generate tags for the entry points
-   */
-  generateEntryPointsTags(entryPoints: string[] | string): string {
-    entryPoints = Array.isArray(entryPoints) ? entryPoints : [entryPoints]
-
-    if (this.#isRunningHot()) {
-      return this.#generateEntryPointsTagsForHotmode(entryPoints)
-    }
-
-    return this.#generateEntryPointsTagsWithManifest(entryPoints)
-  }
-
-  /**
    * Get a chunk from the manifest file for a given file name
    */
   #chunk(manifest: Manifest, fileName: string) {
@@ -245,6 +232,19 @@ export class Vite {
     const attributes = { rel: 'stylesheet', ...customAttributes }
 
     return `<link ${this.#makeAttributes(attributes)} href="${url}">`
+  }
+
+  /**
+   * Generate tags for the entry points
+   */
+  generateEntryPointsTags(entryPoints: string[] | string): string {
+    entryPoints = Array.isArray(entryPoints) ? entryPoints : [entryPoints]
+
+    if (this.#isRunningHot()) {
+      return this.#generateEntryPointsTagsForHotmode(entryPoints)
+    }
+
+    return this.#generateEntryPointsTagsWithManifest(entryPoints)
   }
 
   /**
