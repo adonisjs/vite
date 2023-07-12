@@ -1,9 +1,9 @@
 {
   "name": "@adonisjs/vite",
-  "version": "0.0.1-3",
   "description": "Vite plugin for Adonis.js",
-  "type": "module",
+  "version": "0.0.1-3",
   "main": "build/index.js",
+  "type": "module",
   "files": [
     "index.ts",
     "configure.ts",
@@ -32,7 +32,7 @@
   "scripts": {
     "clean": "del-cli build",
     "copy:templates": "copyfiles \"stubs/**/*.stub\" build",
-    "typecheck": "tsc --no-emit",
+    "typecheck": "tsc --noEmit",
     "lint": "eslint . --ext=.ts",
     "format": "prettier --write .",
     "quick:test": "node --loader=ts-node/esm bin/test.ts",
@@ -45,23 +45,11 @@
     "version": "npm run build",
     "prepublishOnly": "npm run build"
   },
-  "keywords": [
-    "vite",
-    "adonisjs"
-  ],
-  "author": "Julien Ripouteau <julien@ripouteau.com>",
-  "contributors": [
-    "virk",
-    "adonisjs"
-  ],
-  "license": "MIT",
-  "dependencies": {
-    "defu": "^6.1.2",
-    "edge-error": "^3.0.0",
-    "vite-plugin-restart": "^0.3.1"
-  },
   "devDependencies": {
     "@adonisjs/core": "^6.1.5-4",
+    "@adonisjs/eslint-config": "^1.1.8",
+    "@adonisjs/prettier-config": "^1.1.8",
+    "@adonisjs/tsconfig": "^1.1.8",
     "@adonisjs/view": "^7.0.0-2",
     "@commitlint/cli": "^17.6.1",
     "@commitlint/config-conventional": "^17.6.1",
@@ -78,56 +66,50 @@
     "copyfiles": "^2.4.1",
     "del-cli": "^5.0.0",
     "eslint": "^8.39.0",
-    "eslint-config-prettier": "^8.8.0",
-    "eslint-plugin-adonis": "^3.0.3",
-    "eslint-plugin-prettier": "^4.2.1",
     "husky": "^8.0.3",
     "np": "^7.7.0",
-    "prettier": "^2.8.8",
+    "prettier": "^3.0.0",
     "rollup": "^3.21.0",
     "ts-node": "^10.9.1",
     "typescript": "^5.0.4",
     "vite": "^4.3.1"
   },
+  "dependencies": {
+    "defu": "^6.1.2",
+    "edge-error": "^3.0.0",
+    "vite-plugin-restart": "^0.3.1"
+  },
   "peerDependencies": {
     "@adonisjs/core": "^6.1.5-4",
     "@adonisjs/view": "^7.0.0-2"
   },
-  "eslintConfig": {
-    "extends": [
-      "plugin:adonis/typescriptPackage",
-      "prettier"
-    ],
-    "plugins": [
-      "prettier"
-    ],
-    "rules": {
-      "prettier/prettier": [
-        "error",
-        {
-          "endOfLine": "auto"
-        }
-      ]
-    }
+  "author": "Julien Ripouteau <julien@ripouteau.com>",
+  "license": "MIT",
+  "homepage": "https://github.com/adonisjs/vite#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/adonisjs/vite.git"
   },
-  "eslintIgnore": [
-    "build"
+  "bugs": {
+    "url": "https://github.com/adonisjs/vite/issues"
+  },
+  "keywords": [
+    "vite",
+    "adonisjs"
   ],
-  "prettier": {
-    "trailingComma": "es5",
-    "semi": false,
-    "singleQuote": true,
-    "useTabs": false,
-    "quoteProps": "consistent",
-    "bracketSpacing": true,
-    "arrowParens": "always",
-    "printWidth": 100
-  },
-  "commitlint": {
-    "extends": [
-      "@commitlint/config-conventional"
-    ]
-  },
+  "contributors": [
+    "virk",
+    "adonisjs"
+  ],
+	"eslintConfig": {
+		"extends": "@adonisjs/eslint-config/package"
+	},
+	"prettier": "@adonisjs/prettier-config",
+	"commitlint": {
+		"extends": [
+			"@commitlint/config-conventional"
+		]
+	},
   "publishConfig": {
     "access": "public",
     "tag": "next"
@@ -147,16 +129,7 @@
       "tests/**"
     ]
   },
-  "types": "./build/index.d.ts",
   "directories": {
     "test": "tests"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/adonisjs/vite.git"
-  },
-  "bugs": {
-    "url": "https://github.com/adonisjs/vite/issues"
-  },
-  "homepage": "https://github.com/adonisjs/vite#readme"
+  }
 }
