@@ -39,7 +39,7 @@
     "prepublishOnly": "npm run build"
   },
   "devDependencies": {
-    "@adonisjs/core": "^6.1.5-7",
+    "@adonisjs/core": "^6.1.5-8",
     "@adonisjs/eslint-config": "^1.1.8",
     "@adonisjs/prettier-config": "^1.1.8",
     "@adonisjs/tsconfig": "^1.1.8",
@@ -71,7 +71,7 @@
     "vite-plugin-restart": "^0.3.1"
   },
   "peerDependencies": {
-    "@adonisjs/core": "^6.1.5-7",
+    "@adonisjs/core": "^6.1.5-8",
     "@adonisjs/view": "^7.0.0-4"
   },
   "author": "Julien Ripouteau <julien@ripouteau.com>",
