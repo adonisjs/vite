@@ -35,7 +35,7 @@
     "typecheck": "tsc --noEmit",
     "lint": "eslint . --ext=.ts",
     "format": "prettier --write .",
-    "quick:test": "node --loader=ts-node/esm bin/test.ts",
+    "quick:test": "node --enable-source-maps --loader=ts-node/esm bin/test.ts",
     "pretest": "npm run lint",
     "test": "c8 npm run quick:test",
     "compile": "npm run lint && npm run clean && tsc && npm run copy:templates",
