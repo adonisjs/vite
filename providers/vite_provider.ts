@@ -7,9 +7,8 @@
  * file that was distributed with this source code.
  */
 
-import '@adonisjs/view'
-import { ApplicationService } from '@adonisjs/core/types'
-import { ViewContract } from '@adonisjs/view/types'
+import type { ApplicationService } from '@adonisjs/core/types'
+import type { ViewContract } from '@adonisjs/view/types'
 import { Vite } from '../src/backend/vite.js'
 import { EdgeError } from 'edge-error'
 
