@@ -39,7 +39,7 @@ test.group('Configure', () => {
     await command.exec()
 
     await assert.fileExists('vite.config.js')
-    await assert.fileContains('.adonisrc.json', '@adonisjs/vite/providers/vite_provider')
+    await assert.fileContains('.adonisrc.json', '@adonisjs/vite/vite_provider')
     await assert.fileContains('vite.config.js', 'import Adonis from "@adonisjs/vite/plugin"')
   })
 })

@@ -22,7 +22,7 @@ export async function configure(command: Configure) {
   })
 
   await command.updateRcFile((rcFile) => {
-    rcFile.addProvider('@adonisjs/vite/providers/vite_provider')
+    rcFile.addProvider('@adonisjs/vite/vite_provider')
   })
 
   const packagesToInstall = [{ name: 'vite', isDevDependency: true }]
