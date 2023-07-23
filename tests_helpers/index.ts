@@ -27,7 +27,7 @@ export async function setupApp(
   const ignitor = new IgnitorFactory()
     .merge({
       rcFileContents: {
-        providers: ['@adonisjs/view/providers/views_provider', '../../providers/vite_provider.js'],
+        providers: ['@adonisjs/view/views_provider', '../../providers/vite_provider.js'],
       },
     })
     .withCoreConfig()
