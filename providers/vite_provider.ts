@@ -76,14 +76,18 @@ export default class ViteServiceProvider {
     this.app.container.singleton('vite', async () => new Vite(this.app))
   }
 
+  /**
+   * Extend the view globals with vite tags and globals
+   */
   async boot() {
-    const view = await this.app.container.make('view')
-    const vite = await this.app.container.make('vite')
+    this.app.container.resolving('view', async (view) => {
+      const vite = await this.app.container.make('vite')
 
-    view.global('vite', vite)
-    view.global('asset', vite.assetPath.bind(vite))
+      view.global('vite', vite)
+      view.global('asset', vite.assetPath.bind(vite))
 
-    this.#registerViteTag(view)
-    this.#registerViteReactTag(view)
+      this.#registerViteTag(view)
+      this.#registerViteReactTag(view)
+    })
   }
 }
