@@ -20,7 +20,7 @@
   "exports": {
     ".": "./build/index.js",
     "./services/main": "./build/services/vite.js",
-    "./vite_provider": "./build/vite_provider.js",
+    "./vite_provider": "./build/providers/vite_provider.js",
     "./plugin": "./build/src/vite_plugin/index.js",
     "./types": "./build/src/backend/types.js",
     "./types/extended": "./build/src/backend/types/extended.js"
