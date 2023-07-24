@@ -9,7 +9,6 @@
 
 import type { ApplicationService } from '@adonisjs/core/types'
 import type { ViewContract } from '@adonisjs/view/types'
-import { Vite } from '../src/backend/vite.js'
 import { EdgeError } from 'edge-error'
 
 export default class ViteServiceProvider {
@@ -73,7 +72,10 @@ export default class ViteServiceProvider {
   }
 
   register() {
-    this.app.container.singleton('vite', async () => new Vite(this.app))
+    this.app.container.singleton('vite', async () => {
+      const { Vite } = await import('../src/backend/vite.js')
+      return new Vite(this.app)
+    })
   }
 
   /**
