@@ -9,36 +9,21 @@
 
 import { join } from 'node:path'
 import type { Manifest } from 'vite'
-import { fileURLToPath } from 'node:url'
-import { HotFile, SetAttributes } from './types/main.js'
 import { existsSync, readFileSync } from 'node:fs'
-import { ApplicationService } from '@adonisjs/core/types'
-import { uniqBy } from './utils.js'
 
+import debug from './debug.js'
+import { makeAttributes, uniqBy } from './utils.js'
+import type { AdonisViteElement, HotFile, SetAttributes, ViteOptions } from './types/main.js'
+
+/**
+ * Vite class exposes the APIs to generate tags and URLs for
+ * assets processed using vite.
+ */
 export class Vite {
-  /**
-   * Path to the build directory
-   *
-   * @default 'public/assets'
-   */
-  #buildDirectory: string
-
-  /**
-   * Path to the hotfile
-   *
-   * @default 'public/assets/hot.json'
-   */
-  #hotFile: string
-
   /**
    * Manifest file name
    */
   #manifestFilename = 'manifest.json'
-
-  /**
-   * Assets URL
-   */
-  #assetsUrl = ''
 
   /**
    * We cache the manifest file content in production
@@ -47,25 +32,21 @@ export class Vite {
   #manifestCache: Manifest | null = null
 
   /**
-   * Attributes to be set on the style tags
+   * Configuration options
    */
-  #styleAttributes: SetAttributes = {}
+  #options: ViteOptions
 
-  /**
-   * Attributes to be set on the script tags
-   */
-  #scriptAttributes: SetAttributes = {}
-
-  constructor(private application: ApplicationService) {
-    this.#buildDirectory = this.application.publicPath('assets')
-    this.#hotFile = join(this.#buildDirectory, 'hot.json')
+  constructor(options: ViteOptions) {
+    this.#options = options
+    this.#options.assetsUrl = (this.#options.assetsUrl || '/').replace(/\/$/, '')
+    debug('vite config %O', this.#options)
   }
 
   /**
    * Checks if the application is running in hot mode
    */
   #isRunningHot(): boolean {
-    return existsSync(this.#hotFile)
+    return existsSync(this.#options.hotFile)
   }
 
   /**
@@ -79,7 +60,7 @@ export class Vite {
    * Returns the parsed hot file content
    */
   #readHotFile(): HotFile {
-    return this.#readFileAsJSON(this.#hotFile)
+    return this.#readFileAsJSON(this.#options.hotFile)
   }
 
   /**
@@ -90,34 +71,110 @@ export class Vite {
   }
 
   /**
-   * Returns the script needed for the HMR working with Vite
+   * Unwrap attributes from the user defined function or return
+   * the attributes as it is
    */
-  #getViteHmrScript(): string {
-    if (!this.#isRunningHot()) {
-      return ''
+  #unwrapAttributes(src: string, url: string, attributes?: SetAttributes) {
+    if (typeof attributes === 'function') {
+      return attributes({ src, url })
     }
 
-    return `<script type="module" src="${this.#hotAsset('@vite/client')}"></script>`
+    return attributes
+  }
+
+  /**
+   * Create a script tag for the given path
+   */
+  #makeScriptTag(src: string, url: string): AdonisViteElement {
+    const customAttributes = this.#unwrapAttributes(src, url, this.#options.scriptAttributes)
+    const attributes = { type: 'module', ...customAttributes, src: url }
+    return this.#generateElement({
+      tag: 'script',
+      attributes,
+      children: [],
+    })
+  }
+
+  /**
+   * Create a style tag for the given path
+   */
+  #makeStyleTag(src: string, url: string): AdonisViteElement {
+    const customAttributes = this.#unwrapAttributes(src, url, this.#options.styleAttributes)
+    const attributes = { rel: 'stylesheet', ...customAttributes, href: url }
+
+    return this.#generateElement({
+      tag: 'link',
+      attributes,
+    })
+  }
+
+  /**
+   * Generate a HTML tag for the given asset
+   */
+  #generateTag(asset: string): AdonisViteElement {
+    let url = ''
+    if (this.#isRunningHot()) {
+      url = this.#hotAsset(asset)
+    } else {
+      url = `${this.#options.assetsUrl}/${asset}`
+    }
+
+    if (this.#isCssPath(asset)) {
+      return this.#makeStyleTag(asset, url)
+    }
+
+    return this.#makeScriptTag(asset, url)
+  }
+
+  /**
+   * Generates a JSON element with a custom toString implementation
+   */
+  #generateElement(element: AdonisViteElement) {
+    return {
+      ...element,
+      toString() {
+        const attributes = `${makeAttributes(element.attributes)}`
+        if (element.tag === 'link') {
+          return `<${element.tag} ${attributes}/>`
+        }
+
+        return `<${element.tag} ${attributes}>${element.children.join('\n')}</${element.tag}>`
+      },
+    }
+  }
+
+  /**
+   * Returns the script needed for the HMR working with Vite
+   */
+  #getViteHmrScript(): AdonisViteElement | null {
+    return this.#generateElement({
+      tag: 'script',
+      attributes: {
+        type: 'module',
+        src: this.#hotAsset('@vite/client'),
+      },
+      children: [],
+    })
   }
 
   /**
    * Generate style and script tags for the given entrypoints
-   * Also add the @vite/client script
+   * Also adds the @vite/client script
    */
-  #generateEntryPointsTagsForHotmode(entryPoints: string[]): string {
+  #generateEntryPointsTagsForHotMode(entryPoints: string[]): AdonisViteElement[] {
     const viteHmr = this.#getViteHmrScript()
     const tags = entryPoints.map((entrypoint) => this.#generateTag(entrypoint))
 
-    return [viteHmr, ...tags].join('\n')
+    return viteHmr ? [viteHmr].concat(tags) : tags
   }
 
   /**
    * Generate style and script tags for the given entrypoints
    * using the manifest file
    */
-  #generateEntryPointsTagsWithManifest(entryPoints: string[]): string {
+  #generateEntryPointsTagsWithManifest(entryPoints: string[]): AdonisViteElement[] {
     const manifest = this.manifest()
-    const tags: { path: string; tag: string }[] = []
+    const tags: { path: string; tag: AdonisViteElement }[] = []
 
     for (const entryPoint of entryPoints) {
       const chunk = this.#chunk(manifest, entryPoint)
@@ -131,8 +188,7 @@ export class Vite {
 
     return uniqBy(tags, 'path')
       .sort((a) => (a.path.endsWith('.css') ? -1 : 1))
-      .map((preload) => preload.tag)
-      .join('\n')
+      .map((tag) => tag.tag)
   }
 
   /**
@@ -169,79 +225,13 @@ export class Vite {
   }
 
   /**
-   * Generate a HTML tag for the given asset
-   */
-  #generateTag(asset: string): string {
-    let url = ''
-    if (this.#isRunningHot()) {
-      url = this.#hotAsset(asset)
-    } else {
-      url = `${this.#assetsUrl}/assets/${asset}`
-    }
-
-    if (this.#isCssPath(asset)) {
-      return this.#makeStyleTag(asset, url)
-    }
-
-    return this.#makeScriptTag(asset, url)
-  }
-
-  /**
-   * Unwrap attributes from the user defined function or return
-   * the attributes as it is
-   */
-  #unwrapAttributes(src: string, url: string, attributes: SetAttributes) {
-    if (typeof attributes === 'function') {
-      return attributes({ src, url })
-    }
-
-    return attributes
-  }
-
-  /**
-   * Convert Record of attributes to a valid HTML string
-   */
-  #makeAttributes(attributes: Record<string, string | boolean>) {
-    return Object.keys(attributes)
-      .map((key) => {
-        const value = attributes[key]
-        if (value === true) return key
-        if (value === false) return null
-
-        return `${key}="${value}"`
-      })
-      .filter((attr) => attr !== null)
-      .join(' ')
-  }
-
-  /**
-   * Create a script tag for the given path
-   */
-  #makeScriptTag(src: string, url: string) {
-    const customAttributes = this.#unwrapAttributes(src, url, this.#scriptAttributes)
-    const attributes = { type: 'module', ...customAttributes }
-
-    return `<script ${this.#makeAttributes(attributes)} src="${url}"></script>`
-  }
-
-  /**
-   * Create a style tag for the given path
-   */
-  #makeStyleTag(src: string, url: string) {
-    const customAttributes = this.#unwrapAttributes(src, url, this.#styleAttributes)
-    const attributes = { rel: 'stylesheet', ...customAttributes }
-
-    return `<link ${this.#makeAttributes(attributes)} href="${url}">`
-  }
-
-  /**
    * Generate tags for the entry points
    */
-  generateEntryPointsTags(entryPoints: string[] | string): string {
+  generateEntryPointsTags(entryPoints: string[] | string): AdonisViteElement[] {
     entryPoints = Array.isArray(entryPoints) ? entryPoints : [entryPoints]
 
     if (this.#isRunningHot()) {
-      return this.#generateEntryPointsTagsForHotmode(entryPoints)
+      return this.#generateEntryPointsTagsForHotMode(entryPoints)
     }
 
     return this.#generateEntryPointsTagsWithManifest(entryPoints)
@@ -250,17 +240,17 @@ export class Vite {
   /**
    * Returns path to a given asset file
    */
-  assetPath(asset: string) {
+  assetPath(asset: string): string {
     if (this.#isRunningHot()) {
       return this.#hotAsset(asset)
     }
 
     const chunk = this.#chunk(this.manifest(), asset)
-    return `${this.#assetsUrl}/assets/${chunk.file}`
+    return `${this.#options.assetsUrl}/${chunk.file}`
   }
 
   /**
-   * Returns the manifest file content
+   * Returns the manifest file contents
    *
    * @throws Will throw an exception when running in hot mode
    */
@@ -276,12 +266,14 @@ export class Vite {
       return this.#manifestCache
     }
 
-    const manifest = this.#readFileAsJSON(join(this.#buildDirectory, this.#manifestFilename))
+    const manifest = this.#readFileAsJSON(
+      join(this.#options.buildDirectory, this.#manifestFilename)
+    )
 
     /**
-     * Cache the manifest in production to avoid re-reading the file from disk
+     * Cache the manifest when cache flag is enabled
      */
-    if (this.application.inProduction) {
+    if (this.#options.cache) {
       this.#manifestCache = manifest
     }
 
@@ -290,78 +282,24 @@ export class Vite {
 
   /**
    * Returns the script needed for the HMR working with React
-   *
-   * This method is called automatically when using edge tag `@viteReactRefresh`
    */
-  getReactHmrScript(): string {
+  getReactHmrScript(): AdonisViteElement | null {
     if (!this.#isRunningHot()) {
-      return ''
+      return null
     }
 
-    return `
-      <script type="module">
-        import RefreshRuntime from '${this.#hotAsset('@react-refresh')}'
-        RefreshRuntime.injectIntoGlobalHook(window)
-        window.$RefreshReg$ = () => {}
-        window.$RefreshSig$ = () => (type) => type
-        window.__vite_plugin_react_preamble_installed__ = true
-      </script>
-      `
-  }
-
-  /**
-   * Set the path to the hotfile
-   *
-   * You must also set the `hotFile` option in the vite plugin config
-   */
-  setHotFilePath(path: string) {
-    this.#hotFile = join(fileURLToPath(this.application.appRoot), path)
-    return this
-  }
-
-  /**
-   * Set the manifest filename
-   *
-   * You must also set the `build.manifest` option in your vite configuration
-   */
-  setManifestFilename(name: string) {
-    this.#manifestFilename = name
-    return this
-  }
-
-  /**
-   * Set the build directory. Subdirectory of the AdonisJs public directory
-   *
-   * You must also set the `buildDirectory` option in the vite plugin config
-   */
-  setBuildDirectory(path: string) {
-    this.#buildDirectory = this.application.publicPath(path)
-    return this
-  }
-
-  /**
-   * Set the assets url
-   *
-   * You must also set the `assetsUrl` option in the vite plugin config
-   */
-  setAssetsUrl(url: string) {
-    this.#assetsUrl = url.endsWith('/') ? url : `${url}/`
-    return this
-  }
-
-  /**
-   * Include additional attributes to each script tag generated
-   */
-  setScriptAttributes(attributes: SetAttributes) {
-    this.#scriptAttributes = attributes
-    return this
-  }
-
-  /**
-   * Include additional attributes to each style tag generated
-   */
-  setStyleAttributes(attributes: SetAttributes) {
-    this.#styleAttributes = attributes
-    return this
+    return {
+      tag: 'script',
+      attributes: {
+        type: 'module',
+      },
+      children: [
+        `import RefreshRuntime from '${this.#hotAsset('@react-refresh')}'`,
+        `RefreshRuntime.injectIntoGlobalHook(window)`,
+        `window.$RefreshReg$ = () => {}`,
+        `window.$RefreshSig$ = () => (type) => type`,
+        `window.__vite_plugin_react_preamble_installed__ = true`,
+      ],
+    }
   }
 }

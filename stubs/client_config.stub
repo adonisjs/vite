@@ -2,12 +2,12 @@
 to: {{ destination }}
 ---
 
-import { defineConfig } from "vite";
-import Adonis from "@adonisjs/vite/plugin";
+import { defineConfig } from 'vite'
+import adonisjs from '@adonisjs/vite/client'
 
 export default defineConfig({
   plugins: [
-    Adonis({
+    adonisjs({
       /**
        * Entrypoints of your application. Each entrypoint will
        * result in a separate bundle.

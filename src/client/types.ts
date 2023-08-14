@@ -24,13 +24,6 @@ export type PluginOptions = {
   entrypoints: string[]
 
   /**
-   * Path to your AdonisJS public directory
-   *
-   * @default 'public'
-   */
-  publicDirectory?: string
-
-  /**
    * The URL where the assets will be served. This is particularly
    * useful if you are using a CDN to deploy your assets.
    *
@@ -39,9 +32,9 @@ export type PluginOptions = {
   assetsUrl?: string
 
   /**
-   * Public subdirectory where the assets will be compiled.
+   * Public directory where the assets will be compiled.
    *
-   * @default 'assets'
+   * @default 'public/assets'
    */
   buildDirectory?: string
 

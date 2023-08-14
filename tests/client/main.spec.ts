@@ -9,7 +9,7 @@
 
 import { test } from '@japa/runner'
 import { Plugin, build } from 'vite'
-import Adonis from '../../src/vite_plugin/index.js'
+import adonisjs from '../../src/client/main.js'
 
 test.group('Vite plugin', () => {
   test('build the assets', async ({ fs, assert }) => {
@@ -18,7 +18,7 @@ test.group('Vite plugin', () => {
     await build({
       root: fs.basePath,
       logLevel: 'warn',
-      plugins: [Adonis({ entrypoints: ['./resources/js/app.ts'] })],
+      plugins: [adonisjs({ entrypoints: ['./resources/js/app.ts'] })],
     })
 
     await assert.fileContains('public/assets/manifest.json', 'resources/js/app.ts')
@@ -30,7 +30,7 @@ test.group('Vite plugin', () => {
     await build({
       root: fs.basePath,
       logLevel: 'warn',
-      plugins: [Adonis({ entrypoints: ['./resources/js/app.ts'] })],
+      plugins: [adonisjs({ entrypoints: ['./resources/js/app.ts'] })],
       build: { manifest: 'foo.json' },
     })
 
@@ -38,7 +38,7 @@ test.group('Vite plugin', () => {
   })
 
   test('user aliases are preserved', async ({ assert }) => {
-    const plugin = Adonis({ entrypoints: ['./resources/js/app.ts'] })[1] as Plugin
+    const plugin = adonisjs({ entrypoints: ['./resources/js/app.ts'] })[1] as Plugin
 
     // @ts-ignore
     const config = plugin!.config!(
@@ -54,7 +54,7 @@ test.group('Vite plugin', () => {
   })
 
   test('user should be able to override the default alias', async ({ assert }) => {
-    const plugin = Adonis({ entrypoints: ['./resources/js/app.ts'] })[1] as Plugin
+    const plugin = adonisjs({ entrypoints: ['./resources/js/app.ts'] })[1] as Plugin
 
     // @ts-ignore
     const config = plugin!.config!({ resolve: { alias: { '@/': '/test/' } } }, { command: 'build' })
@@ -63,7 +63,7 @@ test.group('Vite plugin', () => {
   })
 
   test('define the asset url', async ({ assert }) => {
-    const plugin = Adonis({
+    const plugin = adonisjs({
       entrypoints: ['./resources/js/app.ts'],
       assetsUrl: 'https://cdn.com',
       buildDirectory: 'my-assets',

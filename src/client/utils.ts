@@ -7,8 +7,8 @@
  * file that was distributed with this source code.
  */
 
-import { AddressInfo } from 'node:net'
 import { ResolvedConfig } from 'vite'
+import { AddressInfo } from 'node:net'
 
 /**
  * Resolve the dev server URL from the server address and configuration.

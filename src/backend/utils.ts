@@ -17,3 +17,19 @@ export function uniqBy<T>(array: T[], key: keyof T): T[] {
     return seen.has(k) ? false : seen.add(k)
   })
 }
+
+/**
+ * Convert Record of attributes to a valid HTML string
+ */
+export function makeAttributes(attributes: Record<string, string | boolean>) {
+  return Object.keys(attributes)
+    .map((key) => {
+      const value = attributes[key]
+      if (value === true) return key
+      if (value === false) return null
+
+      return `${key}="${value}"`
+    })
+    .filter((attr) => attr !== null)
+    .join(' ')
+}

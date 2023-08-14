@@ -17,14 +17,14 @@ import type Configure from '@adonisjs/core/commands/configure'
 export async function configure(command: Configure) {
   const stubDestination = join(fileURLToPath(command.app.appRoot), 'vite.config.js')
 
-  await command.publishStub('vite/vite_config.stub', {
+  await command.publishStub('client_config.stub', {
     destination: stubDestination,
   })
+  await command.publishStub('config.stub')
 
   await command.updateRcFile((rcFile) => {
     rcFile.addProvider('@adonisjs/vite/vite_provider')
   })
 
-  const packagesToInstall = [{ name: 'vite', isDevDependency: true }]
-  command.listPackagesToInstall(packagesToInstall)
+  await command.installPackages([{ name: 'vite', isDevDependency: true }])
 }

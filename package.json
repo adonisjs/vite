@@ -21,9 +21,9 @@
     ".": "./build/index.js",
     "./services/main": "./build/services/vite.js",
     "./vite_provider": "./build/providers/vite_provider.js",
-    "./plugin": "./build/src/vite_plugin/index.js",
-    "./types": "./build/src/backend/types.js",
-    "./types/extended": "./build/src/backend/types/extended.js"
+    "./client": "./build/src/client/main.js",
+    "./plugin_edge": "./build/backend/edge_plugin_vite.js",
+    "./types": "./build/src/backend/types.js"
   },
   "scripts": {
     "clean": "del-cli build",
@@ -42,23 +42,22 @@
     "prepublishOnly": "npm run build"
   },
   "devDependencies": {
-    "@adonisjs/core": "^6.1.5-11",
+    "@adonisjs/core": "^6.1.5-15",
     "@adonisjs/eslint-config": "^1.1.8",
     "@adonisjs/prettier-config": "^1.1.8",
     "@adonisjs/tsconfig": "^1.1.8",
-    "@adonisjs/view": "^7.0.0-5",
     "@commitlint/cli": "^17.6.7",
     "@commitlint/config-conventional": "^17.6.7",
     "@japa/assert": "^2.0.0-1",
     "@japa/expect-type": "^2.0.0-0",
     "@japa/file-system": "^2.0.0-1",
     "@japa/runner": "^3.0.0-6",
-    "@poppinss/dev-utils": "^2.0.3",
     "@swc/core": "^1.3.70",
     "@types/node": "^20.4.4",
     "c8": "^8.0.0",
     "copyfiles": "^2.4.1",
     "del-cli": "^5.0.0",
+    "edge.js": "^6.0.0-6",
     "eslint": "^8.45.0",
     "husky": "^8.0.3",
     "np": "^8.0.4",
@@ -66,16 +65,15 @@
     "rollup": "^3.26.3",
     "ts-node": "^10.9.1",
     "typescript": "^5.1.6",
-    "vite": "^4.4.6"
+    "vite": "^4.4.9"
   },
   "dependencies": {
     "defu": "^6.1.2",
-    "edge-error": "^3.0.0",
+    "edge-error": "^4.0.0-0",
     "vite-plugin-restart": "^0.3.1"
   },
   "peerDependencies": {
-    "@adonisjs/core": "^6.1.5-11",
-    "@adonisjs/view": "^7.0.0-5"
+    "@adonisjs/core": "^6.1.5-15"
   },
   "author": "Julien Ripouteau <julien@ripouteau.com>",
   "license": "MIT",
@@ -120,7 +118,8 @@
       "html"
     ],
     "exclude": [
-      "tests/**"
+      "tests/**",
+      "tests_helpers/**"
     ]
   },
   "directories": {

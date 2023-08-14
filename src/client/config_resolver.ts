@@ -8,9 +8,9 @@
  */
 
 import { ResolvedConfig, UserConfig, AliasOptions } from 'vite'
+
 import { addTrailingSlash } from './utils.js'
-import { PluginFullOptions } from './types/index.js'
-import { join } from 'node:path'
+import { PluginFullOptions } from './types.js'
 
 export class ConfigResolver {
   static resolvedConfig?: ResolvedConfig
@@ -57,6 +57,6 @@ export class ConfigResolver {
    * Resolve the `config.build.outDir` value
    */
   static resolveOutDir(config: UserConfig, options: PluginFullOptions): string {
-    return config.build?.outDir ?? join(options.publicDirectory, options.buildDirectory)
+    return config.build?.outDir ?? options.buildDirectory
   }
 }

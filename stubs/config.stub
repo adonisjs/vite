@@ -1,0 +1,14 @@
+---
+to: {{ app.configPath('vite.ts') }}
+---
+import app from '@adonisjs/core/services/app'
+import { defineConfig } from '@adonisjs/vite'
+
+const viteBackendConfig = defineConfig({
+  /**
+   * Cache manifest file contents in production
+   */
+  cache: app.inProduction
+})
+
+export default viteBackendConfig

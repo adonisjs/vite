@@ -8,13 +8,14 @@
  */
 
 import { defu } from 'defu'
+import { join } from 'node:path'
 import { AddressInfo } from 'node:net'
 import { ConfigEnv, Plugin, UserConfig } from 'vite'
-import { PluginFullOptions } from './types/index.js'
-import { resolveDevServerUrl } from './utils.js'
+
 import { HotFile } from './hot_file.js'
+import { resolveDevServerUrl } from './utils.js'
+import type { PluginFullOptions } from './types.js'
 import { ConfigResolver } from './config_resolver.js'
-import { join } from 'node:path'
 
 /**
  * Vite config hook
