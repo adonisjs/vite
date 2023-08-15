@@ -1,7 +1,6 @@
 ---
 to: {{ destination }}
 ---
-
 import { defineConfig } from 'vite'
 import adonisjs from '@adonisjs/vite/client'
 
@@ -12,7 +11,7 @@ export default defineConfig({
        * Entrypoints of your application. Each entrypoint will
        * result in a separate bundle.
        */
-      entrypoints: ["resources/js/app.js"],
+      entrypoints: ['resources/js/app.js'],
     }),
   ],
-});
+})
