@@ -13,8 +13,8 @@ import { defineConfig } from '../../index.js'
 test.group('Define config', () => {
   test('merge defaults with user provided config', ({ assert }) => {
     assert.deepEqual(defineConfig({}), {
-      buildDirectory: 'public/build',
-      hotFile: 'public/build/hot.json',
+      buildDirectory: 'public/assets',
+      hotFile: 'public/assets/hot.json',
     })
   })
 })

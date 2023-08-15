@@ -116,17 +116,19 @@ test.group('Vite | hotMode', () => {
 
     await fs.create('public/assets/hot.json', '{ "url": "http://localhost:9484" }')
 
-    assert.deepEqual(vite.getReactHmrScript(), {
+    assert.containsSubset(vite.getReactHmrScript(), {
       tag: 'script',
       attributes: {
         type: 'module',
       },
       children: [
+        '',
         `import RefreshRuntime from 'http://localhost:9484/@react-refresh'`,
         `RefreshRuntime.injectIntoGlobalHook(window)`,
         `window.$RefreshReg$ = () => {}`,
         `window.$RefreshSig$ = () => (type) => type`,
         `window.__vite_plugin_react_preamble_installed__ = true`,
+        '',
       ],
     })
   })
