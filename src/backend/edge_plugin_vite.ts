@@ -29,12 +29,34 @@ export const edgePluginVite: (vite: Vite) => PluginFn<undefined> = (vite) => {
       seekable: true,
       block: false,
       compile(_parser, buffer, token) {
+        /**
+         * Get HMR script
+         */
+        buffer.writeExpression(
+          `const __vite_hmr_script = state.vite.getReactHmrScript()`,
+          token.filename,
+          token.loc.start.line
+        )
+
+        /**
+         * Check if the script exists (only in hot mode)
+         */
+        buffer.writeStatement('if(__vite_hmr_script) {', token.filename, token.loc.start.line)
+
+        /**
+         * Write output
+         */
         buffer.outputExpression(
-          `state.vite.getReactHmrScript()`,
+          `__vite_hmr_script.toString()`,
           token.filename,
           token.loc.start.line,
           false
         )
+
+        /**
+         * Close if block
+         */
+        buffer.writeStatement('}', token.filename, token.loc.start.line)
       },
     })
 
@@ -63,7 +85,7 @@ export const edgePluginVite: (vite: Vite) => PluginFn<undefined> = (vite) => {
         const entrypoints = parser.utils.stringify(parsed)
 
         buffer.outputExpression(
-          `state.vite.generateEntryPointsTags(${entrypoints})`,
+          `state.vite.generateEntryPointsTags(${entrypoints}).join('\\n')`,
           token.filename,
           token.loc.start.line,
           false

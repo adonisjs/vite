@@ -288,18 +288,20 @@ export class Vite {
       return null
     }
 
-    return {
+    return this.#generateElement({
       tag: 'script',
       attributes: {
         type: 'module',
       },
       children: [
+        '',
         `import RefreshRuntime from '${this.#hotAsset('@react-refresh')}'`,
         `RefreshRuntime.injectIntoGlobalHook(window)`,
         `window.$RefreshReg$ = () => {}`,
         `window.$RefreshSig$ = () => (type) => type`,
         `window.__vite_plugin_react_preamble_installed__ = true`,
+        '',
       ],
-    }
+    })
   }
 }
