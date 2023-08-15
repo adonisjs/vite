@@ -14,8 +14,8 @@ import { ViteOptions } from './types/main.js'
  */
 export function defineConfig(config: Partial<ViteOptions>): ViteOptions {
   return {
-    buildDirectory: 'public/build',
-    hotFile: 'public/build/hot.json',
+    buildDirectory: 'public/assets',
+    hotFile: 'public/assets/hot.json',
     ...config,
   }
 }
