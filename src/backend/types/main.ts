@@ -76,7 +76,7 @@ export type ViteOptions = {
    * Should we cache the manifest file? Should be enabled
    * in production
    */
-  cache?: string
+  cache?: boolean
 
   /**
    * A custom set of attributes to apply on all
