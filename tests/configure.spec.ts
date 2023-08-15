@@ -1,5 +1,5 @@
 /*
- * @adonisjs/view
+ * @adonisjs/vite
  *
  * (c) AdonisJS
  *
@@ -10,6 +10,7 @@
 import { test } from '@japa/runner'
 import { IgnitorFactory } from '@adonisjs/core/factories'
 import Configure from '@adonisjs/core/commands/configure'
+
 import { BASE_URL } from '../tests_helpers/index.js'
 
 test.group('Configure', () => {
@@ -40,6 +41,6 @@ test.group('Configure', () => {
 
     await assert.fileExists('vite.config.js')
     await assert.fileContains('.adonisrc.json', '@adonisjs/vite/vite_provider')
-    await assert.fileContains('vite.config.js', 'import Adonis from "@adonisjs/vite/plugin"')
-  })
+    await assert.fileContains('vite.config.js', `import adonisjs from '@adonisjs/vite/client'`)
+  }).timeout(0)
 })

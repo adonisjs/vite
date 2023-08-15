@@ -7,9 +7,9 @@
  * file that was distributed with this source code.
  */
 
+import { dirname, join } from 'node:path'
 import { existsSync, rmSync } from 'node:fs'
 import { mkdir, writeFile } from 'node:fs/promises'
-import { dirname, join } from 'node:path'
 import { ConfigResolver } from './config_resolver.js'
 
 export class HotFile {

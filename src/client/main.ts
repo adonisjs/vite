@@ -9,28 +9,21 @@
 
 import { defu } from 'defu'
 import { PluginOption } from 'vite'
-import { config } from './config.js'
-import { PluginFullOptions, PluginOptions } from './types/index.js'
 import PluginRestart from 'vite-plugin-restart'
-import { join } from 'node:path'
+
+import { config } from './config.js'
+import type { PluginFullOptions, PluginOptions } from './types.js'
 
 const VitePluginRestart = PluginRestart as any as typeof PluginRestart.default
 
 /**
- * Vite plugin for AdonisJS
+ * Vite plugin for adonisjs
  */
-export default function Adonis(options: PluginOptions): PluginOption[] {
-  const hotfileDefaultDestination = join(
-    options.publicDirectory || 'public',
-    options.buildDirectory || 'assets',
-    'hot.json'
-  )
-
+export default function adonisjs(options: PluginOptions): PluginOption[] {
   const fullOptions = defu<PluginFullOptions, [Partial<PluginOptions>]>(options, {
-    publicDirectory: 'public',
-    buildDirectory: 'assets',
+    buildDirectory: 'public/assets',
     assetsUrl: '',
-    hotFile: hotfileDefaultDestination,
+    hotFile: 'public/assets/hot.json',
     reload: ['./resources/views/**/*.edge'],
   })
 

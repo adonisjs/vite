@@ -2,9 +2,6 @@
   "extends": "@adonisjs/tsconfig/tsconfig.package.json",
   "compilerOptions": {
     "rootDir": "./",
-    "outDir": "./build",
-    "types": [
-      "@adonisjs/view"
-    ]
+    "outDir": "./build"
   },
 }
