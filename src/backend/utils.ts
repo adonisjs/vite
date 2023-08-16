@@ -25,8 +25,14 @@ export function makeAttributes(attributes: Record<string, string | boolean>) {
   return Object.keys(attributes)
     .map((key) => {
       const value = attributes[key]
-      if (value === true) return key
-      if (value === false) return null
+
+      if (value === true) {
+        return key
+      }
+
+      if (!value) {
+        return null
+      }
 
       return `${key}="${value}"`
     })

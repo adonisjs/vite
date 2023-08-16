@@ -409,7 +409,7 @@ test.group('Vite | manifest', () => {
     )
   })
 
-  test('add custom attributes to the entrypoints style tags', async ({ assert, fs }) => {
+  test('add custom attributes to the entrypoints link tags', async ({ assert, fs }) => {
     const vite = new Vite({
       buildDirectory: join(fs.basePath, 'public/assets'),
       hotFile: join(fs.basePath, 'public/assets/hot.json'),
@@ -439,6 +439,60 @@ test.group('Vite | manifest', () => {
     assert.deepEqual(
       output.map((element) => String(element)),
       ['<link rel="stylesheet" data-test="test" href="https://cdn.url.com/app-12345.css"/>']
+    )
+  })
+
+  test('add integrity attribute to script and style tags', async ({ assert, fs }) => {
+    const vite = new Vite({
+      buildDirectory: join(fs.basePath, 'public/assets'),
+      hotFile: join(fs.basePath, 'public/assets/hot.json'),
+      assetsUrl: 'https://cdn.url.com',
+    })
+
+    await fs.create(
+      'public/assets/manifest.json',
+      JSON.stringify({
+        'app.css': {
+          file: 'app-12345.css',
+          src: 'app.css',
+          integrity: 'sha384-hNF0CSk1Cqwkjmpb374DXqtYJ/rDp5SqV6ttpKEnqyjT',
+        },
+        'test.js': {
+          file: 'test-12345.js',
+          src: 'test.js',
+          integrity: 'sha384-hNF0CSk1Cqwkjmpb374DXqtYJ/rDp5SqV6ttpKEnqyjT/gDHGHuYsj3XzBcMke15',
+          css: ['app-12345.css'],
+        },
+      })
+    )
+
+    const output = vite.generateEntryPointsTags('test.js')
+
+    assert.containsSubset(output, [
+      {
+        tag: 'link',
+        attributes: {
+          rel: 'stylesheet',
+          integrity: 'sha384-hNF0CSk1Cqwkjmpb374DXqtYJ/rDp5SqV6ttpKEnqyjT',
+          href: 'https://cdn.url.com/app-12345.css',
+        },
+      },
+      {
+        tag: 'script',
+        attributes: {
+          type: 'module',
+          integrity: 'sha384-hNF0CSk1Cqwkjmpb374DXqtYJ/rDp5SqV6ttpKEnqyjT/gDHGHuYsj3XzBcMke15',
+          src: 'https://cdn.url.com/test-12345.js',
+        },
+        children: [],
+      },
+    ])
+    assert.deepEqual(
+      output.map((element) => String(element)),
+      [
+        '<link rel="stylesheet" integrity="sha384-hNF0CSk1Cqwkjmpb374DXqtYJ/rDp5SqV6ttpKEnqyjT" href="https://cdn.url.com/app-12345.css"/>',
+        '<script type="module" integrity="sha384-hNF0CSk1Cqwkjmpb374DXqtYJ/rDp5SqV6ttpKEnqyjT/gDHGHuYsj3XzBcMke15" src="https://cdn.url.com/test-12345.js"></script>',
+      ]
     )
   })
 })

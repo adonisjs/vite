@@ -85,12 +85,11 @@ export class Vite {
   /**
    * Create a script tag for the given path
    */
-  #makeScriptTag(src: string, url: string): AdonisViteElement {
+  #makeScriptTag(src: string, url: string, attributes?: Record<string, any>): AdonisViteElement {
     const customAttributes = this.#unwrapAttributes(src, url, this.#options.scriptAttributes)
-    const attributes = { type: 'module', ...customAttributes, src: url }
     return this.#generateElement({
       tag: 'script',
-      attributes,
+      attributes: { type: 'module', ...customAttributes, ...attributes, src: url },
       children: [],
     })
   }
@@ -98,20 +97,18 @@ export class Vite {
   /**
    * Create a style tag for the given path
    */
-  #makeStyleTag(src: string, url: string): AdonisViteElement {
+  #makeStyleTag(src: string, url: string, attributes?: Record<string, any>): AdonisViteElement {
     const customAttributes = this.#unwrapAttributes(src, url, this.#options.styleAttributes)
-    const attributes = { rel: 'stylesheet', ...customAttributes, href: url }
-
     return this.#generateElement({
       tag: 'link',
-      attributes,
+      attributes: { rel: 'stylesheet', ...customAttributes, ...attributes, href: url },
     })
   }
 
   /**
    * Generate a HTML tag for the given asset
    */
-  #generateTag(asset: string): AdonisViteElement {
+  #generateTag(asset: string, attributes?: Record<string, any>): AdonisViteElement {
     let url = ''
     if (this.#isRunningHot()) {
       url = this.#hotAsset(asset)
@@ -120,10 +117,10 @@ export class Vite {
     }
 
     if (this.#isCssPath(asset)) {
-      return this.#makeStyleTag(asset, url)
+      return this.#makeStyleTag(asset, url, attributes)
     }
 
-    return this.#makeScriptTag(asset, url)
+    return this.#makeScriptTag(asset, url, attributes)
   }
 
   /**
@@ -161,9 +158,12 @@ export class Vite {
    * Generate style and script tags for the given entrypoints
    * Also adds the @vite/client script
    */
-  #generateEntryPointsTagsForHotMode(entryPoints: string[]): AdonisViteElement[] {
+  #generateEntryPointsTagsForHotMode(
+    entryPoints: string[],
+    attributes?: Record<string, any>
+  ): AdonisViteElement[] {
     const viteHmr = this.#getViteHmrScript()
-    const tags = entryPoints.map((entrypoint) => this.#generateTag(entrypoint))
+    const tags = entryPoints.map((entrypoint) => this.#generateTag(entrypoint, attributes))
 
     return viteHmr ? [viteHmr].concat(tags) : tags
   }
@@ -172,17 +172,26 @@ export class Vite {
    * Generate style and script tags for the given entrypoints
    * using the manifest file
    */
-  #generateEntryPointsTagsWithManifest(entryPoints: string[]): AdonisViteElement[] {
+  #generateEntryPointsTagsWithManifest(
+    entryPoints: string[],
+    attributes?: Record<string, any>
+  ): AdonisViteElement[] {
     const manifest = this.manifest()
     const tags: { path: string; tag: AdonisViteElement }[] = []
 
     for (const entryPoint of entryPoints) {
       const chunk = this.#chunk(manifest, entryPoint)
-      tags.push({ path: chunk.file, tag: this.#generateTag(chunk.file) })
+      tags.push({
+        path: chunk.file,
+        tag: this.#generateTag(chunk.file, { ...attributes, integrity: chunk.integrity }),
+      })
 
       for (const css of chunk.css || []) {
         const cssChunk = this.#chunkByFile(manifest, css)
-        tags.push({ path: cssChunk.file, tag: this.#generateTag(cssChunk.file) })
+        tags.push({
+          path: cssChunk.file,
+          tag: this.#generateTag(cssChunk.file, { ...attributes, integrity: cssChunk.integrity }),
+        })
       }
     }
 

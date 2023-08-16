@@ -17,3 +17,9 @@ declare module '@adonisjs/core/types' {
     vite: Vite
   }
 }
+
+declare module 'vite' {
+  interface ManifestChunk {
+    integrity: string
+  }
+}
