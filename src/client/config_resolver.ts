@@ -28,7 +28,7 @@ export class ConfigResolver {
     }
 
     if (command === 'build') {
-      return addTrailingSlash(options.assetsUrl) + addTrailingSlash(options.buildDirectory)
+      return addTrailingSlash(options.assetsUrl)
     }
 
     return '/'

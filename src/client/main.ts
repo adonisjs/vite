@@ -22,7 +22,7 @@ const VitePluginRestart = PluginRestart as any as typeof PluginRestart.default
 export default function adonisjs(options: PluginOptions): PluginOption[] {
   const fullOptions = defu<PluginFullOptions, [Partial<PluginOptions>]>(options, {
     buildDirectory: 'public/assets',
-    assetsUrl: '',
+    assetsUrl: '/assets',
     hotFile: 'public/assets/hot.json',
     reload: ['./resources/views/**/*.edge'],
   })

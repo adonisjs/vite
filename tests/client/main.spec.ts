@@ -71,6 +71,6 @@ test.group('Vite plugin', () => {
 
     // @ts-ignore
     const config = plugin!.config!({}, { command: 'build' })
-    assert.deepEqual(config.base, 'https://cdn.com/my-assets/')
+    assert.deepEqual(config.base, 'https://cdn.com/')
   })
 })
