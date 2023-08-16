@@ -259,25 +259,13 @@ export class Vite {
       throw new Error('Cannot read the manifest file when running in hot mode')
     }
 
-    /**
-     * Use in-memory cache when available
-     */
-    if (this.#manifestCache) {
-      return this.#manifestCache
+    if (!this.#manifestCache) {
+      this.#manifestCache = this.#readFileAsJSON(
+        join(this.#options.buildDirectory, this.#manifestFilename)
+      )
     }
 
-    const manifest = this.#readFileAsJSON(
-      join(this.#options.buildDirectory, this.#manifestFilename)
-    )
-
-    /**
-     * Cache the manifest when cache flag is enabled
-     */
-    if (this.#options.cache) {
-      this.#manifestCache = manifest
-    }
-
-    return manifest
+    return this.#manifestCache!
   }
 
   /**

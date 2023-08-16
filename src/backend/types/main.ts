@@ -73,12 +73,6 @@ export type ViteOptions = {
   assetsUrl?: string
 
   /**
-   * Should we cache the manifest file? Should be enabled
-   * in production
-   */
-  cache?: boolean
-
-  /**
    * A custom set of attributes to apply on all
    * script tags
    */
