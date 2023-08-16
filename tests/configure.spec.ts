@@ -37,10 +37,13 @@ test.group('Configure', () => {
     const ace = await app.container.make('ace')
     const command = await ace.create(Configure, ['../../index.js'])
     command.ui.switchMode('raw')
+    command.prompt.trap('Do you want to install "vite"?').reject()
+
     await command.exec()
 
     await assert.fileExists('vite.config.js')
+    await assert.fileExists('resources/js/app.js')
     await assert.fileContains('.adonisrc.json', '@adonisjs/vite/vite_provider')
     await assert.fileContains('vite.config.js', `import adonisjs from '@adonisjs/vite/client'`)
-  }).timeout(0)
+  })
 })

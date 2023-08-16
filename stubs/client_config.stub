@@ -1,5 +1,5 @@
 ---
-to: {{ destination }}
+to: {{ app.makePath('vite.config.js') }}
 ---
 import { defineConfig } from 'vite'
 import adonisjs from '@adonisjs/vite/client'

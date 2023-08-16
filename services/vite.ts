@@ -8,7 +8,7 @@
  */
 
 import app from '@adonisjs/core/services/app'
-import { Vite } from '../index.js'
+import type { Vite } from '../src/backend/vite.js'
 
 let vite: Vite
 

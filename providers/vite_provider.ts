@@ -7,9 +7,10 @@
  * file that was distributed with this source code.
  */
 
+import type { Edge } from 'edge.js'
 import type { ApplicationService } from '@adonisjs/core/types'
 import type { ViteOptions } from '../src/backend/types/main.js'
-import { Edge } from 'edge.js'
+import debug from '../src/backend/debug.js'
 
 export default class ViteServiceProvider {
   constructor(protected app: ApplicationService) {}
@@ -20,6 +21,7 @@ export default class ViteServiceProvider {
   protected async getEdge(): Promise<Edge | null> {
     try {
       const { default: edge } = await import('edge.js')
+      debug('Detected edge.js package. Adding Vite primitives to it')
       return edge
     } catch {
       return null

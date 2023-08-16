@@ -16,6 +16,7 @@ export function defineConfig(config: Partial<ViteOptions>): ViteOptions {
   return {
     buildDirectory: 'public/assets',
     hotFile: 'public/assets/hot.json',
+    assetsUrl: '/assets',
     ...config,
   }
 }

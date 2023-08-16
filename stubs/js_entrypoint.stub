@@ -1,0 +1,4 @@
+---
+to: {{ app.makePath('resources/js/app.js') }}
+---
+console.log('Log from JS entrypoint')
