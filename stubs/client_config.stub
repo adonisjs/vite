@@ -12,6 +12,11 @@ export default defineConfig({
        * result in a separate bundle.
        */
       entrypoints: ['resources/js/app.js'],
+
+      /**
+       * Paths to watch and reload the browser on file change
+       */
+      reloads: ['resources/views/**/*.edge'],
     }),
   ],
 })
