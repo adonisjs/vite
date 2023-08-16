@@ -19,6 +19,7 @@ export async function configure(command: Configure) {
 
   await command.updateRcFile((rcFile) => {
     rcFile.addProvider('@adonisjs/vite/vite_provider')
+    rcFile.addMetaFile('public/**', false)
   })
 
   if (await command.prompt.confirm('Do you want to install "vite"?')) {

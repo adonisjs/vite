@@ -45,5 +45,13 @@ test.group('Configure', () => {
     await assert.fileExists('resources/js/app.js')
     await assert.fileContains('.adonisrc.json', '@adonisjs/vite/vite_provider')
     await assert.fileContains('vite.config.js', `import adonisjs from '@adonisjs/vite/client'`)
+    assert.containsSubset(await fs.contentsJson('.adonisrc.json'), {
+      metaFiles: [
+        {
+          pattern: 'public/**',
+          reloadServer: false,
+        },
+      ],
+    })
   })
 })
