@@ -14,6 +14,7 @@ test.group('Define config', () => {
   test('merge defaults with user provided config', ({ assert }) => {
     assert.deepEqual(defineConfig({}), {
       buildDirectory: 'public/assets',
+      assetsUrl: '/assets',
       hotFile: 'public/assets/hot.json',
     })
   })
