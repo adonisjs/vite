@@ -29,6 +29,8 @@ test.group('Configure', () => {
       })
 
     await fs.create('.env', '')
+    await fs.createJson('tsconfig.json', {})
+    await fs.create('adonisrc.ts', `export default defineConfig({})`)
 
     const app = ignitor.createApp('web')
     await app.init()
@@ -43,15 +45,9 @@ test.group('Configure', () => {
 
     await assert.fileExists('vite.config.js')
     await assert.fileExists('resources/js/app.js')
-    await assert.fileContains('.adonisrc.json', '@adonisjs/vite/vite_provider')
+    await assert.fileContains('adonisrc.ts', '@adonisjs/vite/vite_provider')
     await assert.fileContains('vite.config.js', `import adonisjs from '@adonisjs/vite/client'`)
-    assert.containsSubset(await fs.contentsJson('.adonisrc.json'), {
-      metaFiles: [
-        {
-          pattern: 'public/**',
-          reloadServer: false,
-        },
-      ],
-    })
+    await assert.fileContains('adonisrc.ts', `pattern: 'public/**'`)
+    await assert.fileContains('adonisrc.ts', `reloadServer: false`)
   })
 })
