@@ -9,8 +9,9 @@
 
 import type { Edge } from 'edge.js'
 import type { ApplicationService } from '@adonisjs/core/types'
-import type { ViteOptions } from '../src/backend/types/main.js'
+
 import debug from '../src/backend/debug.js'
+import type { ViteOptions } from '../src/backend/types/main.js'
 
 export default class ViteServiceProvider {
   constructor(protected app: ApplicationService) {}

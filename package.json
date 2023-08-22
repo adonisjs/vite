@@ -43,7 +43,7 @@
   },
   "devDependencies": {
     "@adonisjs/assembler": "^6.1.3-18",
-    "@adonisjs/core": "^6.1.5-18",
+    "@adonisjs/core": "^6.1.5-19",
     "@adonisjs/eslint-config": "^1.1.8",
     "@adonisjs/prettier-config": "^1.1.8",
     "@adonisjs/tsconfig": "^1.1.8",
@@ -63,7 +63,7 @@
     "husky": "^8.0.3",
     "np": "^8.0.4",
     "prettier": "^3.0.0",
-    "rollup": "^3.26.3",
+    "rollup": "^3.28.1",
     "ts-node": "^10.9.1",
     "typescript": "^5.1.6",
     "vite": "^4.4.9"
@@ -74,7 +74,13 @@
     "vite-plugin-restart": "^0.3.1"
   },
   "peerDependencies": {
-    "@adonisjs/core": "^6.1.5-18"
+    "@adonisjs/core": "^6.1.5-18",
+    "edge.js": "^6.0.0-8"
+  },
+  "peerDependenciesMeta": {
+    "edge.js": {
+      "optional": true
+    }
   },
   "author": "Julien Ripouteau <julien@ripouteau.com>",
   "license": "MIT",

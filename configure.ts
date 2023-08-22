@@ -17,12 +17,15 @@ export async function configure(command: Configure) {
   await command.publishStub('client_config.stub')
   await command.publishStub('js_entrypoint.stub')
 
-  await command.updateRcFile((rcFile) => {
+  const codemods = await command.createCodemods()
+  await codemods.updateRcFile((rcFile) => {
     rcFile.addProvider('@adonisjs/vite/vite_provider')
     rcFile.addMetaFile('public/**', false)
   })
 
   if (await command.prompt.confirm('Do you want to install "vite"?')) {
     await command.installPackages([{ name: 'vite', isDevDependency: true }])
+  } else {
+    command.listPackagesToInstall([{ name: 'vite', isDevDependency: true }])
   }
 }
