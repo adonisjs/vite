@@ -8,7 +8,7 @@ This plugin allows you to use AdonisJS with Vite as the assets bundler.
 ## Installation
 
 ```bash
-npm i -D vite-plugin-adonis
+npm i -D @adonisjs/vite-plugin-adonis
 ```
 
 ## Usage
