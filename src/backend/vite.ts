@@ -251,6 +251,31 @@ export class Vite {
   }
 
   /**
+   * Returns the dev server URL when running in hot
+   * mode. Otherwise an empty string
+   */
+  devUrl() {
+    if (this.#isRunningHot()) {
+      return this.#readHotFile().url
+    }
+
+    return ''
+  }
+
+  /**
+   * Returns the dev server URL when running in hot
+   * mode, otherwise returns the explicitly configured
+   * "assets" URL
+   */
+  assetsUrl() {
+    if (this.#isRunningHot()) {
+      return this.#readHotFile().url
+    }
+
+    return this.#options.assetsUrl
+  }
+
+  /**
    * Returns path to a given asset file
    */
   assetPath(asset: string): string {

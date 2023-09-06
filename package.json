@@ -46,6 +46,7 @@
     "@adonisjs/core": "^6.1.5-19",
     "@adonisjs/eslint-config": "^1.1.8",
     "@adonisjs/prettier-config": "^1.1.8",
+    "@adonisjs/shield": "^8.0.0-3",
     "@adonisjs/tsconfig": "^1.1.8",
     "@commitlint/cli": "^17.6.7",
     "@commitlint/config-conventional": "^17.6.7",
@@ -75,10 +76,14 @@
   },
   "peerDependencies": {
     "@adonisjs/core": "^6.1.5-18",
+    "@adonisjs/shield": "^8.0.0-3",
     "edge.js": "^6.0.0-8"
   },
   "peerDependenciesMeta": {
     "edge.js": {
+      "optional": true
+    },
+    "@adonisjs/shield": {
       "optional": true
     }
   },
