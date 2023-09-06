@@ -28,12 +28,36 @@ export const edgePluginVite: (vite: Vite) => PluginFn<undefined> = (vite) => {
       tagName: 'viteReactRefresh',
       seekable: true,
       block: false,
-      compile(_parser, buffer, token) {
+      compile(parser, buffer, token) {
+        let attributes = ''
+        if (token.properties.jsArg.trim()) {
+          /**
+           * Converting a single argument to a SequenceExpression so that we
+           * work around the following edge cases.
+           *
+           * - If someone passes an object literal to the tag, ie { nonce: 'foo' }
+           *   it will be parsed as a LabeledStatement and not an object.
+           * - If we wrap the object literal inside parenthesis, ie ({nonce: 'foo'})
+           *   then we will end up messing other expressions like a variable reference
+           *   , or a member expression and so on.
+           * - So the best bet is to convert user supplied argument to a sequence expression
+           *   and hence ignore it during stringification.
+           */
+          const jsArg = `a,${token.properties.jsArg}`
+
+          const parsed = parser.utils.transformAst(
+            parser.utils.generateAST(jsArg, token.loc, token.filename),
+            token.filename,
+            parser
+          )
+          attributes = parser.utils.stringify(parsed.expressions[1])
+        }
+
         /**
          * Get HMR script
          */
         buffer.writeExpression(
-          `const __vite_hmr_script = state.vite.getReactHmrScript()`,
+          `const __vite_hmr_script = state.vite.getReactHmrScript(${attributes})`,
           token.filename,
           token.loc.start.line
         )
@@ -83,9 +107,13 @@ export const edgePluginVite: (vite: Vite) => PluginFn<undefined> = (vite) => {
         )
 
         const entrypoints = parser.utils.stringify(parsed)
+        const methodCall =
+          parsed.type === 'SequenceExpression'
+            ? `generateEntryPointsTags${entrypoints}`
+            : `generateEntryPointsTags(${entrypoints})`
 
         buffer.outputExpression(
-          `state.vite.generateEntryPointsTags(${entrypoints}).join('\\n')`,
+          `state.vite.${methodCall}.join('\\n')`,
           token.filename,
           token.loc.start.line,
           false

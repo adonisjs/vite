@@ -143,12 +143,13 @@ export class Vite {
   /**
    * Returns the script needed for the HMR working with Vite
    */
-  #getViteHmrScript(): AdonisViteElement | null {
+  #getViteHmrScript(attributes?: Record<string, any>): AdonisViteElement | null {
     return this.#generateElement({
       tag: 'script',
       attributes: {
         type: 'module',
         src: this.#hotAsset('@vite/client'),
+        ...attributes,
       },
       children: [],
     })
@@ -162,7 +163,7 @@ export class Vite {
     entryPoints: string[],
     attributes?: Record<string, any>
   ): AdonisViteElement[] {
-    const viteHmr = this.#getViteHmrScript()
+    const viteHmr = this.#getViteHmrScript(attributes)
     const tags = entryPoints.map((entrypoint) => this.#generateTag(entrypoint, attributes))
 
     return viteHmr ? [viteHmr].concat(tags) : tags
@@ -236,14 +237,17 @@ export class Vite {
   /**
    * Generate tags for the entry points
    */
-  generateEntryPointsTags(entryPoints: string[] | string): AdonisViteElement[] {
+  generateEntryPointsTags(
+    entryPoints: string[] | string,
+    attributes?: Record<string, any>
+  ): AdonisViteElement[] {
     entryPoints = Array.isArray(entryPoints) ? entryPoints : [entryPoints]
 
     if (this.#isRunningHot()) {
-      return this.#generateEntryPointsTagsForHotMode(entryPoints)
+      return this.#generateEntryPointsTagsForHotMode(entryPoints, attributes)
     }
 
-    return this.#generateEntryPointsTagsWithManifest(entryPoints)
+    return this.#generateEntryPointsTagsWithManifest(entryPoints, attributes)
   }
 
   /**
@@ -280,7 +284,7 @@ export class Vite {
   /**
    * Returns the script needed for the HMR working with React
    */
-  getReactHmrScript(): AdonisViteElement | null {
+  getReactHmrScript(attributes?: Record<string, any>): AdonisViteElement | null {
     if (!this.#isRunningHot()) {
       return null
     }
@@ -289,6 +293,7 @@ export class Vite {
       tag: 'script',
       attributes: {
         type: 'module',
+        ...attributes,
       },
       children: [
         '',

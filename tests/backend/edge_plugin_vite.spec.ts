@@ -62,6 +62,27 @@ test.group('Edge plugin vite', () => {
     ])
   })
 
+  test('pass custom attributes to reactHMRScript', async ({ assert, fs }) => {
+    const edge = Edge.create()
+    const vite = new Vite({
+      buildDirectory: join(fs.basePath, 'public/assets'),
+      hotFile: join(fs.basePath, 'public/assets/hot.json'),
+    })
+    edge.use(edgePluginVite(vite))
+
+    await fs.create('public/assets/hot.json', '{ "url": "http://localhost:9484" }')
+    const html = await edge.renderRaw(`@viteReactRefresh({ nonce: 'foo' })`)
+    assert.deepEqual(html.split('\n'), [
+      `<script type="module" nonce="foo">`,
+      `import RefreshRuntime from 'http://localhost:9484/@react-refresh'`,
+      `RefreshRuntime.injectIntoGlobalHook(window)`,
+      `window.$RefreshReg$ = () => {}`,
+      `window.$RefreshSig$ = () => (type) => type`,
+      `window.__vite_plugin_react_preamble_installed__ = true`,
+      `</script>`,
+    ])
+  })
+
   test('do not output hmrScript when not in hot mode', async ({ assert, fs }) => {
     const edge = Edge.create()
     const vite = new Vite({
@@ -87,6 +108,22 @@ test.group('Edge plugin vite', () => {
     assert.deepEqual(html.split('\n'), [
       '<script type="module" src="http://localhost:9484/@vite/client"></script>',
       '<script type="module" src="http://localhost:9484/resources/js/app.js"></script>',
+    ])
+  })
+
+  test('output entrypoint tags with custom attributes', async ({ assert, fs }) => {
+    const edge = Edge.create()
+    const vite = new Vite({
+      buildDirectory: join(fs.basePath, 'public/assets'),
+      hotFile: join(fs.basePath, 'public/assets/hot.json'),
+    })
+    edge.use(edgePluginVite(vite))
+
+    await fs.create('public/assets/hot.json', '{ "url": "http://localhost:9484" }')
+    const html = await edge.renderRaw(`@vite(['resources/js/app.js'], { nonce: 'foo' })`)
+    assert.deepEqual(html.split('\n'), [
+      '<script type="module" src="http://localhost:9484/@vite/client" nonce="foo"></script>',
+      '<script type="module" nonce="foo" src="http://localhost:9484/resources/js/app.js"></script>',
     ])
   })
 })
