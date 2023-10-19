@@ -1,12 +1,7 @@
 {
-  "extends": "./node_modules/@adonisjs/mrm-preset/_tsconfig",
-
-  "ts-node": {
-    "transpileOnly": true
-  },
-
+  "extends": "@adonisjs/tsconfig/tsconfig.package.json",
   "compilerOptions": {
-    "strict": true,
-    "lib": ["ES2021"]
-  }
+    "rootDir": "./",
+    "outDir": "./build"
+  },
 }

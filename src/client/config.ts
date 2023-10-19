@@ -1,29 +1,34 @@
+/*
+ * @adonisjs/vite
+ *
+ * (c) AdonisJS
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 import { defu } from 'defu'
+import { join } from 'node:path'
 import { AddressInfo } from 'node:net'
 import { ConfigEnv, Plugin, UserConfig } from 'vite'
-import { PluginFullOptions } from './contracts'
-import { addTrailingslash, resolveDevServerUrl } from './utils'
+
+import { HotFile } from './hot_file.js'
+import { resolveDevServerUrl } from './utils.js'
+import type { PluginFullOptions } from './types.js'
+import { ConfigResolver } from './config_resolver.js'
 
 /**
  * Vite config hook
  */
 export const configHook = (
   options: PluginFullOptions,
-  baseConfig: UserConfig,
+  userConfig: UserConfig,
   { command }: ConfigEnv
 ): UserConfig => {
-  const entryPoints = Object.entries(options.entryPoints).flatMap(([, files]) => files)
-
   const config: UserConfig = {
-    publicDir: false,
-
-    /**
-     * Set the logLevel to get a cleaner output when running
-     * the dev server within the same process as Adonis.
-     */
-    logLevel: 'warn',
-
-    base: command === 'build' ? addTrailingslash(options.publicPath) : '/',
+    publicDir: userConfig.publicDir ?? false,
+    base: ConfigResolver.resolveBase(userConfig, options, command),
+    resolve: { alias: ConfigResolver.resolveAlias(userConfig) },
 
     server: {
       /**
@@ -35,32 +40,17 @@ export const configHook = (
 
     build: {
       assetsDir: '',
-
-      /**
-       * Generate a manifest file at build-time
-       */
-      manifest: true,
-
-      /**
-       * Empty the output directory before building
-       */
+      manifest: userConfig.build?.manifest ?? true,
       emptyOutDir: true,
-
-      /**
-       * Set the output directory relative to the "public" directory
-       */
-      outDir: options.outputPath,
+      outDir: ConfigResolver.resolveOutDir(userConfig, options),
 
       rollupOptions: {
-        /**
-         * Here we are setting the entry points for rollup
-         */
-        input: entryPoints,
+        input: options.entrypoints.map((entrypoint) => join(userConfig.root || '', entrypoint)),
       },
     },
   }
 
-  return defu(config, baseConfig)
+  return defu(config, userConfig)
 }
 
 /**
@@ -77,12 +67,18 @@ export const config = (options: PluginFullOptions): Plugin => {
      * Store the dev server url for further usage when rewriting URLs
      */
     configureServer(server) {
-      server.httpServer?.once('listening', () => {
+      const hotfile = new HotFile(options.hotFile)
+
+      server.httpServer?.once('listening', async () => {
         devServerUrl = resolveDevServerUrl(
-          server.httpServer?.address() as AddressInfo,
+          server.httpServer!.address() as AddressInfo,
           server.config
         )
+
+        await hotfile.write({ url: devServerUrl })
       })
+
+      server.httpServer?.on('close', () => hotfile.clean())
     },
 
     /**
@@ -94,5 +90,9 @@ export const config = (options: PluginFullOptions): Plugin => {
       code: code.replace(/__adonis_vite__/g, devServerUrl),
       map: null,
     }),
+
+    configResolved: async (resolvedConfig) => {
+      ConfigResolver.resolvedConfig = resolvedConfig
+    },
   }
 }

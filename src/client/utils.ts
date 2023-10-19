@@ -1,7 +1,14 @@
+/*
+ * @adonisjs/vite
+ *
+ * (c) AdonisJS
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
+import { ResolvedConfig } from 'vite'
 import { AddressInfo } from 'node:net'
-import { InternalModuleFormat, OutputChunk } from 'rollup'
-import { normalizePath, ResolvedConfig } from 'vite'
-import path from 'node:path'
 
 /**
  * Resolve the dev server URL from the server address and configuration.
@@ -26,26 +33,8 @@ export const resolveDevServerUrl = (address: AddressInfo, config: ResolvedConfig
 }
 
 /**
- * Get a chunk's original file name instead of the hashed name.
+ * Add a trailing slash if missing
  */
-export const getChunkName = (
-  format: InternalModuleFormat,
-  chunk: OutputChunk,
-  config: ResolvedConfig
-) => {
-  if (chunk.facadeModuleId) {
-    let name = normalizePath(path.relative(config.root, chunk.facadeModuleId))
-    if (format === 'system' && !chunk.name.includes('-legacy')) {
-      const ext = path.extname(name)
-      const endPos = ext.length !== 0 ? -ext.length : undefined
-      name = name.slice(0, endPos) + `-legacy` + ext
-    }
-    return name.replace(/\0/g, '')
-  } else {
-    return `_` + path.basename(chunk.fileName)
-  }
-}
-
-export const addTrailingslash = (url: string) => {
+export const addTrailingSlash = (url: string) => {
   return url.endsWith('/') ? url : url + '/'
 }
