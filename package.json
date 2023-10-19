@@ -77,9 +77,13 @@
   "peerDependencies": {
     "@adonisjs/core": "^6.1.5-28",
     "@adonisjs/shield": "^8.0.0-8",
-    "edge.js": "^6.0.0-8"
+    "edge.js": "^6.0.0-8",
+    "vite": "^4.4.11"
   },
   "peerDependenciesMeta": {
+    "vite": {
+      "optional": true
+    },
     "edge.js": {
       "optional": true
     },
