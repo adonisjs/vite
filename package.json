@@ -22,7 +22,7 @@
     "./services/main": "./build/services/vite.js",
     "./vite_provider": "./build/providers/vite_provider.js",
     "./client": "./build/src/client/main.js",
-    "./plugin_edge": "./build/backend/edge_plugin_vite.js",
+    "./plugins/edge": "./build/backend/plugins/edge.js",
     "./types": "./build/src/backend/types.js"
   },
   "scripts": {

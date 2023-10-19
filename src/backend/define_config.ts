@@ -7,7 +7,7 @@
  * file that was distributed with this source code.
  */
 
-import { ViteOptions } from './types/main.js'
+import { ViteOptions } from './types.js'
 
 /**
  * Define the backend config for resolving vite assets

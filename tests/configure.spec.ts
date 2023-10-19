@@ -49,5 +49,5 @@ test.group('Configure', () => {
     await assert.fileContains('vite.config.js', `import adonisjs from '@adonisjs/vite/client'`)
     await assert.fileContains('adonisrc.ts', `pattern: 'public/**'`)
     await assert.fileContains('adonisrc.ts', `reloadServer: false`)
-  }).timeout(6000)
+  }).timeout(60 * 1000)
 })

@@ -10,8 +10,8 @@
 import { EdgeError } from 'edge-error'
 import type { PluginFn } from 'edge.js/types'
 
-import debug from './debug.js'
-import type { Vite } from './vite.js'
+import debug from '../debug.js'
+import type { Vite } from '../vite.js'
 
 /**
  * The edge plugin for vite to share vite service with edge

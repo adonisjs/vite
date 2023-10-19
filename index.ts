@@ -7,8 +7,6 @@
  * file that was distributed with this source code.
  */
 
-import './src/backend/types/extended.js'
-
 export { configure } from './configure.js'
 export { stubsRoot } from './stubs/index.js'
 export { Vite } from './src/backend/vite.js'

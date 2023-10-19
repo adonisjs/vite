@@ -16,6 +16,12 @@ import type { PluginFullOptions, PluginOptions } from './types.js'
 
 const VitePluginRestart = PluginRestart as any as typeof PluginRestart.default
 
+declare module 'vite' {
+  interface ManifestChunk {
+    integrity: string
+  }
+}
+
 /**
  * Vite plugin for adonisjs
  */

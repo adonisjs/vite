@@ -12,7 +12,7 @@ import { join } from 'node:path'
 import { test } from '@japa/runner'
 
 import { Vite } from '../../src/backend/vite.js'
-import { edgePluginVite } from '../../src/backend/edge_plugin_vite.js'
+import { edgePluginVite } from '../../src/backend/plugins/edge.js'
 
 test.group('Edge plugin vite', () => {
   test('generate asset path within edge template', async ({ assert, fs }) => {

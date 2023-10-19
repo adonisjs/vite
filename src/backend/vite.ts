@@ -13,7 +13,7 @@ import { existsSync, readFileSync } from 'node:fs'
 
 import debug from './debug.js'
 import { makeAttributes, uniqBy } from './utils.js'
-import type { AdonisViteElement, HotFile, SetAttributes, ViteOptions } from './types/main.js'
+import type { AdonisViteElement, HotFile, SetAttributes, ViteOptions } from './types.js'
 
 /**
  * Vite class exposes the APIs to generate tags and URLs for
