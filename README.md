@@ -1,4 +1,4 @@
-# @adonisjs/vite
+# @next-edge/adonisjs-v5-vite
 
 <br />
 

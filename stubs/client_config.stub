@@ -2,7 +2,7 @@
   exports({ to: app.makePath('vite.config.js') })
 }}}
 import { defineConfig } from 'vite'
-import adonisjs from '@adonisjs/vite/client'
+import adonisjs from '@next-edge/adonisjs-v5-vite/client'
 
 export default defineConfig({
   plugins: [

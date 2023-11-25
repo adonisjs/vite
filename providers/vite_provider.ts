@@ -1,42 +1,31 @@
 /*
- * @adonisjs/vite
- *
- * (c) AdonisJS
+ * @next-edge/adonisjs-v5-vite
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
 
 import type { Edge } from 'edge.js'
-import type { ApplicationService } from '@adonisjs/core/types'
+import { ApplicationContract } from '@ioc:Adonis/Core/Application'
+
 import type { cspKeywords as ShieldCSPKeywords } from '@adonisjs/shield'
 
 import debug from '../src/backend/debug.js'
-import type { Vite } from '../src/backend/vite.js'
-import type { ViteOptions } from '../src/backend/types.js'
 
-/**
- * Extend the container bindings
- */
-declare module '@adonisjs/core/types' {
-  interface ContainerBindings {
-    vite: Vite
-  }
-}
+export default class ViteProvider {
+  constructor(protected app: ApplicationContract) {}
+  static needsApplication = true
 
-export default class ViteServiceProvider {
-  constructor(protected app: ApplicationService) {}
-
-  /**
-   * Registers edge plugin when edge is installed
-   */
-  protected async registerEdgePlugin() {
-    let edge: Edge | null = null
+  protected async getEdge(): Promise<Edge | undefined> {
     try {
-      const edgeExports = await import('edge.js')
-      edge = edgeExports.default
+      const { default: edge } = await import('edge.js')
+      debug('Detected edge.js package. Adding shield primitives to it')
+      return edge
     } catch {}
+  }
 
+  protected async registerEdgePlugin() {
+    const edge: Edge | undefined = await this.getEdge()
     if (edge) {
       const vite = await this.app.container.make('vite')
       const { edgePluginVite } = await import('../src/backend/plugins/edge.js')
@@ -94,7 +83,7 @@ export default class ViteServiceProvider {
   register() {
     this.app.container.singleton('vite', async () => {
       const { Vite } = await import('../src/backend/vite.js')
-      const config = this.app.config.get<ViteOptions>('vite')
+      const config = this.app.config.get('vite')
 
       return new Vite({
         ...config,

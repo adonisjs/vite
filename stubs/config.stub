@@ -1,7 +1,7 @@
 {{{
   exports({ to: app.configPath('vite.ts') })
 }}}
-import { defineConfig } from '@adonisjs/vite'
+import { defineConfig } from '@next-edge/adonisjs-v5-vite'
 
 const viteBackendConfig = defineConfig({
   /**
