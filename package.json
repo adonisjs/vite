@@ -1,7 +1,7 @@
 {
   "name": "adonisjs-v5-vite",
   "description": "Vite plugin for Adonis.js v5",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "engines": {
     "node": ">=18.16.0"
   },
@@ -11,15 +11,12 @@
     "build/index.js",
     "build/index.d.ts",
     "build/instructions.js",
-    "build/instructions.d.ts",
     "build/stubs",
     "build/src",
-    "build/services",
     "build/providers"
   ],
   "exports": {
     ".": "./build/index.js",
-    "./services/main": "./build/services/vite.js",
     "./vite_provider": "./build/providers/vite_provider.js",
     "./client": "./build/src/client/main.js",
     "./plugins/edge": "./build/backend/plugins/edge.js",

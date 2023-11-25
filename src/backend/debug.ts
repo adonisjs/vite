@@ -1,5 +1,5 @@
 /*
- * @adonisjs/vite
+ * @next-edge/adonisjs-v5-vite
  *
  * (c) AdonisJS
  *
@@ -9,4 +9,4 @@
 
 import { debuglog } from 'node:util'
 
-export default debuglog('adonisjs:vite')
+export default debuglog('adonisjs-v5:vite')

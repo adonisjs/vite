@@ -13,7 +13,7 @@ function getStub(...relativePaths: string[]) {
   return join(__dirname, 'stubs', ...relativePaths)
 }
 
-export async function instructions(
+export default async function instructions(
   projectRoot: string,
   app: ApplicationContract,
   sink: typeof sinkStatic
