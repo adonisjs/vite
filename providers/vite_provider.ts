@@ -7,7 +7,6 @@
  * file that was distributed with this source code.
  */
 
-import type { Edge } from 'edge.js'
 import type { ApplicationService } from '@adonisjs/core/types'
 import type { cspKeywords as ShieldCSPKeywords } from '@adonisjs/shield'
 
@@ -31,16 +30,11 @@ export default class ViteServiceProvider {
    * Registers edge plugin when edge is installed
    */
   protected async registerEdgePlugin() {
-    let edge: Edge | null = null
-    try {
-      const edgeExports = await import('edge.js')
-      edge = edgeExports.default
-    } catch {}
-
-    if (edge) {
+    if (this.app.usingEdgeJS) {
+      const edge = await import('edge.js')
       const vite = await this.app.container.make('vite')
       const { edgePluginVite } = await import('../src/backend/plugins/edge.js')
-      edge.use(edgePluginVite(vite))
+      edge.default.use(edgePluginVite(vite))
     }
   }
 
