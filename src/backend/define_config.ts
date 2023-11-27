@@ -7,6 +7,7 @@
  * file that was distributed with this source code.
  */
 
+import { join } from 'node:path'
 import { ViteOptions } from './types.js'
 
 /**
@@ -17,6 +18,9 @@ export function defineConfig(config: Partial<ViteOptions>): ViteOptions {
     buildDirectory: 'public/assets',
     hotFile: 'public/assets/hot.json',
     assetsUrl: '/assets',
+    manifestFile: config.buildDirectory
+      ? join(config.buildDirectory, '.vite/manifest.json')
+      : 'public/assets/.vite/manifest.json',
     ...config,
   }
 }

@@ -34,9 +34,10 @@
     "quick:test": "node --enable-source-maps --loader=ts-node/esm bin/test.ts",
     "pretest": "npm run lint",
     "test": "c8 npm run quick:test",
-    "compile": "npm run lint && npm run clean && tsc && npm run copy:templates",
+    "precompile": "npm run lint && npm run clean ",
+    "compile": "tsc",
+    "postcompile": "npm run copy:templates",
     "build": "npm run compile",
-    "postbuild": "npm run copy:templates",
     "release": "np",
     "version": "npm run build",
     "prepublishOnly": "npm run build"

@@ -21,7 +21,7 @@ test.group('Vite plugin', () => {
       plugins: [adonisjs({ entrypoints: ['./resources/js/app.ts'] })],
     })
 
-    await assert.fileContains('public/assets/manifest.json', 'resources/js/app.ts')
+    await assert.fileContains('public/assets/.vite/manifest.json', 'resources/js/app.ts')
   })
 
   test('build the assets with custom manifest filename', async ({ fs, assert }) => {

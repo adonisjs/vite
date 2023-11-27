@@ -16,6 +16,7 @@ test.group('Define config', () => {
       buildDirectory: 'public/assets',
       assetsUrl: '/assets',
       hotFile: 'public/assets/hot.json',
+      manifestFile: 'public/assets/.vite/manifest.json',
     })
   })
 })

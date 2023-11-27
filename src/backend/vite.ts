@@ -7,7 +7,6 @@
  * file that was distributed with this source code.
  */
 
-import { join } from 'node:path'
 import type { Manifest } from 'vite'
 import { existsSync, readFileSync } from 'node:fs'
 
@@ -20,11 +19,6 @@ import type { AdonisViteElement, HotFile, SetAttributes, ViteOptions } from './t
  * assets processed using vite.
  */
 export class Vite {
-  /**
-   * Manifest file name
-   */
-  #manifestFilename = 'manifest.json'
-
   /**
    * We cache the manifest file content in production
    * to avoid reading the file multiple times
@@ -298,9 +292,7 @@ export class Vite {
     }
 
     if (!this.#manifestCache) {
-      this.#manifestCache = this.#readFileAsJSON(
-        join(this.#options.buildDirectory, this.#manifestFilename)
-      )
+      this.#manifestCache = this.#readFileAsJSON(this.#options.manifestFile)
     }
 
     return this.#manifestCache!

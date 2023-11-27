@@ -65,6 +65,14 @@ export type ViteOptions = {
   buildDirectory: string
 
   /**
+   * Path to the manifest file relative from the root of
+   * the application
+   *
+   * @default 'public/assets/.vite/manifest.json'
+   */
+  manifestFile: string
+
+  /**
    * The URL to prefix when generating assets URLs. For example: This
    * could the CDN URL when generating the production build
    *

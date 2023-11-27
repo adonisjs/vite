@@ -14,8 +14,6 @@ import PluginRestart from 'vite-plugin-restart'
 import { config } from './config.js'
 import type { PluginFullOptions, PluginOptions } from './types.js'
 
-const VitePluginRestart = PluginRestart as any as typeof PluginRestart.default
-
 declare module 'vite' {
   interface ManifestChunk {
     integrity: string
@@ -33,5 +31,5 @@ export default function adonisjs(options: PluginOptions): PluginOption[] {
     reload: ['./resources/views/**/*.edge'],
   })
 
-  return [VitePluginRestart({ reload: fullOptions.reload }), config(fullOptions)]
+  return [PluginRestart({ reload: fullOptions.reload }), config(fullOptions)]
 }

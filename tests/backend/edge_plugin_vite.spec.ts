@@ -12,15 +12,18 @@ import { join } from 'node:path'
 import { test } from '@japa/runner'
 
 import { Vite } from '../../src/backend/vite.js'
+import { defineConfig } from '../../src/backend/define_config.js'
 import { edgePluginVite } from '../../src/backend/plugins/edge.js'
 
 test.group('Edge plugin vite', () => {
   test('generate asset path within edge template', async ({ assert, fs }) => {
     const edge = Edge.create()
-    const vite = new Vite({
-      buildDirectory: join(fs.basePath, 'public/assets'),
-      hotFile: join(fs.basePath, 'public/assets/hot.json'),
-    })
+    const vite = new Vite(
+      defineConfig({
+        buildDirectory: join(fs.basePath, 'public/assets'),
+        hotFile: join(fs.basePath, 'public/assets/hot.json'),
+      })
+    )
     edge.use(edgePluginVite(vite))
 
     await fs.create('public/assets/hot.json', '{ "url": "http://localhost:9484" }')
@@ -30,10 +33,12 @@ test.group('Edge plugin vite', () => {
 
   test('share vite instance with edge', async ({ assert, fs }) => {
     const edge = Edge.create()
-    const vite = new Vite({
-      buildDirectory: join(fs.basePath, 'public/assets'),
-      hotFile: join(fs.basePath, 'public/assets/hot.json'),
-    })
+    const vite = new Vite(
+      defineConfig({
+        buildDirectory: join(fs.basePath, 'public/assets'),
+        hotFile: join(fs.basePath, 'public/assets/hot.json'),
+      })
+    )
     edge.use(edgePluginVite(vite))
 
     await fs.create('public/assets/hot.json', '{ "url": "http://localhost:9484" }')
@@ -43,10 +48,12 @@ test.group('Edge plugin vite', () => {
 
   test('output reactHMRScript', async ({ assert, fs }) => {
     const edge = Edge.create()
-    const vite = new Vite({
-      buildDirectory: join(fs.basePath, 'public/assets'),
-      hotFile: join(fs.basePath, 'public/assets/hot.json'),
-    })
+    const vite = new Vite(
+      defineConfig({
+        buildDirectory: join(fs.basePath, 'public/assets'),
+        hotFile: join(fs.basePath, 'public/assets/hot.json'),
+      })
+    )
     edge.use(edgePluginVite(vite))
 
     await fs.create('public/assets/hot.json', '{ "url": "http://localhost:9484" }')
@@ -64,10 +71,12 @@ test.group('Edge plugin vite', () => {
 
   test('pass custom attributes to reactHMRScript', async ({ assert, fs }) => {
     const edge = Edge.create()
-    const vite = new Vite({
-      buildDirectory: join(fs.basePath, 'public/assets'),
-      hotFile: join(fs.basePath, 'public/assets/hot.json'),
-    })
+    const vite = new Vite(
+      defineConfig({
+        buildDirectory: join(fs.basePath, 'public/assets'),
+        hotFile: join(fs.basePath, 'public/assets/hot.json'),
+      })
+    )
     edge.use(edgePluginVite(vite))
 
     await fs.create('public/assets/hot.json', '{ "url": "http://localhost:9484" }')
@@ -85,10 +94,12 @@ test.group('Edge plugin vite', () => {
 
   test('do not output hmrScript when not in hot mode', async ({ assert, fs }) => {
     const edge = Edge.create()
-    const vite = new Vite({
-      buildDirectory: join(fs.basePath, 'public/assets'),
-      hotFile: join(fs.basePath, 'public/assets/hot.json'),
-    })
+    const vite = new Vite(
+      defineConfig({
+        buildDirectory: join(fs.basePath, 'public/assets'),
+        hotFile: join(fs.basePath, 'public/assets/hot.json'),
+      })
+    )
     edge.use(edgePluginVite(vite))
 
     const html = await edge.renderRaw(`@viteReactRefresh()`)
@@ -97,10 +108,12 @@ test.group('Edge plugin vite', () => {
 
   test('output entrypoint tags', async ({ assert, fs }) => {
     const edge = Edge.create()
-    const vite = new Vite({
-      buildDirectory: join(fs.basePath, 'public/assets'),
-      hotFile: join(fs.basePath, 'public/assets/hot.json'),
-    })
+    const vite = new Vite(
+      defineConfig({
+        buildDirectory: join(fs.basePath, 'public/assets'),
+        hotFile: join(fs.basePath, 'public/assets/hot.json'),
+      })
+    )
     edge.use(edgePluginVite(vite))
 
     await fs.create('public/assets/hot.json', '{ "url": "http://localhost:9484" }')
@@ -113,10 +126,12 @@ test.group('Edge plugin vite', () => {
 
   test('output entrypoint tags with custom attributes', async ({ assert, fs }) => {
     const edge = Edge.create()
-    const vite = new Vite({
-      buildDirectory: join(fs.basePath, 'public/assets'),
-      hotFile: join(fs.basePath, 'public/assets/hot.json'),
-    })
+    const vite = new Vite(
+      defineConfig({
+        buildDirectory: join(fs.basePath, 'public/assets'),
+        hotFile: join(fs.basePath, 'public/assets/hot.json'),
+      })
+    )
     edge.use(edgePluginVite(vite))
 
     await fs.create('public/assets/hot.json', '{ "url": "http://localhost:9484" }')
