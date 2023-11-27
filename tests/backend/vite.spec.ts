@@ -226,6 +226,32 @@ test.group('Vite | hotMode', () => {
       ]
     )
   })
+
+  test('return dev URL', async ({ assert, fs }) => {
+    const vite = new Vite(
+      defineConfig({
+        buildDirectory: join(fs.basePath, 'public/assets'),
+        hotFile: join(fs.basePath, 'public/assets/hot.json'),
+      })
+    )
+
+    await fs.create('public/assets/hot.json', '{ "url": "http://localhost:9484" }')
+
+    assert.equal(vite.devUrl(), 'http://localhost:9484')
+  })
+
+  test('return path to assets directory', async ({ assert, fs }) => {
+    const vite = new Vite(
+      defineConfig({
+        buildDirectory: join(fs.basePath, 'public/assets'),
+        hotFile: join(fs.basePath, 'public/assets/hot.json'),
+      })
+    )
+
+    await fs.create('public/assets/hot.json', '{ "url": "http://localhost:9484" }')
+
+    assert.equal(vite.assetsUrl(), 'http://localhost:9484')
+  })
 })
 
 test.group('Vite | manifest', () => {
@@ -533,5 +559,27 @@ test.group('Vite | manifest', () => {
         '<script type="module" integrity="sha384-hNF0CSk1Cqwkjmpb374DXqtYJ/rDp5SqV6ttpKEnqyjT/gDHGHuYsj3XzBcMke15" src="https://cdn.url.com/test-12345.js"></script>',
       ]
     )
+  })
+
+  test('return empty string for devUrl when not in hot mode', async ({ assert, fs }) => {
+    const vite = new Vite(
+      defineConfig({
+        buildDirectory: join(fs.basePath, 'public/assets'),
+        hotFile: join(fs.basePath, 'public/assets/hot.json'),
+      })
+    )
+
+    assert.equal(vite.devUrl(), '')
+  })
+
+  test('return path to assets directory', async ({ assert, fs }) => {
+    const vite = new Vite(
+      defineConfig({
+        buildDirectory: join(fs.basePath, 'public/assets'),
+        hotFile: join(fs.basePath, 'public/assets/hot.json'),
+      })
+    )
+
+    assert.equal(vite.assetsUrl(), '/assets')
   })
 })

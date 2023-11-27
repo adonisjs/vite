@@ -17,7 +17,7 @@ async function setupEntrypoint(fs: any) {
 }
 
 test.group('Hotfile', () => {
-  test('Should create hotfile with dev server url', async ({ assert, fs, cleanup }) => {
+  test('should create hotfile with dev server url', async ({ assert, fs, cleanup }) => {
     await setupEntrypoint(fs)
 
     const server = await createServer({
@@ -33,6 +33,27 @@ test.group('Hotfile', () => {
     const hotContent = JSON.parse(await fs.contents('public/assets/hot.json'))
     assert.property(hotContent, 'url')
     assert.oneOf(hotContent.url, ['http://127.0.0.1:9484', 'http://localhost:9484'])
+  })
+
+  test('should compute correct URL when using host option', async ({ assert, fs, cleanup }) => {
+    await setupEntrypoint(fs)
+
+    const server = await createServer({
+      root: fs.basePath,
+      logLevel: 'warn',
+      server: {
+        host: true,
+      },
+      plugins: [adonisjs({ entrypoints: ['resources/js/app.ts'] })],
+    })
+    cleanup(() => server.close())
+
+    await server.listen(9484)
+    await sleep(100)
+
+    const hotContent = JSON.parse(await fs.contents('public/assets/hot.json'))
+    assert.property(hotContent, 'url')
+    assert.match(hotContent.url, /http:\/\/\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}:9484/)
   })
 
   test('should clean hotfile on exit', async ({ assert, fs, cleanup }) => {
