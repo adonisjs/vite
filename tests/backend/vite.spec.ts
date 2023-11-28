@@ -505,7 +505,7 @@ test.group('Vite | manifest', () => {
     )
   })
 
-  test('add integrity attribute to script and style tags', async ({ assert, fs }) => {
+  test('add integrity attribute to entrypoint tags', async ({ assert, fs }) => {
     const vite = new Vite(
       defineConfig({
         buildDirectory: join(fs.basePath, 'public/assets'),
@@ -517,11 +517,6 @@ test.group('Vite | manifest', () => {
     await fs.create(
       'public/assets/.vite/manifest.json',
       JSON.stringify({
-        'app.css': {
-          file: 'app-12345.css',
-          src: 'app.css',
-          integrity: 'sha384-hNF0CSk1Cqwkjmpb374DXqtYJ/rDp5SqV6ttpKEnqyjT',
-        },
         'test.js': {
           file: 'test-12345.js',
           src: 'test.js',
@@ -538,7 +533,6 @@ test.group('Vite | manifest', () => {
         tag: 'link',
         attributes: {
           rel: 'stylesheet',
-          integrity: 'sha384-hNF0CSk1Cqwkjmpb374DXqtYJ/rDp5SqV6ttpKEnqyjT',
           href: 'https://cdn.url.com/app-12345.css',
         },
       },
@@ -555,7 +549,7 @@ test.group('Vite | manifest', () => {
     assert.deepEqual(
       output.map((element) => String(element)),
       [
-        '<link rel="stylesheet" integrity="sha384-hNF0CSk1Cqwkjmpb374DXqtYJ/rDp5SqV6ttpKEnqyjT" href="https://cdn.url.com/app-12345.css"/>',
+        '<link rel="stylesheet" href="https://cdn.url.com/app-12345.css"/>',
         '<script type="module" integrity="sha384-hNF0CSk1Cqwkjmpb374DXqtYJ/rDp5SqV6ttpKEnqyjT/gDHGHuYsj3XzBcMke15" src="https://cdn.url.com/test-12345.js"></script>',
       ]
     )

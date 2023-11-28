@@ -182,10 +182,9 @@ export class Vite {
       })
 
       for (const css of chunk.css || []) {
-        const cssChunk = this.#chunkByFile(manifest, css)
         tags.push({
-          path: cssChunk.file,
-          tag: this.#generateTag(cssChunk.file, { ...attributes, integrity: cssChunk.integrity }),
+          path: css,
+          tag: this.#generateTag(css),
         })
       }
     }
@@ -200,19 +199,6 @@ export class Vite {
    */
   #chunk(manifest: Manifest, fileName: string) {
     const chunk = manifest[fileName]
-
-    if (!chunk) {
-      throw new Error(`Cannot find "${fileName}" chunk in the manifest file`)
-    }
-
-    return chunk
-  }
-
-  /**
-   * Get a chunk from the manifest file for a given hashed file name
-   */
-  #chunkByFile(manifest: Manifest, fileName: string) {
-    const chunk = Object.values(manifest).find((c) => c.file === fileName)
 
     if (!chunk) {
       throw new Error(`Cannot find "${fileName}" chunk in the manifest file`)
