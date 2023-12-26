@@ -7,6 +7,5 @@
  * file that was distributed with this source code.
  */
 
-export { configure } from './configure.js'
-export { Vite } from './src/backend/vite.js'
-export { defineConfig } from './src/backend/define_config.js'
+import { getDirname } from '@poppinss/utils'
+export const stubsRoot = getDirname(import.meta.url)
