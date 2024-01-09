@@ -9,4 +9,5 @@
 
 export { configure } from './configure.js'
 export { Vite } from './src/backend/vite.js'
+export { stubsRoot } from './stubs/main.js'
 export { defineConfig } from './src/backend/define_config.js'

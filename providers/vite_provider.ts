@@ -11,8 +11,9 @@ import type { ApplicationService } from '@adonisjs/core/types'
 import type { cspKeywords as ShieldCSPKeywords } from '@adonisjs/shield'
 
 import debug from '../src/backend/debug.js'
-import type { Vite } from '../src/backend/vite.js'
+import { Vite } from '../src/backend/vite.js'
 import type { ViteOptions } from '../src/backend/types.js'
+import { defineConfig } from '../src/backend/define_config.js'
 
 /**
  * Extend the container bindings
@@ -87,14 +88,8 @@ export default class ViteServiceProvider {
 
   register() {
     this.app.container.singleton('vite', async () => {
-      const { Vite } = await import('../src/backend/vite.js')
-      const config = this.app.config.get<ViteOptions>('vite')
-
-      return new Vite({
-        ...config,
-        buildDirectory: this.app.makePath(config.buildDirectory || 'public/build'),
-        hotFile: this.app.makePath(config.hotFile || 'public/build/hot.json'),
-      })
+      const config = this.app.config.get<ViteOptions>('vite', defineConfig({}))
+      return new Vite(config)
     })
   }
 
