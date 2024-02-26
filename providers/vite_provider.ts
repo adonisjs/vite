@@ -48,10 +48,12 @@ export default class ViteProvider {
   }
 
   async boot() {
+    await this.registerEdgePlugin()
+
     if (!this.app.inDev) return
 
     const vite = await this.app.container.make('vite')
-    await Promise.all([vite.createDevServer(), this.registerEdgePlugin()])
+    await vite.createDevServer()
   }
 
   async shutdown() {
