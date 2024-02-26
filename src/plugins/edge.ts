@@ -7,10 +7,10 @@
  * file that was distributed with this source code.
  */
 
+import type { Edge } from 'edge.js'
 import { EdgeError } from 'edge-error'
 import type { PluginFn } from 'edge.js/types'
 
-import debug from '../debug.js'
 import type { Vite } from '../vite.js'
 
 /**
@@ -18,12 +18,10 @@ import type { Vite } from '../vite.js'
  * and register custom tags
  */
 export const edgePluginVite: (vite: Vite) => PluginFn<undefined> = (vite) => {
-  return (edge) => {
-    debug('sharing vite and asset globals with edge')
+  const edgeVite = (edge: Edge) => {
     edge.global('vite', vite)
     edge.global('asset', vite.assetPath.bind(vite))
 
-    debug('registering vite tags with edge')
     edge.registerTag({
       tagName: 'viteReactRefresh',
       seekable: true,
@@ -121,4 +119,6 @@ export const edgePluginVite: (vite: Vite) => PluginFn<undefined> = (vite) => {
       },
     })
   }
+
+  return edgeVite
 }

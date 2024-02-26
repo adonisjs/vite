@@ -8,13 +8,6 @@
  */
 
 /**
- * Contents of the hotfile
- */
-export type HotFile = {
-  url: string
-}
-
-/**
  * Parameters passed to the setAttributes callback
  */
 export type SetAttributesCallbackParams = {
@@ -45,18 +38,7 @@ export type AdonisViteElement =
       children: string[]
     }
 
-/**
- * Vite backend integration configuration options
- */
-export type ViteOptions = {
-  /**
-   * Path to the hot file relative from the root of the
-   * application.
-   *
-   * @default public/assets/hot.json
-   */
-  hotFile: string
-
+export interface ViteOptions {
   /**
    * Public directory where the assets will be compiled.
    *
@@ -82,13 +64,13 @@ export type ViteOptions = {
 
   /**
    * A custom set of attributes to apply on all
-   * script tags
+   * script tags injected by edge `@vite` tag
    */
-  scriptAttributes?: SetAttributes
+  styleAttributes?: SetAttributes
 
   /**
    * A custom set of attributes to apply on all
-   * style tags
+   * style tags injected by edge `@vite` tag
    */
-  styleAttributes?: SetAttributes
+  scriptAttributes?: SetAttributes
 }

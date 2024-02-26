@@ -15,7 +15,6 @@ test.group('Define config', () => {
     assert.deepEqual(defineConfig({}), {
       buildDirectory: 'public/assets',
       assetsUrl: '/assets',
-      hotFile: 'public/assets/hot.json',
       manifestFile: 'public/assets/.vite/manifest.json',
     })
   })

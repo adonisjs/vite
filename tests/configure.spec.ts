@@ -45,10 +45,10 @@ test.group('Configure', (group) => {
 
     await command.exec()
 
-    await assert.fileExists('vite.config.js')
+    await assert.fileExists('vite.config.ts')
     await assert.fileExists('resources/js/app.js')
     await assert.fileContains('adonisrc.ts', '@adonisjs/vite/vite_provider')
-    await assert.fileContains('vite.config.js', `import adonisjs from '@adonisjs/vite/client'`)
+    await assert.fileContains('vite.config.ts', `import adonisjs from '@adonisjs/vite/client'`)
     await assert.fileContains('adonisrc.ts', `pattern: 'public/**'`)
     await assert.fileContains('adonisrc.ts', `reloadServer: false`)
   })

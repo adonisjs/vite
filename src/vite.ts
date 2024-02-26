@@ -7,12 +7,12 @@
  * file that was distributed with this source code.
  */
 
-import type { Manifest } from 'vite'
-import { existsSync, readFileSync } from 'node:fs'
+import { readFileSync } from 'node:fs'
+import type { ViteRuntime } from 'vite/runtime'
+import type { Manifest, ViteDevServer } from 'vite'
 
-import debug from './debug.js'
 import { makeAttributes, uniqBy } from './utils.js'
-import type { AdonisViteElement, HotFile, SetAttributes, ViteOptions } from './types.js'
+import type { AdonisViteElement, SetAttributes, ViteOptions } from './types.js'
 
 /**
  * Vite class exposes the APIs to generate tags and URLs for
@@ -23,24 +23,17 @@ export class Vite {
    * We cache the manifest file content in production
    * to avoid reading the file multiple times
    */
-  #manifestCache: Manifest | null = null
-
-  /**
-   * Configuration options
-   */
+  #manifestCache?: Manifest
   #options: ViteOptions
+  #runtime?: ViteRuntime
+  #devServer?: ViteDevServer
 
-  constructor(options: ViteOptions) {
+  constructor(
+    protected inDev: boolean,
+    options: ViteOptions
+  ) {
     this.#options = options
     this.#options.assetsUrl = (this.#options.assetsUrl || '/').replace(/\/$/, '')
-    debug('vite config %O', this.#options)
-  }
-
-  /**
-   * Checks if the application is running in hot mode
-   */
-  #isRunningHot(): boolean {
-    return existsSync(this.#options.hotFile)
   }
 
   /**
@@ -48,73 +41,6 @@ export class Vite {
    */
   #readFileAsJSON(filePath: string) {
     return JSON.parse(readFileSync(filePath, 'utf-8'))
-  }
-
-  /**
-   * Returns the parsed hot file content
-   */
-  #readHotFile(): HotFile {
-    return this.#readFileAsJSON(this.#options.hotFile)
-  }
-
-  /**
-   * Get the path to an asset when running in hot mode
-   */
-  #hotAsset(asset: string) {
-    return this.#readHotFile().url + '/' + asset
-  }
-
-  /**
-   * Unwrap attributes from the user defined function or return
-   * the attributes as it is
-   */
-  #unwrapAttributes(src: string, url: string, attributes?: SetAttributes) {
-    if (typeof attributes === 'function') {
-      return attributes({ src, url })
-    }
-
-    return attributes
-  }
-
-  /**
-   * Create a script tag for the given path
-   */
-  #makeScriptTag(src: string, url: string, attributes?: Record<string, any>): AdonisViteElement {
-    const customAttributes = this.#unwrapAttributes(src, url, this.#options.scriptAttributes)
-    return this.#generateElement({
-      tag: 'script',
-      attributes: { type: 'module', ...customAttributes, ...attributes, src: url },
-      children: [],
-    })
-  }
-
-  /**
-   * Create a style tag for the given path
-   */
-  #makeStyleTag(src: string, url: string, attributes?: Record<string, any>): AdonisViteElement {
-    const customAttributes = this.#unwrapAttributes(src, url, this.#options.styleAttributes)
-    return this.#generateElement({
-      tag: 'link',
-      attributes: { rel: 'stylesheet', ...customAttributes, ...attributes, href: url },
-    })
-  }
-
-  /**
-   * Generate a HTML tag for the given asset
-   */
-  #generateTag(asset: string, attributes?: Record<string, any>): AdonisViteElement {
-    let url = ''
-    if (this.#isRunningHot()) {
-      url = this.#hotAsset(asset)
-    } else {
-      url = `${this.#options.assetsUrl}/${asset}`
-    }
-
-    if (this.#isCssPath(asset)) {
-      return this.#makeStyleTag(asset, url, attributes)
-    }
-
-    return this.#makeScriptTag(asset, url, attributes)
   }
 
   /**
@@ -142,11 +68,71 @@ export class Vite {
       tag: 'script',
       attributes: {
         type: 'module',
-        src: this.#hotAsset('@vite/client'),
+        src: '/@vite/client',
         ...attributes,
       },
       children: [],
     })
+  }
+
+  /**
+   * Check if the given path is a CSS path
+   */
+  #isCssPath(path: string) {
+    return path.match(/\.(css|less|sass|scss|styl|stylus|pcss|postcss)$/) !== null
+  }
+
+  /**
+   * Unwrap attributes from the user defined function or return
+   * the attributes as it is
+   */
+  #unwrapAttributes(src: string, url: string, attributes?: SetAttributes) {
+    if (typeof attributes === 'function') {
+      return attributes({ src, url })
+    }
+
+    return attributes
+  }
+
+  /**
+   * Create a style tag for the given path
+   */
+  #makeStyleTag(src: string, url: string, attributes?: Record<string, any>): AdonisViteElement {
+    const customAttributes = this.#unwrapAttributes(src, url, this.#options?.styleAttributes)
+    return this.#generateElement({
+      tag: 'link',
+      attributes: { rel: 'stylesheet', ...customAttributes, ...attributes, href: url },
+    })
+  }
+
+  /**
+   * Create a script tag for the given path
+   */
+  #makeScriptTag(src: string, url: string, attributes?: Record<string, any>): AdonisViteElement {
+    const customAttributes = this.#unwrapAttributes(src, url, this.#options?.scriptAttributes)
+    return this.#generateElement({
+      tag: 'script',
+      attributes: { type: 'module', ...customAttributes, ...attributes, src: url },
+      children: [],
+    })
+  }
+
+  /**
+   * Generate a HTML tag for the given asset
+   */
+  #generateTag(asset: string, attributes?: Record<string, any>): AdonisViteElement {
+    let url = ''
+    if (this.inDev) {
+      url = `/${asset}`
+    } else {
+      url = `${this.#options.assetsUrl}/${asset}`
+    }
+
+    if (this.#isCssPath(asset)) {
+      return this.#makeStyleTag(asset, url, attributes)
+    }
+
+    return this.#makeScriptTag(asset, url, attributes)
   }
 
   /**
@@ -160,7 +146,22 @@ export class Vite {
     const viteHmr = this.#getViteHmrScript(attributes)
     const tags = entryPoints.map((entrypoint) => this.#generateTag(entrypoint, attributes))
 
-    return viteHmr ? [viteHmr].concat(tags) : tags
+    const result = viteHmr ? [viteHmr].concat(tags) : tags
+
+    return result
+  }
+
+  /**
+   * Get a chunk from the manifest file for a given file name
+   */
+  #chunk(manifest: Manifest, fileName: string) {
+    const chunk = manifest[fileName]
+
+    if (!chunk) {
+      throw new Error(`Cannot find "${fileName}" chunk in the manifest file`)
+    }
+
+    return chunk
   }
 
   /**
@@ -182,36 +183,13 @@ export class Vite {
       })
 
       for (const css of chunk.css || []) {
-        tags.push({
-          path: css,
-          tag: this.#generateTag(css),
-        })
+        tags.push({ path: css, tag: this.#generateTag(css) })
       }
     }
 
     return uniqBy(tags, 'path')
       .sort((a) => (a.path.endsWith('.css') ? -1 : 1))
       .map((tag) => tag.tag)
-  }
-
-  /**
-   * Get a chunk from the manifest file for a given file name
-   */
-  #chunk(manifest: Manifest, fileName: string) {
-    const chunk = manifest[fileName]
-
-    if (!chunk) {
-      throw new Error(`Cannot find "${fileName}" chunk in the manifest file`)
-    }
-
-    return chunk
-  }
-
-  /**
-   * Check if the given path is a CSS path
-   */
-  #isCssPath(path: string) {
-    return path.match(/\.(css|less|sass|scss|styl|stylus|pcss|postcss)$/) !== null
   }
 
   /**
@@ -223,7 +201,7 @@ export class Vite {
   ): AdonisViteElement[] {
     entryPoints = Array.isArray(entryPoints) ? entryPoints : [entryPoints]
 
-    if (this.#isRunningHot()) {
+    if (this.inDev) {
       return this.#generateEntryPointsTagsForHotMode(entryPoints, attributes)
     }
 
@@ -232,25 +210,11 @@ export class Vite {
 
   /**
    * Returns the dev server URL when running in hot
-   * mode. Otherwise an empty string
-   */
-  devUrl() {
-    if (this.#isRunningHot()) {
-      return this.#readHotFile().url
-    }
-
-    return ''
-  }
-
-  /**
-   * Returns the dev server URL when running in hot
    * mode, otherwise returns the explicitly configured
    * "assets" URL
    */
   assetsUrl() {
-    if (this.#isRunningHot()) {
-      return this.#readHotFile().url
-    }
+    if (this.inDev) return this.#devServer!.config.server.host
 
     return this.#options.assetsUrl
   }
@@ -259,8 +223,8 @@ export class Vite {
    * Returns path to a given asset file
    */
   assetPath(asset: string): string {
-    if (this.#isRunningHot()) {
-      return this.#hotAsset(asset)
+    if (this.inDev) {
+      return `/${asset}`
     }
 
     const chunk = this.#chunk(this.manifest(), asset)
@@ -270,11 +234,11 @@ export class Vite {
   /**
    * Returns the manifest file contents
    *
-   * @throws Will throw an exception when running in hot mode
+   * @throws Will throw an exception when running in dev
    */
   manifest(): Manifest {
-    if (this.#isRunningHot()) {
-      throw new Error('Cannot read the manifest file when running in hot mode')
+    if (this.inDev) {
+      throw new Error('Cannot read the manifest file when running in dev mode')
     }
 
     if (!this.#manifestCache) {
@@ -285,10 +249,50 @@ export class Vite {
   }
 
   /**
+   * Create the Vite Dev Server and runtime
+   *
+   * We lazy load the APIs to avoid loading it in production
+   * since we don't need it
+   */
+  async createDevServer() {
+    const { createViteRuntime, createServer } = await import('vite')
+
+    this.#devServer = await createServer({
+      server: { middlewareMode: true, hmr: { port: 3001 } },
+      appType: 'custom',
+    })
+
+    this.#runtime = await createViteRuntime(this.#devServer)
+  }
+
+  /**
+   * Stop the Vite Dev server
+   */
+  async stopDevServer() {
+    await this.#devServer?.close()
+  }
+
+  /**
+   * Get the Vite Dev server instance
+   * Will not be available when running in production
+   */
+  getDevServer() {
+    return this.#devServer
+  }
+
+  /**
+   * Get the Vite runtime instance
+   * Will not be available when running in production
+   */
+  getRuntime() {
+    return this.#runtime
+  }
+
+  /**
    * Returns the script needed for the HMR working with React
    */
   getReactHmrScript(attributes?: Record<string, any>): AdonisViteElement | null {
-    if (!this.#isRunningHot()) {
+    if (!this.inDev) {
       return null
     }
 
@@ -300,7 +304,7 @@ export class Vite {
       },
       children: [
         '',
-        `import RefreshRuntime from '${this.#hotAsset('@react-refresh')}'`,
+        `import RefreshRuntime from '/@react-refresh'`,
         `RefreshRuntime.injectIntoGlobalHook(window)`,
         `window.$RefreshReg$ = () => {}`,
         `window.$RefreshSig$ = () => (type) => type`,
