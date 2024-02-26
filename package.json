@@ -105,12 +105,12 @@
   "prettier": "@adonisjs/prettier-config",
   "publishConfig": {
     "access": "public",
-    "tag": "latest"
+    "tag": "next"
   },
   "np": {
     "message": "chore(release): %s",
-    "tag": "latest",
-    "branch": "main",
+    "tag": "next",
+    "branch": "next",
     "anyBranch": false
   },
   "c8": {
