@@ -8,14 +8,10 @@
   "main": "build/index.js",
   "type": "module",
   "files": [
-    "build/providers",
-    "build/services",
-    "build/src",
-    "build/stubs",
-    "build/configure.js",
-    "build/configure.d.ts",
-    "build/index.js",
-    "build/index.d.ts"
+    "build",
+    "!build/bin",
+    "!build/tests",
+    "!build/tests_helpers"
   ],
   "exports": {
     ".": "./build/index.js",
