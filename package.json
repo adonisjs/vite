@@ -35,7 +35,7 @@
     "pretest": "npm run lint",
     "test": "c8 npm run quick:test",
     "prebuild": "npm run lint && npm run clean",
-    "build": "tsc",
+    "build": "tsup-node && tsc --emitDeclarationOnly --declaration",
     "postbuild": "npm run copy:templates",
     "release": "np",
     "version": "npm run build",
@@ -62,6 +62,7 @@
     "np": "^9.2.0",
     "prettier": "^3.2.5",
     "ts-node": "^10.9.2",
+    "tsup": "^8.0.2",
     "typescript": "~5.3.3",
     "vite": "^5.1.4"
   },
@@ -122,5 +123,21 @@
       "tests/**",
       "tests_helpers/**"
     ]
+  },
+  "tsup": {
+    "entry": [
+      "./index.ts",
+      "./providers/vite_provider.ts",
+      "./services/vite.ts",
+      "./src/types.ts",
+      "./src/client/main.ts",
+      "./src/hooks/build_hook.ts"
+    ],
+    "outDir": "./build",
+    "clean": true,
+    "format": "esm",
+    "dts": false,
+    "sourcemap": true,
+    "target": "esnext"
   }
 }
