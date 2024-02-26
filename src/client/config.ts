@@ -7,42 +7,66 @@
  * file that was distributed with this source code.
  */
 
-import { defu } from 'defu'
 import { join } from 'node:path'
-import { AddressInfo } from 'node:net'
-import { ConfigEnv, Plugin, UserConfig } from 'vite'
+import type { AliasOptions, ConfigEnv, Plugin, UserConfig } from 'vite'
 
-import { HotFile } from './hot_file.js'
-import { resolveDevServerUrl } from './utils.js'
+import { addTrailingSlash } from '../utils.js'
 import type { PluginFullOptions } from './types.js'
-import { ConfigResolver } from './config_resolver.js'
+
+/**
+ * Resolve the `config.resolve.alias` value
+ *
+ * Basically we are merging the user defined alias with the
+ * default alias.
+ */
+export function resolveAlias(config: UserConfig): AliasOptions {
+  const defaultAlias = { '@/': `/resources/js/` }
+
+  if (Array.isArray(config.resolve?.alias)) {
+    return [
+      ...(config.resolve?.alias ?? []),
+      Object.entries(defaultAlias).map(([find, replacement]) => ({ find, replacement })),
+    ]
+  }
+
+  return { ...defaultAlias, ...config.resolve?.alias }
+}
+
+/**
+ * Resolve the `config.base` value
+ */
+export function resolveBase(
+  config: UserConfig,
+  options: PluginFullOptions,
+  command: 'build' | 'serve'
+): string {
+  if (config.base) return config.base
+  if (command === 'build') {
+    return addTrailingSlash(options.assetsUrl)
+  }
+
+  return '/'
+}
 
 /**
  * Vite config hook
  */
-export const configHook = (
+export function configHook(
   options: PluginFullOptions,
   userConfig: UserConfig,
   { command }: ConfigEnv
-): UserConfig => {
+): UserConfig {
   const config: UserConfig = {
     publicDir: userConfig.publicDir ?? false,
-    base: ConfigResolver.resolveBase(userConfig, options, command),
-    resolve: { alias: ConfigResolver.resolveAlias(userConfig) },
-
-    server: {
-      /**
-       * Will allow to rewrite the URL to the public path
-       * in dev mode
-       */
-      origin: '__adonis_vite__',
-    },
+    resolve: { alias: resolveAlias(userConfig) },
+    base: resolveBase(userConfig, options, command),
 
     build: {
       assetsDir: '',
-      manifest: userConfig.build?.manifest ?? true,
       emptyOutDir: true,
-      outDir: ConfigResolver.resolveOutDir(userConfig, options),
+      manifest: userConfig.build?.manifest ?? true,
+      outDir: userConfig.build?.outDir ?? options.buildDirectory,
+      assetsInlineLimit: userConfig.build?.assetsInlineLimit ?? 0,
 
       rollupOptions: {
         input: options.entrypoints.map((entrypoint) => join(userConfig.root || '', entrypoint)),
@@ -50,49 +74,15 @@ export const configHook = (
     },
   }
 
-  return defu(config, userConfig)
+  return config
 }
 
 /**
  * Update the user vite config to match the Adonis requirements
  */
 export const config = (options: PluginFullOptions): Plugin => {
-  let devServerUrl: string
-
   return {
     name: 'vite-plugin-adonis:config',
     config: configHook.bind(null, options),
-
-    /**
-     * Store the dev server url for further usage when rewriting URLs
-     */
-    configureServer(server) {
-      const hotfile = new HotFile(options.hotFile)
-
-      server.httpServer?.once('listening', async () => {
-        devServerUrl = resolveDevServerUrl(
-          server.httpServer!.address() as AddressInfo,
-          server.config
-        )
-
-        await hotfile.write({ url: devServerUrl })
-      })
-
-      server.httpServer?.on('close', () => hotfile.clean())
-    },
-
-    /**
-     * Rewrite URL to the public path in dev mode
-     *
-     * See : https://nystudio107.com/blog/using-vite-js-next-generation-frontend-tooling-with-craft-cms#vite-processed-assets
-     */
-    transform: (code) => ({
-      code: code.replace(/__adonis_vite__/g, devServerUrl),
-      map: null,
-    }),
-
-    configResolved: async (resolvedConfig) => {
-      ConfigResolver.resolvedConfig = resolvedConfig
-    },
   }
 }

@@ -7,12 +7,13 @@
  * file that was distributed with this source code.
  */
 
-import { defu } from 'defu'
+/// <reference types="@vavite/multibuild" />
+
 import { PluginOption } from 'vite'
 import PluginRestart from 'vite-plugin-restart'
 
 import { config } from './config.js'
-import type { PluginFullOptions, PluginOptions } from './types.js'
+import type { PluginOptions } from './types.js'
 
 declare module 'vite' {
   interface ManifestChunk {
@@ -21,15 +22,17 @@ declare module 'vite' {
 }
 
 /**
- * Vite plugin for adonisjs
+ * Vite plugin for AdonisJS
  */
 export default function adonisjs(options: PluginOptions): PluginOption[] {
-  const fullOptions = defu<PluginFullOptions, [Partial<PluginOptions>]>(options, {
-    buildDirectory: 'public/assets',
-    assetsUrl: '/assets',
-    hotFile: 'public/assets/hot.json',
-    reload: ['./resources/views/**/*.edge'],
-  })
+  const fullOptions = Object.assign(
+    {
+      assetsUrl: '/assets',
+      buildDirectory: 'public/assets',
+      reload: ['./resources/views/**/*.edge'],
+    },
+    options
+  )
 
   return [PluginRestart({ reload: fullOptions.reload }), config(fullOptions)]
 }

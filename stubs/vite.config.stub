@@ -1,5 +1,5 @@
 {{{
-  exports({ to: app.makePath('vite.config.js') })
+  exports({ to: app.makePath('vite.config.ts') })
 }}}
 import { defineConfig } from 'vite'
 import adonisjs from '@adonisjs/vite/client'

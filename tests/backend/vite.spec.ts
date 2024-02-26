@@ -9,125 +9,114 @@
 
 import { join } from 'node:path'
 import { test } from '@japa/runner'
-import { Vite } from '../../src/backend/vite.js'
-import { defineConfig } from '../../src/backend/define_config.js'
+
+import { Vite } from '../../src/vite.js'
+import { defineConfig } from '../../src/define_config.js'
 
 test.group('Vite | hotMode', () => {
   test('generate entrypoints tags for a file', async ({ assert, fs }) => {
     const vite = new Vite(
+      true,
       defineConfig({
         buildDirectory: join(fs.basePath, 'public/assets'),
-        hotFile: join(fs.basePath, 'public/assets/hot.json'),
       })
     )
-
-    await fs.create('public/assets/hot.json', '{ "url": "http://localhost:9484" }')
 
     const output = vite.generateEntryPointsTags('test.js')
 
     assert.containsSubset(output, [
       {
         tag: 'script',
-        attributes: { type: 'module', src: 'http://localhost:9484/@vite/client' },
+        attributes: { type: 'module', src: '/@vite/client' },
         children: [],
       },
       {
         tag: 'script',
-        attributes: { type: 'module', src: 'http://localhost:9484/test.js' },
+        attributes: { type: 'module', src: '/test.js' },
         children: [],
       },
     ])
     assert.deepEqual(
       output.map((element) => String(element)),
       [
-        '<script type="module" src="http://localhost:9484/@vite/client"></script>',
-        '<script type="module" src="http://localhost:9484/test.js"></script>',
+        '<script type="module" src="/@vite/client"></script>',
+        '<script type="module" src="/test.js"></script>',
       ]
     )
   })
 
-  test('ignore assetsUrl in hot mode', async ({ assert, fs }) => {
+  test('ignore assetsUrl in dev mode', async ({ assert, fs }) => {
     const vite = new Vite(
+      true,
       defineConfig({
         buildDirectory: join(fs.basePath, 'public/assets'),
-        hotFile: join(fs.basePath, 'public/assets/hot.json'),
         assetsUrl: 'https://cdn.url.com',
       })
     )
 
-    await fs.create('public/assets/hot.json', '{ "url": "http://localhost:9484" }')
     const output = vite.generateEntryPointsTags('test.js')
 
     assert.containsSubset(output, [
       {
         tag: 'script',
-        attributes: { type: 'module', src: 'http://localhost:9484/@vite/client' },
+        attributes: { type: 'module', src: '/@vite/client' },
         children: [],
       },
       {
         tag: 'script',
-        attributes: { type: 'module', src: 'http://localhost:9484/test.js' },
+        attributes: { type: 'module', src: '/test.js' },
         children: [],
       },
     ])
     assert.deepEqual(
       output.map((element) => String(element)),
       [
-        '<script type="module" src="http://localhost:9484/@vite/client"></script>',
-        '<script type="module" src="http://localhost:9484/test.js"></script>',
+        '<script type="module" src="/@vite/client"></script>',
+        '<script type="module" src="/test.js"></script>',
       ]
     )
   })
 
   test('raise exception when trying to access manifest file in hot mode', async ({ fs }) => {
     const vite = new Vite(
+      true,
       defineConfig({
         buildDirectory: join(fs.basePath, 'public/assets'),
-        hotFile: join(fs.basePath, 'public/assets/hot.json'),
       })
     )
-    await fs.create('public/assets/hot.json', '{ "url": "http://localhost:9484" }')
 
     vite.manifest()
-  }).throws('Cannot read the manifest file when running in hot mode')
+  }).throws('Cannot read the manifest file when running in dev mode')
 
   test('get asset path', async ({ fs, assert }) => {
     const vite = new Vite(
-      defineConfig({
-        buildDirectory: join(fs.basePath, 'public/assets'),
-        hotFile: join(fs.basePath, 'public/assets/hot.json'),
-      })
+      true,
+      defineConfig({ buildDirectory: join(fs.basePath, 'public/assets') })
     )
 
-    await fs.create('public/assets/hot.json', '{ "url": "http://localhost:9484" }')
-
-    assert.equal(vite.assetPath('test.js'), 'http://localhost:9484/test.js')
+    assert.equal(vite.assetPath('test.js'), '/test.js')
   })
 
   test('ignore custom assetsUrl in hot mode', async ({ fs, assert }) => {
     const vite = new Vite(
+      true,
       defineConfig({
         buildDirectory: join(fs.basePath, 'public/assets'),
-        hotFile: join(fs.basePath, 'public/assets/hot.json'),
         assetsUrl: 'https://cdn.url.com',
       })
     )
 
-    await fs.create('public/assets/hot.json', '{ "url": "http://localhost:9484" }')
-
-    assert.equal(vite.assetPath('test.js'), 'http://localhost:9484/test.js')
+    assert.equal(vite.assetPath('test.js'), '/test.js')
   })
 
   test('get viteHMRScript for React', async ({ fs, assert }) => {
     const vite = new Vite(
+      true,
       defineConfig({
         buildDirectory: join(fs.basePath, 'public/assets'),
-        hotFile: join(fs.basePath, 'public/assets/hot.json'),
         assetsUrl: 'https://cdn.url.com',
       })
     )
-
-    await fs.create('public/assets/hot.json', '{ "url": "http://localhost:9484" }')
 
     assert.containsSubset(vite.getReactHmrScript(), {
       tag: 'script',
@@ -136,7 +125,7 @@ test.group('Vite | hotMode', () => {
       },
       children: [
         '',
-        `import RefreshRuntime from 'http://localhost:9484/@react-refresh'`,
+        `import RefreshRuntime from '/@react-refresh'`,
         `RefreshRuntime.injectIntoGlobalHook(window)`,
         `window.$RefreshReg$ = () => {}`,
         `window.$RefreshSig$ = () => (type) => type`,
@@ -148,9 +137,9 @@ test.group('Vite | hotMode', () => {
 
   test('add custom attributes to the entrypoints script tags', async ({ assert, fs }) => {
     const vite = new Vite(
+      true,
       defineConfig({
         buildDirectory: join(fs.basePath, 'public/assets'),
-        hotFile: join(fs.basePath, 'public/assets/hot.json'),
         assetsUrl: 'https://cdn.url.com',
         scriptAttributes: {
           'data-test': 'test',
@@ -158,14 +147,12 @@ test.group('Vite | hotMode', () => {
       })
     )
 
-    await fs.create('public/assets/hot.json', '{ "url": "http://localhost:9484" }')
-
     const output = vite.generateEntryPointsTags('test.js')
 
     assert.containsSubset(output, [
       {
         tag: 'script',
-        attributes: { type: 'module', src: 'http://localhost:9484/@vite/client' },
+        attributes: { type: 'module', src: '/@vite/client' },
         children: [],
       },
       {
@@ -173,7 +160,7 @@ test.group('Vite | hotMode', () => {
         attributes: {
           'type': 'module',
           'data-test': 'test',
-          'src': 'http://localhost:9484/test.js',
+          'src': '/test.js',
         },
         children: [],
       },
@@ -181,17 +168,17 @@ test.group('Vite | hotMode', () => {
     assert.deepEqual(
       output.map((element) => String(element)),
       [
-        '<script type="module" src="http://localhost:9484/@vite/client"></script>',
-        '<script type="module" data-test="test" src="http://localhost:9484/test.js"></script>',
+        '<script type="module" src="/@vite/client"></script>',
+        '<script type="module" data-test="test" src="/test.js"></script>',
       ]
     )
   })
 
   test('add custom attributes to the entrypoints style tags', async ({ assert, fs }) => {
     const vite = new Vite(
+      true,
       defineConfig({
         buildDirectory: join(fs.basePath, 'public/assets'),
-        hotFile: join(fs.basePath, 'public/assets/hot.json'),
         assetsUrl: 'https://cdn.url.com',
         styleAttributes: {
           'data-test': 'test',
@@ -199,14 +186,12 @@ test.group('Vite | hotMode', () => {
       })
     )
 
-    await fs.create('public/assets/hot.json', '{ "url": "http://localhost:9484" }')
-
     const output = vite.generateEntryPointsTags('app.css')
 
     assert.containsSubset(output, [
       {
         tag: 'script',
-        attributes: { type: 'module', src: 'http://localhost:9484/@vite/client' },
+        attributes: { type: 'module', src: '/@vite/client' },
         children: [],
       },
       {
@@ -214,52 +199,37 @@ test.group('Vite | hotMode', () => {
         attributes: {
           'rel': 'stylesheet',
           'data-test': 'test',
-          'href': 'http://localhost:9484/app.css',
+          'href': '/app.css',
         },
       },
     ])
     assert.deepEqual(
       output.map((element) => String(element)),
       [
-        '<script type="module" src="http://localhost:9484/@vite/client"></script>',
-        '<link rel="stylesheet" data-test="test" href="http://localhost:9484/app.css"/>',
+        '<script type="module" src="/@vite/client"></script>',
+        '<link rel="stylesheet" data-test="test" href="/app.css"/>',
       ]
     )
   })
 
-  test('return dev URL', async ({ assert, fs }) => {
-    const vite = new Vite(
-      defineConfig({
-        buildDirectory: join(fs.basePath, 'public/assets'),
-        hotFile: join(fs.basePath, 'public/assets/hot.json'),
-      })
-    )
+  // test('return path to assets directory', async ({ assert, fs }) => {
+  //   const vite = new Vite(
+  //     true,
+  //     defineConfig({
+  //       buildDirectory: join(fs.basePath, 'public/assets'),
+  //     })
+  //   )
 
-    await fs.create('public/assets/hot.json', '{ "url": "http://localhost:9484" }')
-
-    assert.equal(vite.devUrl(), 'http://localhost:9484')
-  })
-
-  test('return path to assets directory', async ({ assert, fs }) => {
-    const vite = new Vite(
-      defineConfig({
-        buildDirectory: join(fs.basePath, 'public/assets'),
-        hotFile: join(fs.basePath, 'public/assets/hot.json'),
-      })
-    )
-
-    await fs.create('public/assets/hot.json', '{ "url": "http://localhost:9484" }')
-
-    assert.equal(vite.assetsUrl(), 'http://localhost:9484')
-  })
+  //   assert.equal(vite.assetsUrl(), 'http://localhost:9484')
+  // })
 })
 
 test.group('Vite | manifest', () => {
   test('generate entrypoints tags for a file', async ({ assert, fs }) => {
     const vite = new Vite(
+      false,
       defineConfig({
         buildDirectory: join(fs.basePath, 'public/assets'),
-        hotFile: join(fs.basePath, 'public/assets/hot.json'),
       })
     )
 
@@ -285,9 +255,9 @@ test.group('Vite | manifest', () => {
 
   test('generate entrypoints with css imported inside js', async ({ assert, fs }) => {
     const vite = new Vite(
+      false,
       defineConfig({
         buildDirectory: join(fs.basePath, 'public/assets'),
-        hotFile: join(fs.basePath, 'public/assets/hot.json'),
       })
     )
 
@@ -323,9 +293,9 @@ test.group('Vite | manifest', () => {
 
   test('prefix assetsUrl', async ({ assert, fs }) => {
     const vite = new Vite(
+      false,
       defineConfig({
         buildDirectory: join(fs.basePath, 'public/assets'),
-        hotFile: join(fs.basePath, 'public/assets/hot.json'),
         assetsUrl: 'https://cdn.url.com',
       })
     )
@@ -352,9 +322,9 @@ test.group('Vite | manifest', () => {
 
   test('access manifest file', async ({ fs, assert }) => {
     const vite = new Vite(
+      false,
       defineConfig({
         buildDirectory: join(fs.basePath, 'public/assets'),
-        hotFile: join(fs.basePath, 'public/assets/hot.json'),
       })
     )
 
@@ -368,9 +338,9 @@ test.group('Vite | manifest', () => {
 
   test('get asset path', async ({ fs, assert }) => {
     const vite = new Vite(
+      false,
       defineConfig({
         buildDirectory: join(fs.basePath, 'public/assets'),
-        hotFile: join(fs.basePath, 'public/assets/hot.json'),
       })
     )
 
@@ -384,9 +354,9 @@ test.group('Vite | manifest', () => {
 
   test('throw error when manifest does not have the chunk', async ({ fs }) => {
     const vite = new Vite(
+      false,
       defineConfig({
         buildDirectory: join(fs.basePath, 'public/assets'),
-        hotFile: join(fs.basePath, 'public/assets/hot.json'),
       })
     )
 
@@ -400,9 +370,9 @@ test.group('Vite | manifest', () => {
 
   test('prefix custom assetsUrl to the assetPath', async ({ fs, assert }) => {
     const vite = new Vite(
+      false,
       defineConfig({
         buildDirectory: join(fs.basePath, 'public/assets'),
-        hotFile: join(fs.basePath, 'public/assets/hot.json'),
         assetsUrl: 'https://cdn.url.com',
       })
     )
@@ -417,9 +387,9 @@ test.group('Vite | manifest', () => {
 
   test('return null for viteHMRScript when not in hot mode', async ({ fs, assert }) => {
     const vite = new Vite(
+      false,
       defineConfig({
         buildDirectory: join(fs.basePath, 'public/assets'),
-        hotFile: join(fs.basePath, 'public/assets/hot.json'),
         assetsUrl: 'https://cdn.url.com',
       })
     )
@@ -434,9 +404,9 @@ test.group('Vite | manifest', () => {
 
   test('add custom attributes to the entrypoints script tags', async ({ assert, fs }) => {
     const vite = new Vite(
+      false,
       defineConfig({
         buildDirectory: join(fs.basePath, 'public/assets'),
-        hotFile: join(fs.basePath, 'public/assets/hot.json'),
         assetsUrl: 'https://cdn.url.com',
         scriptAttributes: () => {
           return {
@@ -472,9 +442,9 @@ test.group('Vite | manifest', () => {
 
   test('add custom attributes to the entrypoints link tags', async ({ assert, fs }) => {
     const vite = new Vite(
+      false,
       defineConfig({
         buildDirectory: join(fs.basePath, 'public/assets'),
-        hotFile: join(fs.basePath, 'public/assets/hot.json'),
         assetsUrl: 'https://cdn.url.com',
         styleAttributes: {
           'data-test': 'test',
@@ -507,9 +477,9 @@ test.group('Vite | manifest', () => {
 
   test('add integrity attribute to entrypoint tags', async ({ assert, fs }) => {
     const vite = new Vite(
+      false,
       defineConfig({
         buildDirectory: join(fs.basePath, 'public/assets'),
-        hotFile: join(fs.basePath, 'public/assets/hot.json'),
         assetsUrl: 'https://cdn.url.com',
       })
     )
@@ -555,22 +525,11 @@ test.group('Vite | manifest', () => {
     )
   })
 
-  test('return empty string for devUrl when not in hot mode', async ({ assert, fs }) => {
-    const vite = new Vite(
-      defineConfig({
-        buildDirectory: join(fs.basePath, 'public/assets'),
-        hotFile: join(fs.basePath, 'public/assets/hot.json'),
-      })
-    )
-
-    assert.equal(vite.devUrl(), '')
-  })
-
   test('return path to assets directory', async ({ assert, fs }) => {
     const vite = new Vite(
+      false,
       defineConfig({
         buildDirectory: join(fs.basePath, 'public/assets'),
-        hotFile: join(fs.basePath, 'public/assets/hot.json'),
       })
     )
 

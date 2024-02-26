@@ -8,15 +8,15 @@
  */
 
 import { join } from 'node:path'
-import { ViteOptions } from './types.js'
+
+import type { ViteOptions } from './types.js'
 
 /**
- * Define the backend config for resolving vite assets
+ * Define the backend config for Vite
  */
 export function defineConfig(config: Partial<ViteOptions>): ViteOptions {
   return {
     buildDirectory: 'public/assets',
-    hotFile: 'public/assets/hot.json',
     assetsUrl: '/assets',
     manifestFile: config.buildDirectory
       ? join(config.buildDirectory, '.vite/manifest.json')

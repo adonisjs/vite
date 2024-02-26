@@ -8,23 +8,18 @@
  */
 
 import type { ApplicationService } from '@adonisjs/core/types'
-import type { cspKeywords as ShieldCSPKeywords } from '@adonisjs/shield'
 
-import debug from '../src/backend/debug.js'
-import { Vite } from '../src/backend/vite.js'
-import type { ViteOptions } from '../src/backend/types.js'
-import { defineConfig } from '../src/backend/define_config.js'
+import { Vite } from '../src/vite.js'
+import type { ViteOptions } from '../src/types.js'
+import ViteMiddleware from '../src/middlewares/vite_middleware.js'
 
-/**
- * Extend the container bindings
- */
 declare module '@adonisjs/core/types' {
   interface ContainerBindings {
     vite: Vite
   }
 }
 
-export default class ViteServiceProvider {
+export default class ViteProvider {
   constructor(protected app: ApplicationService) {}
 
   /**
@@ -34,67 +29,35 @@ export default class ViteServiceProvider {
     if (this.app.usingEdgeJS) {
       const edge = await import('edge.js')
       const vite = await this.app.container.make('vite')
-      const { edgePluginVite } = await import('../src/backend/plugins/edge.js')
+      const { edgePluginVite } = await import('../src/plugins/edge.js')
       edge.default.use(edgePluginVite(vite))
     }
   }
 
-  /**
-   * Registers CSP keywords when @adonisjs/shield is installed
-   */
-  protected async registerShieldKeywords() {
-    let cspKeywords: typeof ShieldCSPKeywords | null = null
-    try {
-      const shieldExports = await import('@adonisjs/shield')
-      cspKeywords = shieldExports.cspKeywords
-    } catch {}
+  async register() {
+    const config = this.app.config.get<ViteOptions>('vite')
 
-    if (cspKeywords) {
-      debug('Detected @adonisjs/shield package. Adding Vite keywords for CSP policy')
-      const vite = await this.app.container.make('vite')
+    const vite = new Vite(this.app.inDev, config)
+    this.app.container.bind('vite', () => vite)
+    this.app.container.bind(ViteMiddleware, () => new ViteMiddleware(vite))
 
-      /**
-       * Registering the @viteUrl keyword for CSP directives.
-       * Returns http URL to the dev or the CDN server, otherwise
-       * an empty string
-       */
-      cspKeywords.register('@viteUrl', function () {
-        const assetsURL = vite.assetsUrl()
-        if (!assetsURL || !assetsURL.startsWith('http://') || assetsURL.startsWith('https://')) {
-          return ''
-        }
-
-        return assetsURL
-      })
-
-      /**
-       * Registering the @viteDevUrl keyword for the CSP directives.
-       * Returns the dev server URL in development and empty string
-       * in prod
-       */
-      cspKeywords.register('@viteDevUrl', function () {
-        return vite.devUrl()
-      })
-
-      /**
-       * Registering the @viteHmrUrl keyword for the CSP directives.
-       * Returns the Websocket URL for the HMR server
-       */
-      cspKeywords.register('@viteHmrUrl', function () {
-        return vite.devUrl().replace('http://', 'ws://').replace('https://', 'wss://')
-      })
+    if (this.app.inDev) {
+      const server = await this.app.container.make('server')
+      server.use([() => import('../src/middlewares/vite_middleware.js')])
     }
   }
 
-  register() {
-    this.app.container.singleton('vite', async () => {
-      const config = this.app.config.get<ViteOptions>('vite', defineConfig({}))
-      return new Vite(config)
-    })
+  async boot() {
+    if (!this.app.inDev) return
+
+    const vite = await this.app.container.make('vite')
+    await Promise.all([vite.createDevServer(), this.registerEdgePlugin()])
   }
 
-  async boot() {
-    await this.registerEdgePlugin()
-    await this.registerShieldKeywords()
+  async shutdown() {
+    if (!this.app.inDev) return
+
+    const vite = await this.app.container.make('vite')
+    await vite.stopDevServer()
   }
 }
