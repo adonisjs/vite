@@ -108,4 +108,33 @@ test.group('Inertia Provider', () => {
 
     await app.terminate()
   })
+
+  test('register edge plugin in production', async ({ assert }) => {
+    process.env.NODE_ENV = 'production'
+
+    const ignitor = new IgnitorFactory()
+      .merge({
+        rcFileContents: {
+          providers: [
+            () => import('../../providers/vite_provider.js'),
+            () => import('@adonisjs/core/providers/edge_provider'),
+          ],
+        },
+      })
+      .withCoreConfig()
+      .withCoreProviders()
+      .merge({ config: { vite: defineConfig({}) } })
+      .create(BASE_URL, { importer: IMPORTER })
+
+    const app = ignitor.createApp('web')
+    await app.init()
+    await app.boot()
+
+    const edge = await import('edge.js')
+    await edge.default.renderRaw('')
+
+    assert.isDefined(edge.default.tags.vite)
+
+    await app.terminate()
+  })
 })
