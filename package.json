@@ -23,7 +23,7 @@
     "./services/main": "./build/services/vite.js",
     "./types": "./build/src/types.js",
     "./client": "./build/src/client/main.js",
-    "./build_hook": "./build/src/build_hook.js"
+    "./build_hook": "./build/src/hooks/build_hook.js"
   },
   "scripts": {
     "clean": "del-cli build",
