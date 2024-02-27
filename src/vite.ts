@@ -29,7 +29,7 @@ export class Vite {
   #devServer?: ViteDevServer
 
   constructor(
-    protected inDev: boolean,
+    protected isViteRunning: boolean,
     options: ViteOptions
   ) {
     this.#options = options
@@ -122,7 +122,7 @@ export class Vite {
    */
   #generateTag(asset: string, attributes?: Record<string, any>): AdonisViteElement {
     let url = ''
-    if (this.inDev) {
+    if (this.isViteRunning) {
       url = `/${asset}`
     } else {
       url = `${this.#options.assetsUrl}/${asset}`
@@ -201,7 +201,7 @@ export class Vite {
   ): AdonisViteElement[] {
     entryPoints = Array.isArray(entryPoints) ? entryPoints : [entryPoints]
 
-    if (this.inDev) {
+    if (this.isViteRunning) {
       return this.#generateEntryPointsTagsForHotMode(entryPoints, attributes)
     }
 
@@ -214,7 +214,7 @@ export class Vite {
    * "assets" URL
    */
   assetsUrl() {
-    if (this.inDev) return this.#devServer!.config.server.host
+    if (this.isViteRunning) return this.#devServer!.config.server.host
 
     return this.#options.assetsUrl
   }
@@ -223,7 +223,7 @@ export class Vite {
    * Returns path to a given asset file
    */
   assetPath(asset: string): string {
-    if (this.inDev) {
+    if (this.isViteRunning) {
       return `/${asset}`
     }
 
@@ -237,7 +237,7 @@ export class Vite {
    * @throws Will throw an exception when running in dev
    */
   manifest(): Manifest {
-    if (this.inDev) {
+    if (this.isViteRunning) {
       throw new Error('Cannot read the manifest file when running in dev mode')
     }
 
@@ -292,7 +292,7 @@ export class Vite {
    * Returns the script needed for the HMR working with React
    */
   getReactHmrScript(attributes?: Record<string, any>): AdonisViteElement | null {
-    if (!this.inDev) {
+    if (!this.isViteRunning) {
       return null
     }
 
