@@ -23,11 +23,10 @@ export default class ViteProvider {
   #shouldRunVite: boolean
 
   constructor(protected app: ApplicationService) {
-    const env = this.app.getEnvironment()
-
     /**
      * We should only run Vite in development and test environments
      */
+    const env = this.app.getEnvironment()
     this.#shouldRunVite = (this.app.inDev || this.app.inTest) && (env === 'web' || env === 'test')
   }
 
@@ -43,6 +42,9 @@ export default class ViteProvider {
     }
   }
 
+  /**
+   * Register Vite bindings
+   */
   register() {
     const config = this.app.config.get<ViteOptions>('vite')
 
@@ -51,6 +53,10 @@ export default class ViteProvider {
     this.app.container.bind(ViteMiddleware, () => new ViteMiddleware(vite))
   }
 
+  /**
+   * - Register edge tags
+   * - Start Vite server when running in development or test
+   */
   async boot() {
     await this.registerEdgePlugin()
 
@@ -63,6 +69,9 @@ export default class ViteProvider {
     server.use([() => import('../src/middlewares/vite_middleware.js')])
   }
 
+  /**
+   * Stop Vite server when running in development or test
+   */
   async shutdown() {
     if (!this.#shouldRunVite) return
 
