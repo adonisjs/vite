@@ -8,7 +8,7 @@
  */
 
 import { multibuild } from '@vavite/multibuild'
-import type { AssemblerHookHandler } from '@adonisjs/application/types'
+import type { AssemblerHookHandler } from '@adonisjs/core/types/app'
 
 /**
  * This is an Assembler hook that should be executed when the application is
