@@ -16,10 +16,11 @@
   "exports": {
     ".": "./build/index.js",
     "./vite_provider": "./build/providers/vite_provider.js",
+    "./plugins/edge": "./build/src/plugins/edge.js",
+    "./build_hook": "./build/src/hooks/build_hook.js",
     "./services/main": "./build/services/vite.js",
-    "./types": "./build/src/types.js",
     "./client": "./build/src/client/main.js",
-    "./build_hook": "./build/src/hooks/build_hook.js"
+    "./types": "./build/src/types.js"
   },
   "scripts": {
     "clean": "del-cli build",
@@ -121,12 +122,13 @@
   },
   "tsup": {
     "entry": [
-      "./index.ts",
+      "./src/hooks/build_hook.ts",
       "./providers/vite_provider.ts",
+      "./src/plugins/edge.ts",
+      "./src/client/main.ts",
       "./services/vite.ts",
       "./src/types.ts",
-      "./src/client/main.ts",
-      "./src/hooks/build_hook.ts"
+      "./index.ts"
     ],
     "outDir": "./build",
     "clean": true,
