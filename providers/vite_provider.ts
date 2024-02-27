@@ -34,17 +34,12 @@ export default class ViteProvider {
     }
   }
 
-  async register() {
+  register() {
     const config = this.app.config.get<ViteOptions>('vite')
 
     const vite = new Vite(this.app.inDev, config)
     this.app.container.bind('vite', () => vite)
     this.app.container.bind(ViteMiddleware, () => new ViteMiddleware(vite))
-
-    if (this.app.inDev) {
-      const server = await this.app.container.make('server')
-      server.use([() => import('../src/middlewares/vite_middleware.js')])
-    }
   }
 
   async boot() {
@@ -53,7 +48,10 @@ export default class ViteProvider {
     if (!this.app.inDev) return
 
     const vite = await this.app.container.make('vite')
+    const server = await this.app.container.make('server')
+
     await vite.createDevServer()
+    server.use([() => import('../src/middlewares/vite_middleware.js')])
   }
 
   async shutdown() {
