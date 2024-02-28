@@ -10,7 +10,7 @@
 import { IgnitorFactory } from '@adonisjs/core/factories'
 import { test } from '@japa/runner'
 import { defineConfig } from '../../index.js'
-import ViteMiddleware from '../../src/middlewares/vite_middleware.js'
+import ViteMiddleware from '../../src/middleware/vite_middleware.js'
 
 const BASE_URL = new URL('./tmp/', import.meta.url)
 const IMPORTER = (filePath: string) => {

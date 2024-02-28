@@ -11,7 +11,7 @@ import type { ApplicationService } from '@adonisjs/core/types'
 
 import { Vite } from '../src/vite.js'
 import type { ViteOptions } from '../src/types.js'
-import ViteMiddleware from '../src/middlewares/vite_middleware.js'
+import ViteMiddleware from '../src/middleware/vite_middleware.js'
 
 declare module '@adonisjs/core/types' {
   interface ContainerBindings {
@@ -66,7 +66,7 @@ export default class ViteProvider {
     const server = await this.app.container.make('server')
 
     await vite.createDevServer()
-    server.use([() => import('../src/middlewares/vite_middleware.js')])
+    server.use([() => import('../src/middleware/vite_middleware.js')])
   }
 
   /**
