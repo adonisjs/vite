@@ -8,6 +8,7 @@
  */
 
 import type { ApplicationService } from '@adonisjs/core/types'
+import type { cspKeywords as ShieldCSPKeywords } from '@adonisjs/shield'
 
 import { Vite } from '../src/vite.js'
 import type { ViteOptions } from '../src/types.js'
@@ -40,6 +41,35 @@ export default class ViteProvider {
       const { edgePluginVite } = await import('../src/plugins/edge.js')
       edge.default.use(edgePluginVite(vite))
     }
+  }
+
+  /**
+   * Registers CSP keywords when @adonisjs/shield is installed
+   */
+  protected async registerShieldKeywords() {
+    let cspKeywords: typeof ShieldCSPKeywords | null = null
+    try {
+      const shieldExports = await import('@adonisjs/shield')
+      cspKeywords = shieldExports.cspKeywords
+    } catch {}
+
+    if (!cspKeywords) return
+
+    const vite = await this.app.container.make('vite')
+
+    /**
+     * Registering the @viteUrl keyword for CSP directives.
+     * Returns http URL to the dev or the CDN server, otherwise
+     * an empty string
+     */
+    cspKeywords.register('@viteUrl', function () {
+      const assetsURL = vite.assetsUrl()
+      if (!assetsURL || !assetsURL.startsWith('http://') || assetsURL.startsWith('https://')) {
+        return ''
+      }
+
+      return assetsURL
+    })
   }
 
   /**

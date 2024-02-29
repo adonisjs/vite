@@ -209,13 +209,9 @@ export class Vite {
   }
 
   /**
-   * Returns the dev server URL when running in hot
-   * mode, otherwise returns the explicitly configured
-   * "assets" URL
+   * Returns the explicitly configured assetsUrl
    */
   assetsUrl() {
-    if (this.isViteRunning) return this.#devServer!.config.server.host
-
     return this.#options.assetsUrl
   }
 
