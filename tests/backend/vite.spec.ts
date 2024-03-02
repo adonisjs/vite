@@ -13,7 +13,7 @@ import { test } from '@japa/runner'
 import { Vite } from '../../src/vite.js'
 import { defineConfig } from '../../src/define_config.js'
 
-test.group('Vite | hotMode', () => {
+test.group('Vite | dev', () => {
   test('generate entrypoints tags for a file', async ({ assert, fs }) => {
     const vite = new Vite(
       true,
@@ -77,7 +77,7 @@ test.group('Vite | hotMode', () => {
     )
   })
 
-  test('raise exception when trying to access manifest file in hot mode', async ({ fs }) => {
+  test('raise exception when trying to access manifest file in dev mode', async ({ fs }) => {
     const vite = new Vite(
       true,
       defineConfig({
@@ -97,7 +97,7 @@ test.group('Vite | hotMode', () => {
     assert.equal(vite.assetPath('test.js'), '/test.js')
   })
 
-  test('ignore custom assetsUrl in hot mode', async ({ fs, assert }) => {
+  test('ignore custom assetsUrl in dev mode', async ({ fs, assert }) => {
     const vite = new Vite(
       true,
       defineConfig({
@@ -211,17 +211,6 @@ test.group('Vite | hotMode', () => {
       ]
     )
   })
-
-  // test('return path to assets directory', async ({ assert, fs }) => {
-  //   const vite = new Vite(
-  //     true,
-  //     defineConfig({
-  //       buildDirectory: join(fs.basePath, 'public/assets'),
-  //     })
-  //   )
-
-  //   assert.equal(vite.assetsUrl(), 'http://localhost:9484')
-  // })
 })
 
 test.group('Vite | manifest', () => {
@@ -534,5 +523,87 @@ test.group('Vite | manifest', () => {
     )
 
     assert.equal(vite.assetsUrl(), '/assets')
+  })
+})
+
+test.group('Preloading', () => {
+  const config = defineConfig({
+    manifestFile: join(import.meta.dirname, 'fixtures/adonis_packages_manifest.json'),
+  })
+
+  test('Preload root entrypoints', async ({ assert }) => {
+    const result = new Vite(false, config)
+      .generateEntryPointsTags('resources/pages/home/main.vue')
+      .map((tag) => tag.toString())
+
+    assert.include(result, '<link rel="modulepreload" href="/assets/main-CKiOIoD7.js"/>')
+  })
+
+  test('Preload files imported from entrypoints', async ({ assert }) => {
+    const result = new Vite(false, config)
+      .generateEntryPointsTags('resources/pages/home/main.vue')
+      .map((tag) => tag.toString())
+
+    assert.includeMembers(result, [
+      '<link rel="modulepreload" href="/assets/app-CGO3UiiC.js"/>',
+      '<link rel="modulepreload" href="/assets/index-C1JNlH7D.js"/>',
+      '<link rel="modulepreload" href="/assets/main_section-CT1dtBDn.js"/>',
+      '<link rel="modulepreload" href="/assets/_plugin-vue_export-helper-DlAUqK2U.js"/>',
+      '<link rel="modulepreload" href="/assets/default-Do-xftcX.js"/>',
+      '<link rel="modulepreload" href="/assets/order-D6tpsh_Z.js"/>',
+      '<link rel="modulepreload" href="/assets/filters-Dmvaqb5E.js"/>',
+    ])
+  })
+
+  test('Preload entrypoints css files', async ({ assert }) => {
+    const result = new Vite(false, config)
+      .generateEntryPointsTags('resources/pages/home/main.vue')
+      .map((tag) => tag.toString())
+
+    assert.includeMembers(result, [
+      '<link rel="preload" as="style" href="/assets/main-BcGYH63d.css"/>',
+    ])
+  })
+
+  test('Preload css files of imported files of entrypoint', async ({ assert }) => {
+    const result = new Vite(false, config)
+      .generateEntryPointsTags('resources/pages/home/main.vue')
+      .map((tag) => tag.toString())
+
+    assert.includeMembers(result, [
+      '<link rel="preload" as="style" href="/assets/main-BcGYH63d.css"/>',
+      '<link rel="preload" as="style" href="/assets/package_card-JrVjtBKi.css"/>',
+      '<link rel="preload" as="style" href="/assets/default-CzWQScon.css"/>',
+      '<link rel="preload" as="style" href="/assets/main_section-QGbeXyUe.css"/>',
+      '<link rel="preload" as="style" href="/assets/app-2kD3K4XR.css"/>',
+    ])
+  })
+
+  test('css preload should be ordered before js preload', async ({ assert }) => {
+    const result = new Vite(false, config)
+      .generateEntryPointsTags('resources/pages/home/main.vue')
+      .map((tag) => tag.toString())
+
+    const cssPreloadIndex = result.findIndex((tag) => tag.includes('rel="preload" as="style"'))
+    const jsPreloadIndex = result.findIndex((tag) => tag.includes('rel="modulepreload"'))
+
+    assert.isTrue(cssPreloadIndex < jsPreloadIndex)
+  })
+
+  test('preloads should use assetsUrl when defined', async ({ assert }) => {
+    const result = new Vite(false, defineConfig({ ...config, assetsUrl: 'https://cdn.url.com' }))
+      .generateEntryPointsTags('resources/pages/home/main.vue')
+      .map((tag) => tag.toString())
+
+    assert.includeMembers(result, [
+      '<link rel="modulepreload" href="https://cdn.url.com/main-CKiOIoD7.js"/>',
+      '<link rel="modulepreload" href="https://cdn.url.com/app-CGO3UiiC.js"/>',
+      '<link rel="modulepreload" href="https://cdn.url.com/index-C1JNlH7D.js"/>',
+      '<link rel="modulepreload" href="https://cdn.url.com/main_section-CT1dtBDn.js"/>',
+      '<link rel="modulepreload" href="https://cdn.url.com/_plugin-vue_export-helper-DlAUqK2U.js"/>',
+      '<link rel="modulepreload" href="https://cdn.url.com/default-Do-xftcX.js"/>',
+      '<link rel="modulepreload" href="https://cdn.url.com/order-D6tpsh_Z.js"/>',
+      '<link rel="modulepreload" href="https://cdn.url.com/filters-Dmvaqb5E.js"/>',
+    ])
   })
 })

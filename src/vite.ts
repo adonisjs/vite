@@ -118,6 +118,13 @@ export class Vite {
   }
 
   /**
+   * Generate an asset URL for a given asset path
+   */
+  #generateAssetUrl(path: string): string {
+    return `${this.#options.assetsUrl}/${path}`
+  }
+
+  /**
    * Generate a HTML tag for the given asset
    */
   #generateTag(asset: string, attributes?: Record<string, any>): AdonisViteElement {
@@ -125,7 +132,7 @@ export class Vite {
     if (this.isViteRunning) {
       url = `/${asset}`
     } else {
-      url = `${this.#options.assetsUrl}/${asset}`
+      url = this.#generateAssetUrl(asset)
     }
 
     if (this.#isCssPath(asset)) {
@@ -139,7 +146,7 @@ export class Vite {
    * Generate style and script tags for the given entrypoints
    * Also adds the @vite/client script
    */
-  #generateEntryPointsTagsForHotMode(
+  #generateEntryPointsTagsForDevMode(
     entryPoints: string[],
     attributes?: Record<string, any>
   ): AdonisViteElement[] {
@@ -154,14 +161,34 @@ export class Vite {
   /**
    * Get a chunk from the manifest file for a given file name
    */
-  #chunk(manifest: Manifest, fileName: string) {
-    const chunk = manifest[fileName]
+  #chunk(manifest: Manifest, entrypoint: string) {
+    const chunk = manifest[entrypoint]
 
     if (!chunk) {
-      throw new Error(`Cannot find "${fileName}" chunk in the manifest file`)
+      throw new Error(`Cannot find "${entrypoint}" chunk in the manifest file`)
     }
 
     return chunk
+  }
+
+  /**
+   * Get a list of chunks for a given filename
+   */
+  #chunksByFile(manifest: Manifest, file: string) {
+    return Object.entries(manifest)
+      .filter(([, chunk]) => chunk.file === file)
+      .map(([_, chunk]) => chunk)
+  }
+
+  /**
+   * Generate preload tag for a given url
+   */
+  #makePreloadTagForUrl(url: string) {
+    const attributes = this.#isCssPath(url)
+      ? { rel: 'preload', as: 'style', href: url }
+      : { rel: 'modulepreload', href: url }
+
+    return this.#generateElement({ tag: 'link', attributes })
   }
 
   /**
@@ -174,22 +201,64 @@ export class Vite {
   ): AdonisViteElement[] {
     const manifest = this.manifest()
     const tags: { path: string; tag: AdonisViteElement }[] = []
+    const preloads: Array<{ path: string }> = []
 
     for (const entryPoint of entryPoints) {
+      /**
+       * 1. We generate tags + modulepreload for the entrypoint
+       */
       const chunk = this.#chunk(manifest, entryPoint)
+      preloads.push({ path: this.#generateAssetUrl(chunk.file) })
       tags.push({
         path: chunk.file,
         tag: this.#generateTag(chunk.file, { ...attributes, integrity: chunk.integrity }),
       })
 
+      /**
+       * 2. We go through the CSS files that are imported by the entrypoint
+       * and generate tags + preload for them
+       */
       for (const css of chunk.css || []) {
+        preloads.push({ path: this.#generateAssetUrl(css) })
         tags.push({ path: css, tag: this.#generateTag(css) })
+      }
+
+      /**
+       * 3. We go through every import of the entrypoint and generate preload
+       */
+      for (const importNode of chunk.imports || []) {
+        preloads.push({ path: this.#generateAssetUrl(manifest[importNode].file) })
+
+        /**
+         * 4. Finally, we generate tags + preload for the CSS files imported by the import
+         * of the entrypoint
+         */
+        for (const css of manifest[importNode].css || []) {
+          const subChunk = this.#chunksByFile(manifest, css)
+
+          preloads.push({ path: this.#generateAssetUrl(css) })
+          tags.push({
+            path: this.#generateAssetUrl(css),
+            tag: this.#generateTag(css, {
+              ...attributes,
+              integrity: subChunk[0]?.integrity,
+            }),
+          })
+        }
       }
     }
 
-    return uniqBy(tags, 'path')
-      .sort((a) => (a.path.endsWith('.css') ? -1 : 1))
-      .map((tag) => tag.tag)
+    /**
+     * We sort the preload to ensure that CSS files are preloaded first
+     */
+    const preloadsElements = uniqBy(preloads, 'path')
+      .sort((preload) => (this.#isCssPath(preload.path) ? -1 : 1))
+      .map((preload) => this.#makePreloadTagForUrl(preload.path))
+
+    /**
+     * And finally, we return the preloads + script and link tags
+     */
+    return preloadsElements.concat(tags.map(({ tag }) => tag))
   }
 
   /**
@@ -202,7 +271,7 @@ export class Vite {
     entryPoints = Array.isArray(entryPoints) ? entryPoints : [entryPoints]
 
     if (this.isViteRunning) {
-      return this.#generateEntryPointsTagsForHotMode(entryPoints, attributes)
+      return this.#generateEntryPointsTagsForDevMode(entryPoints, attributes)
     }
 
     return this.#generateEntryPointsTagsWithManifest(entryPoints, attributes)
@@ -216,7 +285,7 @@ export class Vite {
   }
 
   /**
-   * Returns path to a given asset file
+   * Returns path to a given asset file using the manifest file
    */
   assetPath(asset: string): string {
     if (this.isViteRunning) {
@@ -224,7 +293,7 @@ export class Vite {
     }
 
     const chunk = this.#chunk(this.manifest(), asset)
-    return `${this.#options.assetsUrl}/${chunk.file}`
+    return this.#generateAssetUrl(chunk.file)
   }
 
   /**
