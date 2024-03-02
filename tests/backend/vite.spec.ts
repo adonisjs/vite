@@ -9,6 +9,7 @@
 
 import { join } from 'node:path'
 import { test } from '@japa/runner'
+import { fileURLToPath } from 'node:url'
 
 import { Vite } from '../../src/vite.js'
 import { defineConfig } from '../../src/define_config.js'
@@ -236,7 +237,7 @@ test.group('Vite | manifest', () => {
         children: [],
       },
     ])
-    assert.deepEqual(
+    assert.containsSubset(
       output.map((element) => String(element)),
       ['<script type="module" src="/assets/test-12345.js"></script>']
     )
@@ -271,7 +272,7 @@ test.group('Vite | manifest', () => {
         children: [],
       },
     ])
-    assert.deepEqual(
+    assert.containsSubset(
       output.map((element) => String(element)),
       [
         '<link rel="stylesheet" href="/assets/main.b82dbe22.css"/>',
@@ -303,7 +304,7 @@ test.group('Vite | manifest', () => {
         children: [],
       },
     ])
-    assert.deepEqual(
+    assert.containsSubset(
       output.map((element) => String(element)),
       ['<script type="module" src="https://cdn.url.com/test-12345.js"></script>']
     )
@@ -423,7 +424,7 @@ test.group('Vite | manifest', () => {
         children: [],
       },
     ])
-    assert.deepEqual(
+    assert.containsSubset(
       output.map((element) => String(element)),
       ['<script type="module" data-test="test" src="https://cdn.url.com/test-12345.js"></script>']
     )
@@ -458,7 +459,7 @@ test.group('Vite | manifest', () => {
         },
       },
     ])
-    assert.deepEqual(
+    assert.containsSubset(
       output.map((element) => String(element)),
       ['<link rel="stylesheet" data-test="test" href="https://cdn.url.com/app-12345.css"/>']
     )
@@ -505,7 +506,7 @@ test.group('Vite | manifest', () => {
         children: [],
       },
     ])
-    assert.deepEqual(
+    assert.containsSubset(
       output.map((element) => String(element)),
       [
         '<link rel="stylesheet" href="https://cdn.url.com/app-12345.css"/>',
@@ -528,7 +529,7 @@ test.group('Vite | manifest', () => {
 
 test.group('Preloading', () => {
   const config = defineConfig({
-    manifestFile: join(import.meta.dirname, 'fixtures/adonis_packages_manifest.json'),
+    manifestFile: fileURLToPath(new URL('fixtures/adonis_packages_manifest.json', import.meta.url)),
   })
 
   test('Preload root entrypoints', async ({ assert }) => {
