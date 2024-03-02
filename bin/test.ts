@@ -8,6 +8,7 @@
  */
 
 import { assert } from '@japa/assert'
+import { snapshot } from '@japa/snapshot'
 import { fileSystem } from '@japa/file-system'
 import { processCLIArgs, configure, run } from '@japa/runner'
 
@@ -29,7 +30,7 @@ import { BASE_URL } from '../tests_helpers/index.js'
 processCLIArgs(process.argv.slice(2))
 configure({
   files: ['tests/**/*.spec.ts'],
-  plugins: [assert(), fileSystem({ basePath: BASE_URL })],
+  plugins: [assert(), fileSystem({ basePath: BASE_URL }), snapshot()],
 })
 
 /*
