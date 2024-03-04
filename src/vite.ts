@@ -9,7 +9,7 @@
 
 import { readFileSync } from 'node:fs'
 import type { ViteRuntime } from 'vite/runtime'
-import type { MainThreadRuntimeOptions, Manifest, ViteDevServer } from 'vite'
+import type { InlineConfig, MainThreadRuntimeOptions, Manifest, ViteDevServer } from 'vite'
 
 import { makeAttributes, uniqBy } from './utils.js'
 import type { AdonisViteElement, SetAttributes, ViteOptions } from './types.js'
@@ -318,12 +318,13 @@ export class Vite {
    * We lazy load the APIs to avoid loading it in production
    * since we don't need it
    */
-  async createDevServer() {
+  async createDevServer(options?: InlineConfig) {
     const { createServer } = await import('vite')
 
     this.#devServer = await createServer({
       server: { middlewareMode: true, hmr: { port: 3001 } },
       appType: 'custom',
+      ...options,
     })
   }
 
