@@ -9,12 +9,7 @@
 
 import { readFileSync } from 'node:fs'
 import type { ViteRuntime } from 'vite/runtime'
-import {
-  createViteRuntime,
-  MainThreadRuntimeOptions,
-  type Manifest,
-  type ViteDevServer,
-} from 'vite'
+import type { MainThreadRuntimeOptions, Manifest, ViteDevServer } from 'vite'
 
 import { makeAttributes, uniqBy } from './utils.js'
 import type { AdonisViteElement, SetAttributes, ViteOptions } from './types.js'
@@ -30,7 +25,6 @@ export class Vite {
    */
   #manifestCache?: Manifest
   #options: ViteOptions
-  #runtime?: ViteRuntime
   #devServer?: ViteDevServer
 
   constructor(
@@ -325,14 +319,23 @@ export class Vite {
    * since we don't need it
    */
   async createDevServer() {
-    const { createViteRuntime, createServer } = await import('vite')
+    const { createServer } = await import('vite')
 
     this.#devServer = await createServer({
       server: { middlewareMode: true, hmr: { port: 3001 } },
       appType: 'custom',
     })
+  }
 
-    this.#runtime = await createViteRuntime(this.#devServer)
+  /**
+   * Create a runtime instance
+   * Will not be available when running in production since
+   * it needs the Vite Dev server
+   */
+  async createRuntime(options: MainThreadRuntimeOptions = {}): Promise<ViteRuntime> {
+    const { createViteRuntime } = await import('vite')
+
+    return createViteRuntime(this.#devServer!, options)
   }
 
   /**
@@ -348,15 +351,6 @@ export class Vite {
    */
   getDevServer() {
     return this.#devServer
-  }
-
-  /**
-   * Create a runtime instance
-   * Will not be available when running in production since
-   * it needs the Vite Dev server
-   */
-  createRuntime(options: MainThreadRuntimeOptions = {}) {
-    return createViteRuntime(this.#devServer!, options)
   }
 
   /**
