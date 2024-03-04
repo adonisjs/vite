@@ -83,6 +83,7 @@ export function configHook(
 export const config = (options: PluginFullOptions): Plugin => {
   return {
     name: 'vite-plugin-adonis:config',
+    enforce: 'post',
     config: configHook.bind(null, options),
   }
 }
