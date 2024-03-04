@@ -9,7 +9,12 @@
 
 import { readFileSync } from 'node:fs'
 import type { ViteRuntime } from 'vite/runtime'
-import type { Manifest, ViteDevServer } from 'vite'
+import {
+  createViteRuntime,
+  MainThreadRuntimeOptions,
+  type Manifest,
+  type ViteDevServer,
+} from 'vite'
 
 import { makeAttributes, uniqBy } from './utils.js'
 import type { AdonisViteElement, SetAttributes, ViteOptions } from './types.js'
@@ -346,11 +351,12 @@ export class Vite {
   }
 
   /**
-   * Get the Vite runtime instance
-   * Will not be available when running in production
+   * Create a runtime instance
+   * Will not be available when running in production since
+   * it needs the Vite Dev server
    */
-  getRuntime() {
-    return this.#runtime
+  createRuntime(options: MainThreadRuntimeOptions = {}) {
+    return createViteRuntime(this.#devServer!, options)
   }
 
   /**
