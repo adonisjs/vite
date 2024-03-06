@@ -25,7 +25,7 @@ export function resolveAlias(config: UserConfig): AliasOptions {
   if (Array.isArray(config.resolve?.alias)) {
     return [
       ...(config.resolve?.alias ?? []),
-      Object.entries(defaultAlias).map(([find, replacement]) => ({ find, replacement })),
+      ...Object.entries(defaultAlias).map(([find, replacement]) => ({ find, replacement })),
     ]
   }
 

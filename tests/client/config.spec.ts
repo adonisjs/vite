@@ -53,6 +53,21 @@ test.group('Vite plugin', () => {
     })
   })
 
+  test('flatten existing aliases', async ({ assert }) => {
+    const plugin = adonisjs({ entrypoints: ['./resources/js/app.ts'] })[1] as Plugin
+
+    // @ts-ignore
+    const config = plugin!.config!(
+      { resolve: { alias: [{ find: '@test/', replacement: '/test/' }] } },
+      { command: 'build' }
+    )
+
+    assert.deepEqual(config.resolve.alias, [
+      { find: '@test/', replacement: '/test/' },
+      { find: '@/', replacement: '/resources/js/' },
+    ])
+  })
+
   test('user should be able to override the default alias', async ({ assert }) => {
     const plugin = adonisjs({ entrypoints: ['./resources/js/app.ts'] })[1] as Plugin
 
