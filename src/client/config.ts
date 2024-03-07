@@ -8,29 +8,10 @@
  */
 
 import { join } from 'node:path'
-import type { AliasOptions, ConfigEnv, Plugin, UserConfig } from 'vite'
+import type { ConfigEnv, Plugin, UserConfig } from 'vite'
 
 import { addTrailingSlash } from '../utils.js'
 import type { PluginFullOptions } from './types.js'
-
-/**
- * Resolve the `config.resolve.alias` value
- *
- * Basically we are merging the user defined alias with the
- * default alias.
- */
-export function resolveAlias(config: UserConfig): AliasOptions {
-  const defaultAlias = { '@/': `/resources/js/` }
-
-  if (Array.isArray(config.resolve?.alias)) {
-    return [
-      ...(config.resolve?.alias ?? []),
-      ...Object.entries(defaultAlias).map(([find, replacement]) => ({ find, replacement })),
-    ]
-  }
-
-  return { ...defaultAlias, ...config.resolve?.alias }
-}
 
 /**
  * Resolve the `config.base` value
@@ -58,7 +39,6 @@ export function configHook(
 ): UserConfig {
   const config: UserConfig = {
     publicDir: userConfig.publicDir ?? false,
-    resolve: { alias: resolveAlias(userConfig) },
     base: resolveBase(userConfig, options, command),
 
     build: {
