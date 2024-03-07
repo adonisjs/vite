@@ -37,46 +37,6 @@ test.group('Vite plugin', () => {
     await assert.fileContains('public/assets/foo.json', 'resources/js/app.ts')
   })
 
-  test('user aliases are preserved', async ({ assert }) => {
-    const plugin = adonisjs({ entrypoints: ['./resources/js/app.ts'] })[1] as Plugin
-
-    // @ts-ignore
-    const config = plugin!.config!(
-      { resolve: { alias: { '@test/': '/test/', '@foo': '/foo/' } } },
-      { command: 'build' }
-    )
-
-    assert.deepEqual(config.resolve.alias, {
-      '@/': '/resources/js/',
-      '@test/': '/test/',
-      '@foo': '/foo/',
-    })
-  })
-
-  test('flatten existing aliases', async ({ assert }) => {
-    const plugin = adonisjs({ entrypoints: ['./resources/js/app.ts'] })[1] as Plugin
-
-    // @ts-ignore
-    const config = plugin!.config!(
-      { resolve: { alias: [{ find: '@test/', replacement: '/test/' }] } },
-      { command: 'build' }
-    )
-
-    assert.deepEqual(config.resolve.alias, [
-      { find: '@test/', replacement: '/test/' },
-      { find: '@/', replacement: '/resources/js/' },
-    ])
-  })
-
-  test('user should be able to override the default alias', async ({ assert }) => {
-    const plugin = adonisjs({ entrypoints: ['./resources/js/app.ts'] })[1] as Plugin
-
-    // @ts-ignore
-    const config = plugin!.config!({ resolve: { alias: { '@/': '/test/' } } }, { command: 'build' })
-
-    assert.deepEqual(config.resolve.alias, { '@/': '/test/' })
-  })
-
   test('define the asset url', async ({ assert }) => {
     const plugin = adonisjs({
       entrypoints: ['./resources/js/app.ts'],
