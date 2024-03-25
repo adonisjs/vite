@@ -26,6 +26,7 @@ export class Vite {
   #manifestCache?: Manifest
   #options: ViteOptions
   #devServer?: ViteDevServer
+  #createServerPromise?: Promise<ViteDevServer>
 
   constructor(
     protected isViteRunning: boolean,
@@ -321,11 +322,17 @@ export class Vite {
   async createDevServer(options?: InlineConfig) {
     const { createServer } = await import('vite')
 
-    this.#devServer = await createServer({
+    /**
+     * We do not await the server creation since it will
+     * slow down the boot process of AdonisJS
+     */
+    this.#createServerPromise = createServer({
       server: { middlewareMode: true, hmr: { port: 3001 } },
       appType: 'custom',
       ...options,
     })
+
+    this.#devServer = await this.#createServerPromise
   }
 
   /**
@@ -343,6 +350,7 @@ export class Vite {
    * Stop the Vite Dev server
    */
   async stopDevServer() {
+    await this.#createServerPromise
     await this.#devServer?.close()
   }
 

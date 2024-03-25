@@ -7,8 +7,10 @@
  * file that was distributed with this source code.
  */
 
-import { IgnitorFactory } from '@adonisjs/core/factories'
 import { test } from '@japa/runner'
+import { setTimeout } from 'node:timers/promises'
+import { IgnitorFactory } from '@adonisjs/core/factories'
+
 import { defineConfig } from '../../index.js'
 import ViteMiddleware from '../../src/middleware/vite_middleware.js'
 
@@ -20,7 +22,7 @@ const IMPORTER = (filePath: string) => {
   return import(filePath)
 }
 
-test.group('Inertia Provider', () => {
+test.group('Vite Provider', () => {
   test('register vite middleware singleton', async ({ assert }) => {
     process.env.NODE_ENV = 'development'
 
@@ -55,6 +57,8 @@ test.group('Inertia Provider', () => {
     await app.boot()
 
     const vite = await app.container.make('vite')
+
+    await setTimeout(200)
     assert.isDefined(vite.getDevServer()?.restart)
 
     await app.terminate()
@@ -95,6 +99,7 @@ test.group('Inertia Provider', () => {
     await app.boot()
 
     const vite = await app.container.make('vite')
+    await setTimeout(200)
     assert.isDefined(vite.getDevServer()?.restart)
 
     await app.terminate()
