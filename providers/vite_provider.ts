@@ -92,8 +92,10 @@ export default class ViteProvider {
 
     if (!this.#shouldRunVite) return
 
-    const vite = await this.app.container.make('vite')
-    const server = await this.app.container.make('server')
+    const [vite, server] = await Promise.all([
+      this.app.container.make('vite'),
+      this.app.container.make('server'),
+    ])
 
     await vite.createDevServer()
     server.use([() => import('../src/middleware/vite_middleware.js')])
