@@ -111,7 +111,7 @@ export const edgePluginVite: (vite: Vite) => PluginFn<undefined> = (vite) => {
             : `generateEntryPointsTags(${entrypoints})`
 
         buffer.outputExpression(
-          `state.vite.${methodCall}.join('\\n')`,
+          `(await state.vite.${methodCall}).join('\\n')`,
           token.filename,
           token.loc.start.line,
           false
