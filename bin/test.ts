@@ -12,7 +12,7 @@ import { snapshot } from '@japa/snapshot'
 import { fileSystem } from '@japa/file-system'
 import { processCLIArgs, configure, run } from '@japa/runner'
 
-import { BASE_URL } from '../tests_helpers/index.js'
+import { BASE_URL } from '../tests/backend/helpers.js'
 
 /*
 |--------------------------------------------------------------------------
