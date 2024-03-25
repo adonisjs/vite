@@ -9,6 +9,7 @@
 
 import { join } from 'node:path'
 import { readFileSync } from 'node:fs'
+import { slash } from '@poppinss/utils'
 import type { ViteRuntime } from 'vite/runtime'
 import type {
   InlineConfig,
@@ -231,7 +232,7 @@ export class Vite {
      */
     for (const entryPoint of jsEntrypoints) {
       const filePath = join(server.config.root, entryPoint)
-      const entryMod = server.moduleGraph.getModuleById(filePath)
+      const entryMod = server.moduleGraph.getModuleById(slash(filePath))
       if (entryMod) this.#collectCss(entryMod, preloadUrls, visitedModules)
     }
 
