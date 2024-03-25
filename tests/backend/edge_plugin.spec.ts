@@ -11,13 +11,14 @@ import { Edge } from 'edge.js'
 import { test } from '@japa/runner'
 
 import { Vite } from '../../src/vite.js'
+import { createVite } from './helpers.js'
 import { defineConfig } from '../../src/define_config.js'
 import { edgePluginVite } from '../../src/plugins/edge.js'
 
 test.group('Edge plugin vite', () => {
   test('generate asset path within edge template', async ({ assert }) => {
     const edge = Edge.create()
-    const vite = new Vite(true, defineConfig({}))
+    const vite = await createVite(defineConfig({}))
     edge.use(edgePluginVite(vite))
 
     const html = await edge.renderRaw(`{{ asset('foo.png') }}`)
@@ -26,7 +27,7 @@ test.group('Edge plugin vite', () => {
 
   test('share vite instance with edge', async ({ assert }) => {
     const edge = Edge.create()
-    const vite = new Vite(true, defineConfig({}))
+    const vite = await createVite(defineConfig({}))
     edge.use(edgePluginVite(vite))
 
     const html = await edge.renderRaw(`{{ vite.assetPath('foo.png') }}`)
@@ -35,7 +36,7 @@ test.group('Edge plugin vite', () => {
 
   test('output reactHMRScript', async ({ assert }) => {
     const edge = Edge.create()
-    const vite = new Vite(true, defineConfig({}))
+    const vite = await createVite(defineConfig({}))
     edge.use(edgePluginVite(vite))
 
     const html = await edge.renderRaw(`@viteReactRefresh()`)
@@ -52,7 +53,7 @@ test.group('Edge plugin vite', () => {
 
   test('pass custom attributes to reactHMRScript', async ({ assert }) => {
     const edge = Edge.create()
-    const vite = new Vite(true, defineConfig({}))
+    const vite = await createVite(defineConfig({}))
     edge.use(edgePluginVite(vite))
 
     const html = await edge.renderRaw(`@viteReactRefresh({ nonce: 'foo' })`)
@@ -78,7 +79,7 @@ test.group('Edge plugin vite', () => {
 
   test('output entrypoint tags', async ({ assert }) => {
     const edge = Edge.create()
-    const vite = new Vite(true, defineConfig({}))
+    const vite = await createVite(defineConfig({}))
     edge.use(edgePluginVite(vite))
 
     const html = await edge.renderRaw(`@vite(['resources/js/app.js'])`)
@@ -90,7 +91,7 @@ test.group('Edge plugin vite', () => {
 
   test('output entrypoint tags with custom attributes', async ({ assert }) => {
     const edge = Edge.create()
-    const vite = new Vite(true, defineConfig({}))
+    const vite = await createVite(defineConfig({}))
     edge.use(edgePluginVite(vite))
 
     const html = await edge.renderRaw(`@vite(['resources/js/app.js'], { nonce: 'foo' })`)
