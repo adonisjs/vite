@@ -422,7 +422,7 @@ export class Vite {
      * slow down the boot process of AdonisJS
      */
     this.#createServerPromise = createServer({
-      server: { middlewareMode: true, hmr: { port: 3001 } },
+      server: { middlewareMode: true },
       appType: 'custom',
       ...options,
     })
