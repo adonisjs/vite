@@ -202,7 +202,6 @@ export class Vite {
     attributes?: Record<string, any>
   ): Promise<AdonisViteElement[]> {
     const server = this.getDevServer()!
-    const runtime = await this.createRuntime()
 
     const tags = entryPoints.map((entrypoint) => this.#generateTag(entrypoint, attributes))
     const jsEntrypoints = entryPoints.filter((entrypoint) => !this.#isCssPath(entrypoint))
@@ -214,8 +213,8 @@ export class Vite {
      */
     if (server?.moduleGraph.idToModuleMap.size === 0) {
       await Promise.allSettled(
-        jsEntrypoints.map((entrypoint) => runtime.executeEntrypoint(entrypoint))
-      ).catch(console.error)
+        jsEntrypoints.map((entrypoint) => server.warmupRequest(`/${entrypoint}`))
+      )
     }
 
     /**
