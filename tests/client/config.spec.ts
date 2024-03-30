@@ -48,4 +48,14 @@ test.group('Vite plugin', () => {
     const config = plugin!.config!({}, { command: 'build' })
     assert.deepEqual(config.base, 'https://cdn.com/')
   })
+
+  test('disable vite dev server cors handling', async ({ assert }) => {
+    const plugin = adonisjs({
+      entrypoints: ['./resources/js/app.ts'],
+    })[1] as Plugin
+
+    // @ts-ignore
+    const config = plugin!.config!({}, { command: 'serve' })
+    assert.deepEqual(config.server?.cors, false)
+  })
 })

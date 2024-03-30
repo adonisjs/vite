@@ -16,7 +16,7 @@ import { BASE_URL } from './backend/helpers.js'
 test.group('Configure', (group) => {
   group.each.disableTimeout()
 
-  test('create config file and register provider', async ({ assert, fs }) => {
+  test('create config file and register provider and middleware', async ({ assert, fs }) => {
     const ignitor = new IgnitorFactory()
       .withCoreProviders()
       .withCoreConfig()
@@ -33,6 +33,7 @@ test.group('Configure', (group) => {
     await fs.create('.env', '')
     await fs.createJson('tsconfig.json', {})
     await fs.create('adonisrc.ts', `export default defineConfig({})`)
+    await fs.create('start/kernel.ts', `server.use([])`)
 
     const app = ignitor.createApp('web')
     await app.init()
@@ -51,6 +52,7 @@ test.group('Configure', (group) => {
     await assert.fileContains('vite.config.ts', `import adonisjs from '@adonisjs/vite/client'`)
     await assert.fileContains('adonisrc.ts', `pattern: 'public/**'`)
     await assert.fileContains('adonisrc.ts', `reloadServer: false`)
+    await assert.fileContains('start/kernel.ts', '@adonisjs/vite/vite_middleware')
   })
 
   test('install package when --install flag is used', async ({ assert, fs }) => {
@@ -71,6 +73,7 @@ test.group('Configure', (group) => {
     await fs.createJson('tsconfig.json', {})
     await fs.createJson('package.json', {})
     await fs.create('adonisrc.ts', `export default defineConfig({})`)
+    await fs.create('start/kernel.ts', `server.use([])`)
 
     const app = ignitor.createApp('web')
     await app.init()
@@ -101,6 +104,7 @@ test.group('Configure', (group) => {
     await fs.createJson('tsconfig.json', {})
     await fs.createJson('package.json', {})
     await fs.create('adonisrc.ts', `export default defineConfig({})`)
+    await fs.create('start/kernel.ts', `server.use([])`)
 
     const app = ignitor.createApp('web')
     await app.init()

@@ -12,7 +12,7 @@ import { setTimeout } from 'node:timers/promises'
 import { IgnitorFactory } from '@adonisjs/core/factories'
 
 import { defineConfig } from '../../index.js'
-import ViteMiddleware from '../../src/middleware/vite_middleware.js'
+import ViteMiddleware from '../../src/vite_middleware.js'
 
 const BASE_URL = new URL('./tmp/', import.meta.url)
 const IMPORTER = (filePath: string) => {
