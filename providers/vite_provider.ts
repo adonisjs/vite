@@ -12,7 +12,7 @@ import type { cspKeywords as ShieldCSPKeywords } from '@adonisjs/shield'
 
 import { Vite } from '../src/vite.js'
 import type { ViteOptions } from '../src/types.js'
-import ViteMiddleware from '../src/middleware/vite_middleware.js'
+import ViteMiddleware from '../src/vite_middleware.js'
 
 declare module '@adonisjs/core/types' {
   interface ContainerBindings {
@@ -80,7 +80,7 @@ export default class ViteProvider {
 
     const vite = new Vite(this.#shouldRunVite, config)
     this.app.container.bind('vite', () => vite)
-    this.app.container.bind(ViteMiddleware, () => new ViteMiddleware(vite))
+    this.app.container.singleton(ViteMiddleware, () => new ViteMiddleware(vite))
   }
 
   /**
@@ -92,13 +92,8 @@ export default class ViteProvider {
 
     if (!this.#shouldRunVite) return
 
-    const [vite, server] = await Promise.all([
-      this.app.container.make('vite'),
-      this.app.container.make('server'),
-    ])
-
+    const vite = await this.app.container.make('vite')
     await vite.createDevServer()
-    server.use([() => import('../src/middleware/vite_middleware.js')])
   }
 
   /**

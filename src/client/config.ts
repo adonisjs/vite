@@ -41,6 +41,13 @@ export function configHook(
     publicDir: userConfig.publicDir ?? false,
     base: resolveBase(userConfig, options, command),
 
+    /**
+     * Disable the vite dev server cors handling. Otherwise, it will
+     * override the cors settings defined by @adonisjs/cors
+     * https://github.com/adonisjs/vite/issues/13
+     */
+    server: { cors: userConfig.server?.cors ?? false },
+
     build: {
       assetsDir: '',
       emptyOutDir: true,

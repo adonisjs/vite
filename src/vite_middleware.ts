@@ -11,7 +11,7 @@ import type { ViteDevServer } from 'vite'
 import type { HttpContext } from '@adonisjs/core/http'
 import type { NextFn } from '@adonisjs/core/types/http'
 
-import type { Vite } from '../vite.js'
+import type { Vite } from './vite.js'
 
 /**
  * Since Vite dev server is integrated within the AdonisJS process, this
@@ -29,7 +29,17 @@ export default class ViteMiddleware {
   }
 
   async handle({ request, response }: HttpContext, next: NextFn) {
-    return await new Promise((resolve) => {
+    if (!this.#devServer) return next()
+
+    /**
+     * @adonisjs/cors should handle the CORS instead of Vite
+     */
+    if (this.#devServer.config.server.cors === false) response.relayHeaders()
+
+    /**
+     * Proxy the request to the vite dev server
+     */
+    await new Promise((resolve) => {
       this.#devServer.middlewares.handle(request.request, response.response, () => {
         return resolve(next())
       })

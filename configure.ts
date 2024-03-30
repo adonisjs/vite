@@ -25,10 +25,20 @@ export async function configure(command: Configure) {
   await codemods.makeUsingStub(stubsRoot, 'vite.config.stub', {})
   await codemods.makeUsingStub(stubsRoot, 'js_entrypoint.stub', {})
 
+  /**
+   * Update RC file
+   */
   await codemods.updateRcFile((rcFile) => {
     rcFile.addProvider('@adonisjs/vite/vite_provider')
     rcFile.addMetaFile('public/**', false)
   })
+
+  /**
+   * Add server middleware
+   */
+  await codemods.registerMiddleware('server', [
+    { path: '@adonisjs/vite/vite_middleware', position: 'after' },
+  ])
 
   /**
    * Prompt when `install` or `--no-install` flags are
