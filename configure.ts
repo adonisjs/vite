@@ -57,4 +57,25 @@ export async function configure(command: Configure) {
   } else {
     await codemods.listPackagesToInstall([{ name: 'vite', isDevDependency: true }])
   }
+
+  /**
+   * Add `assetsBundler: false` to the adonisrc file
+   */
+  const tsMorph = await import('ts-morph')
+  const project = await codemods.getTsMorphProject()
+  const adonisRcFile = project?.getSourceFile('adonisrc.ts')
+  const defineConfigCall = adonisRcFile
+    ?.getDescendantsOfKind(tsMorph.SyntaxKind.CallExpression)
+    .find((statement) => statement.getExpression().getText() === 'defineConfig')
+
+  const configObject = defineConfigCall!
+    .getArguments()[0]
+    .asKindOrThrow(tsMorph.SyntaxKind.ObjectLiteralExpression)
+
+  configObject.addPropertyAssignment({
+    name: 'assetsBundler',
+    initializer: 'false',
+  })
+
+  await adonisRcFile?.save()
 }
