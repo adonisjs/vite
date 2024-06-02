@@ -54,6 +54,7 @@ test.group('Configure', (group) => {
     await assert.fileContains('adonisrc.ts', `reloadServer: false`)
     await assert.fileContains('start/kernel.ts', '@adonisjs/vite/vite_middleware')
     await assert.fileContains('adonisrc.ts', `@adonisjs/vite/build_hook`)
+    await assert.fileContains('adonisrc.ts', `assetsBundler: false`)
   })
 
   test('install package when --install flag is used', async ({ assert, fs }) => {
