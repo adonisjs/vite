@@ -31,6 +31,7 @@ export async function configure(command: Configure) {
   await codemods.updateRcFile((rcFile) => {
     rcFile.addProvider('@adonisjs/vite/vite_provider')
     rcFile.addMetaFile('public/**', false)
+    rcFile.addAssemblerHook('onBuildStarting', '@adonisjs/vite/build_hook')
   })
 
   /**
