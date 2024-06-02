@@ -35,7 +35,7 @@
     "prebuild": "npm run lint && npm run clean",
     "build": "tsup-node && tsc --emitDeclarationOnly --declaration",
     "postbuild": "npm run copy:templates",
-    "release": "np",
+    "release": "release-it",
     "version": "npm run build",
     "prepublishOnly": "npm run build"
   },
@@ -59,8 +59,8 @@
     "del-cli": "^5.1.0",
     "edge.js": "^6.0.2",
     "eslint": "^8.57.0",
-    "np": "^10.0.5",
     "prettier": "^3.3.0",
+    "release-it": "^17.3.0",
     "supertest": "^6.3.4",
     "ts-morph": "^22.0.0",
     "ts-node": "^10.9.2",
@@ -110,12 +110,6 @@
     "access": "public",
     "tag": "next"
   },
-  "np": {
-    "message": "chore(release): %s",
-    "tag": "next",
-    "branch": "next",
-    "anyBranch": false
-  },
   "c8": {
     "reporter": [
       "text",
@@ -143,5 +137,17 @@
     "dts": false,
     "sourcemap": true,
     "target": "esnext"
+  },
+  "release-it": {
+    "git": {
+      "commitMessage": "chore(release): ${version}",
+      "tagAnnotation": "v${version}",
+      "tagName": "v${version}"
+    },
+    "github": {
+      "release": true,
+      "releaseName": "v${version}",
+      "web": true
+    }
   }
 }
