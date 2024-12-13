@@ -10,13 +10,13 @@
 import { join } from 'node:path'
 import { readFileSync } from 'node:fs'
 import { slash } from '@poppinss/utils'
-import type { ViteRuntime } from 'vite/runtime'
+import { ModuleRunner } from 'vite/module-runner'
 import type {
   InlineConfig,
-  MainThreadRuntimeOptions,
   Manifest,
   ModuleNode,
   ViteDevServer,
+  ServerModuleRunnerOptions,
 } from 'vite'
 
 import { makeAttributes, uniqBy } from './utils.js'
@@ -431,14 +431,13 @@ export class Vite {
   }
 
   /**
-   * Create a runtime instance
+   * Create a serverModuleRunner instance
    * Will not be available when running in production since
    * it needs the Vite Dev server
    */
-  async createRuntime(options: MainThreadRuntimeOptions = {}): Promise<ViteRuntime> {
-    const { createViteRuntime } = await import('vite')
-
-    return createViteRuntime(this.#devServer!, options)
+  async createModuleRunner(options: ServerModuleRunnerOptions = {}): Promise<ModuleRunner> {
+    const { createServerModuleRunner } = await import('vite')
+    return createServerModuleRunner(this.#devServer!.environments.ssr, options)
   }
 
   /**
