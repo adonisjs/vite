@@ -79,7 +79,7 @@
     "@adonisjs/core": "^6.3.0",
     "@adonisjs/shield": "^8.0.0",
     "edge.js": "^6.0.1",
-    "vite": "^5.1.4"
+    "vite": "^6.0.0"
   },
   "peerDependenciesMeta": {
     "edge.js": {
