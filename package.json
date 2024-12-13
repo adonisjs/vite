@@ -108,8 +108,7 @@
   },
   "prettier": "@adonisjs/prettier-config",
   "publishConfig": {
-    "access": "public",
-    "tag": "next"
+    "access": "public"
   },
   "c8": {
     "reporter": [
@@ -153,7 +152,8 @@
     },
     "npm": {
       "publish": true,
-      "skipChecks": true
+      "skipChecks": true,
+      "tag": "next"
     },
     "plugins": {
       "@release-it/conventional-changelog": {
