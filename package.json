@@ -140,7 +140,6 @@
   },
   "release-it": {
     "git": {
-      "requireCleanWorkingDir": true,
       "requireUpstream": true,
       "commitMessage": "chore(release): ${version}",
       "tagAnnotation": "v${version}",
