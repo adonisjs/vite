@@ -3,7 +3,7 @@
   "description": "Vite plugin for AdonisJS",
   "version": "4.0.0",
   "engines": {
-    "node": ">=20.6.0"
+    "node": ">=22.17.1"
   },
   "main": "build/index.js",
   "type": "module",
