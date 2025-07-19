@@ -7,8 +7,6 @@
  * file that was distributed with this source code.
  */
 
-/// <reference types="@vavite/multibuild" />
-
 import { PluginOption } from 'vite'
 import PluginRestart from 'vite-plugin-restart'
 

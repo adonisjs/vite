@@ -7,7 +7,7 @@
  * file that was distributed with this source code.
  */
 
-import { multibuild } from '@vavite/multibuild'
+import { createBuilder } from 'vite'
 import type { AssemblerHookHandler } from '@adonisjs/core/types/app'
 
 /**
@@ -19,11 +19,6 @@ import type { AssemblerHookHandler } from '@adonisjs/core/types/app'
 export default async function viteBuildHook({ logger }: Parameters<AssemblerHookHandler>[0]) {
   logger.info('building assets with vite')
 
-  await multibuild(undefined, {
-    onStartBuildStep: (step) => {
-      if (!step.currentStep.description) return
-
-      logger.info(step.currentStep.description)
-    },
-  })
+  const builder = await createBuilder({}, null)
+  await builder.buildApp()
 }
