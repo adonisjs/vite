@@ -52,28 +52,28 @@
     "@japa/runner": "3.1.4",
     "@japa/snapshot": "^2.0.8",
     "@release-it/conventional-changelog": "^10.0.1",
-    "@swc/core": "^1.12.7",
-    "@types/node": "^24.0.4",
+    "@swc/core": "^1.13.1",
+    "@types/node": "^24.0.15",
     "@types/supertest": "^6.0.3",
     "c8": "^10.1.3",
     "copyfiles": "^2.4.1",
     "del-cli": "^6.0.0",
     "edge.js": "^6.2.1",
-    "eslint": "^9.29.0",
-    "prettier": "^3.6.1",
-    "release-it": "^19.0.3",
-    "supertest": "^7.1.1",
+    "eslint": "^9.31.0",
+    "prettier": "^3.6.2",
+    "release-it": "^19.0.4",
+    "supertest": "^7.1.3",
     "ts-morph": "^26.0.0",
     "ts-node": "^10.9.2",
     "tsup": "^8.5.0",
     "typescript": "~5.8.3",
-    "vite": "^7.0.0"
+    "vite": "^7.0.5"
   },
   "dependencies": {
     "@poppinss/utils": "^6.10.0",
     "@vavite/multibuild": "^5.1.0",
     "edge-error": "^4.0.2",
-    "vite-plugin-restart": "^0.4.2"
+    "vite-plugin-restart": "^1.0.0"
   },
   "peerDependencies": {
     "@adonisjs/core": "^6.3.0",
@@ -162,5 +162,5 @@
       }
     }
   },
-  "packageManager": "pnpm@10.12.4"
+  "packageManager": "pnpm@10.13.1"
 }
