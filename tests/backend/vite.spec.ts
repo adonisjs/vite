@@ -11,8 +11,7 @@ import { join } from 'node:path'
 import { test } from '@japa/runner'
 import { fileURLToPath } from 'node:url'
 
-import { Vite } from '../../src/vite.js'
-import { createVite } from './helpers.js'
+import { createVite, setupViteWithManifest } from './helpers.js'
 import { defineConfig } from '../../src/define_config.js'
 
 test.group('Vite | dev', () => {
@@ -205,12 +204,9 @@ test.group('Vite | dev', () => {
 
 test.group('Vite | manifest', () => {
   test('generate entrypoints tags for a file', async ({ assert, fs, cleanup }) => {
-    const vite = new Vite(
-      false,
-      defineConfig({
-        buildDirectory: join(fs.basePath, 'public/assets'),
-      })
-    )
+    const vite = await setupViteWithManifest({
+      buildDirectory: join(fs.basePath, 'public/assets'),
+    })
 
     await vite.createDevServer()
     cleanup(() => vite.stopDevServer())
@@ -236,12 +232,9 @@ test.group('Vite | manifest', () => {
   })
 
   test('generate entrypoints with css imported inside js', async ({ assert, fs }) => {
-    const vite = new Vite(
-      false,
-      defineConfig({
-        buildDirectory: join(fs.basePath, 'public/assets'),
-      })
-    )
+    const vite = await setupViteWithManifest({
+      buildDirectory: join(fs.basePath, 'public/assets'),
+    })
 
     await fs.create(
       'public/assets/.vite/manifest.json',
@@ -274,13 +267,10 @@ test.group('Vite | manifest', () => {
   })
 
   test('prefix assetsUrl', async ({ assert, fs }) => {
-    const vite = new Vite(
-      false,
-      defineConfig({
-        buildDirectory: join(fs.basePath, 'public/assets'),
-        assetsUrl: 'https://cdn.url.com',
-      })
-    )
+    const vite = await setupViteWithManifest({
+      buildDirectory: join(fs.basePath, 'public/assets'),
+      assetsUrl: 'https://cdn.url.com',
+    })
 
     await fs.create(
       'public/assets/.vite/manifest.json',
@@ -303,12 +293,9 @@ test.group('Vite | manifest', () => {
   })
 
   test('access manifest file', async ({ fs, assert }) => {
-    const vite = new Vite(
-      false,
-      defineConfig({
-        buildDirectory: join(fs.basePath, 'public/assets'),
-      })
-    )
+    const vite = await setupViteWithManifest({
+      buildDirectory: join(fs.basePath, 'public/assets'),
+    })
 
     await fs.create(
       'public/assets/.vite/manifest.json',
@@ -319,12 +306,9 @@ test.group('Vite | manifest', () => {
   })
 
   test('get asset path', async ({ fs, assert }) => {
-    const vite = new Vite(
-      false,
-      defineConfig({
-        buildDirectory: join(fs.basePath, 'public/assets'),
-      })
-    )
+    const vite = await setupViteWithManifest({
+      buildDirectory: join(fs.basePath, 'public/assets'),
+    })
 
     await fs.create(
       'public/assets/.vite/manifest.json',
@@ -335,12 +319,9 @@ test.group('Vite | manifest', () => {
   })
 
   test('throw error when manifest does not have the chunk', async ({ fs }) => {
-    const vite = new Vite(
-      false,
-      defineConfig({
-        buildDirectory: join(fs.basePath, 'public/assets'),
-      })
-    )
+    const vite = await setupViteWithManifest({
+      buildDirectory: join(fs.basePath, 'public/assets'),
+    })
 
     await fs.create(
       'public/assets/.vite/manifest.json',
@@ -351,13 +332,10 @@ test.group('Vite | manifest', () => {
   }).throws('Cannot find "app.css" chunk in the manifest file')
 
   test('prefix custom assetsUrl to the assetPath', async ({ fs, assert }) => {
-    const vite = new Vite(
-      false,
-      defineConfig({
-        buildDirectory: join(fs.basePath, 'public/assets'),
-        assetsUrl: 'https://cdn.url.com',
-      })
-    )
+    const vite = await setupViteWithManifest({
+      buildDirectory: join(fs.basePath, 'public/assets'),
+      assetsUrl: 'https://cdn.url.com',
+    })
 
     await fs.create(
       'public/assets/.vite/manifest.json',
@@ -368,13 +346,10 @@ test.group('Vite | manifest', () => {
   })
 
   test('return null for viteHMRScript when not in hot mode', async ({ fs, assert }) => {
-    const vite = new Vite(
-      false,
-      defineConfig({
-        buildDirectory: join(fs.basePath, 'public/assets'),
-        assetsUrl: 'https://cdn.url.com',
-      })
-    )
+    const vite = await setupViteWithManifest({
+      buildDirectory: join(fs.basePath, 'public/assets'),
+      assetsUrl: 'https://cdn.url.com',
+    })
 
     await fs.create(
       'public/assets/.vite/manifest.json',
@@ -385,18 +360,15 @@ test.group('Vite | manifest', () => {
   })
 
   test('add custom attributes to the entrypoints script tags', async ({ assert, fs }) => {
-    const vite = new Vite(
-      false,
-      defineConfig({
-        buildDirectory: join(fs.basePath, 'public/assets'),
-        assetsUrl: 'https://cdn.url.com',
-        scriptAttributes: () => {
-          return {
-            'data-test': 'test',
-          }
-        },
-      })
-    )
+    const vite = await setupViteWithManifest({
+      buildDirectory: join(fs.basePath, 'public/assets'),
+      assetsUrl: 'https://cdn.url.com',
+      scriptAttributes: () => {
+        return {
+          'data-test': 'test',
+        }
+      },
+    })
 
     await fs.create(
       'public/assets/.vite/manifest.json',
@@ -423,16 +395,13 @@ test.group('Vite | manifest', () => {
   })
 
   test('add custom attributes to the entrypoints link tags', async ({ assert, fs }) => {
-    const vite = new Vite(
-      false,
-      defineConfig({
-        buildDirectory: join(fs.basePath, 'public/assets'),
-        assetsUrl: 'https://cdn.url.com',
-        styleAttributes: {
-          'data-test': 'test',
-        },
-      })
-    )
+    const vite = await setupViteWithManifest({
+      buildDirectory: join(fs.basePath, 'public/assets'),
+      assetsUrl: 'https://cdn.url.com',
+      styleAttributes: {
+        'data-test': 'test',
+      },
+    })
 
     await fs.create(
       'public/assets/.vite/manifest.json',
@@ -458,13 +427,10 @@ test.group('Vite | manifest', () => {
   })
 
   test('add integrity attribute to entrypoint tags', async ({ assert, fs }) => {
-    const vite = new Vite(
-      false,
-      defineConfig({
-        buildDirectory: join(fs.basePath, 'public/assets'),
-        assetsUrl: 'https://cdn.url.com',
-      })
-    )
+    const vite = await setupViteWithManifest({
+      buildDirectory: join(fs.basePath, 'public/assets'),
+      assetsUrl: 'https://cdn.url.com',
+    })
 
     await fs.create(
       'public/assets/.vite/manifest.json',
@@ -508,24 +474,21 @@ test.group('Vite | manifest', () => {
   })
 
   test('return path to assets directory', async ({ assert, fs }) => {
-    const vite = new Vite(
-      false,
-      defineConfig({
-        buildDirectory: join(fs.basePath, 'public/assets'),
-      })
-    )
+    const vite = await setupViteWithManifest({
+      buildDirectory: join(fs.basePath, 'public/assets'),
+    })
 
     assert.equal(vite.assetsUrl(), '/assets')
   })
 })
 
 test.group('Preloading', () => {
-  const config = defineConfig({
+  const config = {
     manifestFile: fileURLToPath(new URL('fixtures/adonis_packages_manifest.json', import.meta.url)),
-  })
+  }
 
   test('Preload root entrypoints', async ({ assert }) => {
-    const vite = new Vite(false, config)
+    const vite = await setupViteWithManifest(config)
     const entrypoints = await vite.generateEntryPointsTags('resources/pages/home/main.vue')
 
     const result = entrypoints.map((tag) => tag.toString())
@@ -534,7 +497,7 @@ test.group('Preloading', () => {
   })
 
   test('Preload files imported from entrypoints', async ({ assert }) => {
-    const vite = new Vite(false, config)
+    const vite = await setupViteWithManifest(config)
     const entrypoints = await vite.generateEntryPointsTags('resources/pages/home/main.vue')
 
     const result = entrypoints.map((tag) => tag.toString())
@@ -551,7 +514,7 @@ test.group('Preloading', () => {
   })
 
   test('Preload entrypoints css files', async ({ assert }) => {
-    const vite = new Vite(false, config)
+    const vite = await setupViteWithManifest(config)
     const entrypoints = await vite.generateEntryPointsTags('resources/pages/home/main.vue')
 
     const result = entrypoints.map((tag) => tag.toString())
@@ -562,7 +525,7 @@ test.group('Preloading', () => {
   })
 
   test('Preload css files of imported files of entrypoint', async ({ assert }) => {
-    const vite = new Vite(false, config)
+    const vite = await setupViteWithManifest(config)
     const entrypoints = await vite.generateEntryPointsTags('resources/pages/home/main.vue')
 
     const result = entrypoints.map((tag) => tag.toString())
@@ -577,7 +540,7 @@ test.group('Preloading', () => {
   })
 
   test('css preload should be ordered before js preload', async ({ assert }) => {
-    const vite = new Vite(false, config)
+    const vite = await setupViteWithManifest(config)
     const entrypoints = await vite.generateEntryPointsTags('resources/pages/home/main.vue')
 
     const result = entrypoints.map((tag) => tag.toString())
@@ -589,7 +552,7 @@ test.group('Preloading', () => {
   })
 
   test('preloads should use assetsUrl when defined', async ({ assert }) => {
-    const vite = new Vite(false, defineConfig({ ...config, assetsUrl: 'https://cdn.url.com' }))
+    const vite = await setupViteWithManifest({ ...config, assetsUrl: 'https://cdn.url.com' })
     const entrypoints = await vite.generateEntryPointsTags('resources/pages/home/main.vue')
 
     const result = entrypoints.map((tag) => tag.toString())

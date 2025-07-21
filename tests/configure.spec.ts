@@ -86,7 +86,7 @@ test.group('Configure', (group) => {
     await command.exec()
 
     await assert.fileExists('node_modules/vite/package.json')
-  })
+  }).skip(!!process.env.CI, 'Skipping package installation in CI environment')
 
   test('do not prompt when --no-install flag is used', async ({ assert, fs }) => {
     const ignitor = new IgnitorFactory()
