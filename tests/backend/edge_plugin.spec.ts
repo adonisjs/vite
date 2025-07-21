@@ -10,8 +10,7 @@
 import { Edge } from 'edge.js'
 import { test } from '@japa/runner'
 
-import { Vite } from '../../src/vite.js'
-import { createVite } from './helpers.js'
+import { createVite, setupViteWithManifest } from './helpers.js'
 import { defineConfig } from '../../src/define_config.js'
 import { edgePluginVite } from '../../src/plugins/edge.js'
 
@@ -70,7 +69,7 @@ test.group('Edge plugin vite', () => {
 
   test('do not output hmrScript when not in hot mode', async ({ assert }) => {
     const edge = Edge.create()
-    const vite = new Vite(false, defineConfig({}))
+    const vite = await setupViteWithManifest()
     edge.use(edgePluginVite(vite))
 
     const html = await edge.renderRaw(`@viteReactRefresh()`)

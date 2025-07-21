@@ -8,7 +8,7 @@
  */
 
 import { join } from 'node:path'
-import { readFileSync } from 'node:fs'
+import { existsSync, readFileSync } from 'node:fs'
 import { slash } from '@poppinss/utils'
 import { ModuleRunner } from 'vite/module-runner'
 import type {
@@ -37,13 +37,16 @@ export class Vite {
   #options: ViteOptions
   #devServer?: ViteDevServer
   #createServerPromise?: Promise<ViteDevServer>
+  hasManifestFile: boolean
 
-  constructor(
-    protected isViteRunning: boolean,
-    options: ViteOptions
-  ) {
+  constructor(options: ViteOptions) {
     this.#options = options
     this.#options.assetsUrl = (this.#options.assetsUrl || '/').replace(/\/$/, '')
+    this.hasManifestFile = this.#hasManifestFile()
+  }
+
+  #hasManifestFile() {
+    return existsSync(this.#options.manifestFile)
   }
 
   /**
@@ -149,7 +152,7 @@ export class Vite {
    */
   #generateTag(asset: string, attributes?: Record<string, any>): AdonisViteElement {
     let url = ''
-    if (this.isViteRunning) {
+    if (!this.hasManifestFile) {
       url = `/${asset}`
     } else {
       url = this.#generateAssetUrl(asset)
@@ -365,7 +368,7 @@ export class Vite {
   ): Promise<AdonisViteElement[]> {
     entryPoints = Array.isArray(entryPoints) ? entryPoints : [entryPoints]
 
-    if (this.isViteRunning) {
+    if (!this.hasManifestFile) {
       return this.#generateEntryPointsTagsForDevMode(entryPoints, attributes)
     }
 
@@ -383,7 +386,7 @@ export class Vite {
    * Returns path to a given asset file using the manifest file
    */
   assetPath(asset: string): string {
-    if (this.isViteRunning) {
+    if (!this.hasManifestFile) {
       return `/${asset}`
     }
 
@@ -397,7 +400,7 @@ export class Vite {
    * @throws Will throw an exception when running in dev
    */
   manifest(): Manifest {
-    if (this.isViteRunning) {
+    if (!this.hasManifestFile) {
       throw new Error('Cannot read the manifest file when running in dev mode')
     }
 
@@ -460,9 +463,7 @@ export class Vite {
    * Returns the script needed for the HMR working with React
    */
   getReactHmrScript(attributes?: Record<string, any>): AdonisViteElement | null {
-    if (!this.isViteRunning) {
-      return null
-    }
+    if (this.hasManifestFile) return null
 
     return this.#generateElement({
       tag: 'script',

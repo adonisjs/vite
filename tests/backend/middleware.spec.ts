@@ -54,7 +54,7 @@ test.group('Vite Middleware', () => {
       }
     }
 
-    const vite = new FakeVite(false, { buildDirectory: 'foo', manifestFile: 'bar.json' })
+    const vite = new FakeVite({ buildDirectory: 'foo', manifestFile: 'bar.json' })
 
     const server = createServer(async (req, res) => {
       const middleware = new ViteMiddleware(vite)

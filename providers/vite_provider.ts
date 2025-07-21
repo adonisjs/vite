@@ -21,15 +21,9 @@ declare module '@adonisjs/core/types' {
 }
 
 export default class ViteProvider {
-  #shouldRunVite: boolean
+  #shouldRunViteDevServer = false
 
-  constructor(protected app: ApplicationService) {
-    /**
-     * We should only run Vite in development and test environments
-     */
-    const env = this.app.getEnvironment()
-    this.#shouldRunVite = (this.app.inDev || this.app.inTest) && (env === 'web' || env === 'test')
-  }
+  constructor(protected app: ApplicationService) {}
 
   /**
    * Registers edge plugin when edge is installed
@@ -76,9 +70,12 @@ export default class ViteProvider {
    * Register Vite bindings
    */
   register() {
-    const config = this.app.config.get<ViteOptions>('vite')
+    const appEnvironment = this.app.getEnvironment()
+    const isWebOrTestEnvironment = appEnvironment === 'web' || appEnvironment === 'test'
 
-    const vite = new Vite(this.#shouldRunVite, config)
+    const vite = new Vite(this.app.config.get<ViteOptions>('vite'))
+    this.#shouldRunViteDevServer = !vite.hasManifestFile && isWebOrTestEnvironment
+
     this.app.container.bind('vite', () => vite)
     this.app.container.singleton(ViteMiddleware, () => new ViteMiddleware(vite))
   }
@@ -90,7 +87,7 @@ export default class ViteProvider {
   async boot() {
     await this.registerEdgePlugin()
 
-    if (!this.#shouldRunVite) return
+    if (!this.#shouldRunViteDevServer) return
 
     const vite = await this.app.container.make('vite')
     await vite.createDevServer()
@@ -100,7 +97,7 @@ export default class ViteProvider {
    * Stop Vite server when running in development or test
    */
   async shutdown() {
-    if (!this.#shouldRunVite) return
+    if (!this.#shouldRunViteDevServer) return
 
     const vite = await this.app.container.make('vite')
     await vite.stopDevServer()

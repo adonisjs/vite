@@ -9,9 +9,10 @@
 
 import { getActiveTest } from '@japa/runner'
 
-import { Vite } from '../../index.js'
+import { defineConfig, Vite } from '../../index.js'
 import { ViteOptions } from '../../src/types.js'
 import { InlineConfig } from 'vite'
+import { join } from 'node:path'
 
 export const BASE_URL = new URL('./../__app/', import.meta.url)
 
@@ -31,8 +32,7 @@ export async function createVite(config: ViteOptions, viteConfig: InlineConfig =
    */
   await test.context.fs.create('dummy.txt', 'dummy')
 
-  const vite = new Vite(true, config)
-
+  const vite = new Vite(config)
   await vite.createDevServer({
     logLevel: 'silent',
     clearScreen: false,
@@ -41,6 +41,18 @@ export async function createVite(config: ViteOptions, viteConfig: InlineConfig =
   })
 
   test.cleanup(() => vite.stopDevServer())
+
+  return vite
+}
+
+export async function setupViteWithManifest(config?: Partial<ViteOptions>) {
+  const test = getActiveTest()
+  if (!test) throw new Error('Cannot create vite instance outside of a test')
+
+  await test.context.fs.create('public/assets/.vite/manifest.json', '')
+
+  const defaultManifestPath = join(test.context.fs.basePath, 'public/assets/.vite/manifest.json')
+  const vite = new Vite(defineConfig(config || { manifestFile: defaultManifestPath }))
 
   return vite
 }
