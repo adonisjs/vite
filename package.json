@@ -109,9 +109,9 @@
   "contributors": [
     "Harminder Virk <virk@adonisjs.com>"
   ],
-  "publishConfig": {
+   "publishConfig": {
     "access": "public",
-    "tag": "latest"
+    "provenance": true
   },
   "release-it": {
     "git": {
