@@ -10,8 +10,8 @@
 import { join } from 'node:path'
 import type { ConfigEnv, Plugin, UserConfig } from 'vite'
 
-import { addTrailingSlash } from '../utils.js'
-import type { PluginFullOptions } from './types.js'
+import { addTrailingSlash } from '../utils.ts'
+import type { PluginFullOptions } from './types.ts'
 
 /**
  * Resolve the `config.base` value

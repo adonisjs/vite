@@ -11,8 +11,8 @@ import { test } from '@japa/runner'
 import { setTimeout } from 'node:timers/promises'
 import { IgnitorFactory } from '@adonisjs/core/factories'
 
-import { defineConfig } from '../../index.js'
-import ViteMiddleware from '../../src/vite_middleware.js'
+import { defineConfig } from '../../index.ts'
+import ViteMiddleware from '../../src/vite_middleware.ts'
 import { join } from 'node:path'
 
 const BASE_URL = new URL('./tmp/', import.meta.url)

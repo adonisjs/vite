@@ -7,7 +7,7 @@
  * file that was distributed with this source code.
  */
 
-export { Vite } from './src/vite.js'
-export { configure } from './configure.js'
-export { stubsRoot } from './stubs/main.js'
-export { defineConfig } from './src/define_config.js'
+export { Vite } from './src/vite.ts'
+export { configure } from './configure.ts'
+export { stubsRoot } from './stubs/main.ts'
+export { defineConfig } from './src/define_config.ts'

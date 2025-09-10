@@ -11,7 +11,7 @@ import type { Edge } from 'edge.js'
 import { EdgeError } from 'edge-error'
 import type { PluginFn } from 'edge.js/types'
 
-import type { Vite } from '../vite.js'
+import type { Vite } from '../vite.ts'
 
 /**
  * The edge plugin for vite to share vite service with edge

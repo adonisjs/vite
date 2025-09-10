@@ -12,10 +12,10 @@ import { test } from '@japa/runner'
 import { createServer } from 'node:http'
 import { RequestFactory, ResponseFactory, HttpContextFactory } from '@adonisjs/core/factories/http'
 
-import { Vite } from '../../index.js'
-import { createVite } from './helpers.js'
-import adonisjs from '../../src/client/main.js'
-import ViteMiddleware from '../../src/vite_middleware.js'
+import { Vite } from '../../index.ts'
+import { createVite } from './helpers.ts'
+import adonisjs from '../../src/client/main.ts'
+import ViteMiddleware from '../../src/vite_middleware.ts'
 
 test.group('Vite Middleware', () => {
   test('if route is handled by vite, relay cors headers', async ({ assert, fs }) => {

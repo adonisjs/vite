@@ -10,9 +10,9 @@
 import type { ApplicationService } from '@adonisjs/core/types'
 import type { cspKeywords as ShieldCSPKeywords } from '@adonisjs/shield'
 
-import { Vite } from '../src/vite.js'
-import type { ViteOptions } from '../src/types.js'
-import ViteMiddleware from '../src/vite_middleware.js'
+import { Vite } from '../src/vite.ts'
+import type { ViteOptions } from '../src/types.ts'
+import ViteMiddleware from '../src/vite_middleware.ts'
 
 declare module '@adonisjs/core/types' {
   interface ContainerBindings {
@@ -47,7 +47,9 @@ export default class ViteProvider {
       cspKeywords = shieldExports.cspKeywords
     } catch {}
 
-    if (!cspKeywords) return
+    if (!cspKeywords) {
+      return
+    }
 
     const vite = await this.app.container.make('vite')
 

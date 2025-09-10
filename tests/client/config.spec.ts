@@ -9,7 +9,7 @@
 
 import { test } from '@japa/runner'
 import { type Plugin, build } from 'vite'
-import adonisjs from '../../src/client/main.js'
+import adonisjs from '../../src/client/main.ts'
 
 test.group('Vite plugin', () => {
   test('build the assets', async ({ fs, assert }) => {

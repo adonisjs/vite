@@ -8,7 +8,7 @@
  */
 
 import { join } from 'node:path'
-import type { ViteOptions } from './types.js'
+import type { ViteOptions } from './types.ts'
 
 /**
  * Define the backend config for Vite

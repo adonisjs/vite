@@ -8,7 +8,7 @@
  */
 
 import { test } from '@japa/runner'
-import { defineConfig } from '../../index.js'
+import { defineConfig } from '../../index.ts'
 
 test.group('Define config', () => {
   test('merge defaults with user provided config', ({ assert }) => {

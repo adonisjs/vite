@@ -10,9 +10,9 @@
 import { Edge } from 'edge.js'
 import { test } from '@japa/runner'
 
-import { createVite, setupViteWithManifest } from './helpers.js'
-import { defineConfig } from '../../src/define_config.js'
-import { edgePluginVite } from '../../src/plugins/edge.js'
+import { createVite, setupViteWithManifest } from './helpers.ts'
+import { defineConfig } from '../../src/define_config.ts'
+import { edgePluginVite } from '../../src/plugins/edge.ts'
 
 test.group('Edge plugin vite', () => {
   test('generate asset path within edge template', async ({ assert }) => {

@@ -9,8 +9,8 @@
 
 import { getActiveTest } from '@japa/runner'
 
-import { defineConfig, Vite } from '../../index.js'
-import { type ViteOptions } from '../../src/types.js'
+import { defineConfig, Vite } from '../../index.ts'
+import { type ViteOptions } from '../../src/types.ts'
 import { type InlineConfig } from 'vite'
 import { join } from 'node:path'
 

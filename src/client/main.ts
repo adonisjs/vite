@@ -10,8 +10,8 @@
 import { type PluginOption } from 'vite'
 import PluginRestart from 'vite-plugin-restart'
 
-import { config } from './config.js'
-import type { PluginOptions } from './types.js'
+import { config } from './config.ts'
+import type { PluginOptions } from './types.ts'
 
 declare module 'vite' {
   interface ManifestChunk {

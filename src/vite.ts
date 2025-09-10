@@ -19,8 +19,8 @@ import type {
   ServerModuleRunnerOptions,
 } from 'vite'
 
-import { makeAttributes, uniqBy } from './utils.js'
-import type { AdonisViteElement, SetAttributes, ViteOptions } from './types.js'
+import { makeAttributes, uniqBy } from './utils.ts'
+import type { AdonisViteElement, SetAttributes, ViteOptions } from './types.ts'
 
 const STYLE_FILE_REGEX = /\.(css|less|sass|scss|styl|stylus|pcss|postcss)($|\?)/
 
@@ -42,11 +42,7 @@ export class Vite {
   constructor(options: ViteOptions) {
     this.#options = options
     this.#options.assetsUrl = (this.#options.assetsUrl || '/').replace(/\/$/, '')
-    this.hasManifestFile = this.#hasManifestFile()
-  }
-
-  #hasManifestFile() {
-    return existsSync(this.#options.manifestFile)
+    this.hasManifestFile = existsSync(this.#options.manifestFile)
   }
 
   /**
@@ -174,12 +170,17 @@ export class Vite {
     visitedModules: Set<string>,
     importer?: ModuleNode
   ): void {
-    if (!mod.url) return
+    if (!mod.url) {
+      return
+    }
 
     /**
      * Prevent visiting the same module twice
      */
-    if (visitedModules.has(mod.url)) return
+    if (visitedModules.has(mod.url)) {
+      return
+    }
+
     visitedModules.add(mod.url)
 
     if (this.#isStyleModule(mod) && (!importer || !this.#isStyleModule(importer))) {
@@ -463,7 +464,9 @@ export class Vite {
    * Returns the script needed for the HMR working with React
    */
   getReactHmrScript(attributes?: Record<string, any>): AdonisViteElement | null {
-    if (this.hasManifestFile) return null
+    if (this.hasManifestFile) {
+      return null
+    }
 
     return this.#generateElement({
       tag: 'script',

@@ -11,8 +11,8 @@ import { join } from 'node:path'
 import { test } from '@japa/runner'
 import { fileURLToPath } from 'node:url'
 
-import { createVite, setupViteWithManifest } from './helpers.js'
-import { defineConfig } from '../../src/define_config.js'
+import { createVite, setupViteWithManifest } from './helpers.ts'
+import { defineConfig } from '../../src/define_config.ts'
 
 test.group('Vite | dev', () => {
   test('generate entrypoints tags for a file', async ({ assert, fs }) => {
