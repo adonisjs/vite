@@ -7,7 +7,7 @@
  * file that was distributed with this source code.
  */
 
-import { PluginOption } from 'vite'
+import { type PluginOption } from 'vite'
 import PluginRestart from 'vite-plugin-restart'
 
 import { config } from './config.js'

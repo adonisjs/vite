@@ -3,7 +3,7 @@
   "description": "Vite plugin for AdonisJS",
   "version": "5.0.0-next.0",
   "engines": {
-    "node": ">=22.17.1"
+    "node": ">=24.0.0"
   },
   "main": "build/index.js",
   "type": "module",
@@ -24,59 +24,63 @@
     "./types": "./build/src/types.js"
   },
   "scripts": {
+    "pretest": "npm run lint",
+    "test": "cross-env NODE_DEBUG=adonisjs:vite c8 npm run quick:test",
+    "typecheck": "tsc --noEmit",
+    "precompile": "npm run lint && npm run clean",
     "clean": "del-cli build",
     "copy:templates": "copyfiles --up 1 \"stubs/**/*.stub\" build",
-    "typecheck": "tsc --noEmit",
-    "lint": "eslint . --ext=.ts",
-    "format": "prettier --write .",
-    "quick:test": "node --enable-source-maps --loader=ts-node/esm bin/test.ts",
-    "pretest": "npm run lint",
-    "test": "c8 npm run quick:test",
-    "prebuild": "npm run lint && npm run clean",
-    "build": "tsup-node && tsc --emitDeclarationOnly --declaration",
+    "compile": "tsup-node && tsc --emitDeclarationOnly --declaration",
+    "build": "npm run compile",
     "postbuild": "npm run copy:templates",
+    "prebenchmark": "npm run build",
+    "benchmark": "node benchmarks/index.js",
     "release": "release-it",
     "version": "npm run build",
-    "prepublishOnly": "npm run build"
+    "format": "prettier --write .",
+    "prepublishOnly": "npm run build",
+    "lint": "eslint",
+    "quick:test": "node --import=@poppinss/ts-exec --enable-source-maps bin/test.ts",
+    "docs": "typedoc"
   },
   "devDependencies": {
-    "@adonisjs/assembler": "^7.8.2",
-    "@adonisjs/core": "6.16.0",
-    "@adonisjs/eslint-config": "^2.1.0",
+    "@adonisjs/assembler": "^8.0.0-next.7",
+    "@adonisjs/core": "^7.0.0-next.0",
+    "@adonisjs/eslint-config": "^3.0.0-next.1",
     "@adonisjs/prettier-config": "^1.4.5",
-    "@adonisjs/session": "^7.5.1",
-    "@adonisjs/shield": "^8.2.0",
-    "@adonisjs/tsconfig": "^1.4.1",
-    "@japa/assert": "3.0.0",
+    "@adonisjs/session": "^8.0.0-next.0",
+    "@adonisjs/shield": "^9.0.0-next.0",
+    "@adonisjs/tsconfig": "^2.0.0-next.0",
+    "@japa/assert": "4.1.1",
     "@japa/file-system": "^2.3.2",
-    "@japa/runner": "3.1.4",
-    "@japa/snapshot": "^2.0.8",
+    "@japa/runner": "4.4.0",
+    "@japa/snapshot": "^2.0.9",
+    "@poppinss/ts-exec": "^1.4.1",
     "@release-it/conventional-changelog": "^10.0.1",
-    "@swc/core": "^1.13.1",
-    "@types/node": "^24.0.15",
+    "@types/node": "^24.3.1",
     "@types/supertest": "^6.0.3",
     "c8": "^10.1.3",
     "copyfiles": "^2.4.1",
+    "cross-env": "^10.0.0",
     "del-cli": "^6.0.0",
-    "edge.js": "^6.2.1",
-    "eslint": "^9.31.0",
+    "edge.js": "^6.3.0",
+    "eslint": "^9.35.0",
     "prettier": "^3.6.2",
     "release-it": "^19.0.4",
-    "supertest": "^7.1.3",
-    "ts-morph": "^23.0.0",
-    "ts-node": "^10.9.2",
+    "supertest": "^7.1.4",
     "tsup": "^8.5.0",
-    "typescript": "~5.8.3",
-    "vite": "^7.0.5"
+    "typedoc": "^0.28.12",
+    "typescript": "~5.9.2",
+    "vite": "^7.1.5"
   },
   "dependencies": {
-    "@poppinss/utils": "^6.10.0",
+    "@poppinss/utils": "^7.0.0-next.3",
     "edge-error": "^4.0.2",
     "vite-plugin-restart": "^1.0.0"
   },
   "peerDependencies": {
-    "@adonisjs/core": "^6.3.0",
-    "@adonisjs/shield": "^8.0.0",
+    "@adonisjs/core": "^7.0.0-next.0",
+    "@adonisjs/shield": "^9.0.0-next.0",
     "edge.js": "^6.0.1",
     "vite": "^7.0.0"
   },
@@ -88,7 +92,10 @@
       "optional": true
     }
   },
-  "author": "Julien Ripouteau <julien@ripouteau.com>",
+  "keywords": [
+    "vite",
+    "adonisjs"
+  ],
   "license": "MIT",
   "homepage": "https://github.com/adonisjs/vite#readme",
   "repository": {
@@ -98,44 +105,13 @@
   "bugs": {
     "url": "https://github.com/adonisjs/vite/issues"
   },
-  "keywords": [
-    "vite",
-    "adonisjs"
+  "author": "Julien Ripouteau <julien@ripouteau.com>",
+  "contributors": [
+    "Harminder Virk <virk@adonisjs.com>"
   ],
-  "eslintConfig": {
-    "extends": "@adonisjs/eslint-config/package"
-  },
-  "prettier": "@adonisjs/prettier-config",
   "publishConfig": {
-    "access": "public"
-  },
-  "c8": {
-    "reporter": [
-      "text",
-      "html"
-    ],
-    "exclude": [
-      "tests/**",
-      "tests_helpers/**"
-    ]
-  },
-  "tsup": {
-    "entry": [
-      "./src/hooks/build_hook.ts",
-      "./providers/vite_provider.ts",
-      "./src/vite_middleware.ts",
-      "./src/plugins/edge.ts",
-      "./src/client/main.ts",
-      "./services/vite.ts",
-      "./src/types.ts",
-      "./index.ts"
-    ],
-    "outDir": "./build",
-    "clean": true,
-    "format": "esm",
-    "dts": false,
-    "sourcemap": true,
-    "target": "esnext"
+    "access": "public",
+    "tag": "latest"
   },
   "release-it": {
     "git": {
@@ -161,5 +137,32 @@
       }
     }
   },
-  "packageManager": "pnpm@10.13.1"
+  "tsup": {
+    "entry": [
+      "./src/hooks/build_hook.ts",
+      "./providers/vite_provider.ts",
+      "./src/vite_middleware.ts",
+      "./src/plugins/edge.ts",
+      "./src/client/main.ts",
+      "./services/vite.ts",
+      "./src/types.ts",
+      "./index.ts"
+    ],
+    "outDir": "./build",
+    "clean": true,
+    "format": "esm",
+    "dts": false,
+    "sourcemap": false,
+    "target": "esnext"
+  },
+  "c8": {
+    "reporter": [
+      "text",
+      "html"
+    ],
+    "exclude": [
+      "tests/**"
+    ]
+  },
+  "prettier": "@adonisjs/prettier-config"
 }

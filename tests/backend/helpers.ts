@@ -10,8 +10,8 @@
 import { getActiveTest } from '@japa/runner'
 
 import { defineConfig, Vite } from '../../index.js'
-import { ViteOptions } from '../../src/types.js'
-import { InlineConfig } from 'vite'
+import { type ViteOptions } from '../../src/types.js'
+import { type InlineConfig } from 'vite'
 import { join } from 'node:path'
 
 export const BASE_URL = new URL('./../__app/', import.meta.url)

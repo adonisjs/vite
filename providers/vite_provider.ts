@@ -87,7 +87,9 @@ export default class ViteProvider {
   async boot() {
     await this.registerEdgePlugin()
 
-    if (!this.#shouldRunViteDevServer) return
+    if (!this.#shouldRunViteDevServer) {
+      return
+    }
 
     const vite = await this.app.container.make('vite')
     await vite.createDevServer()
@@ -97,7 +99,9 @@ export default class ViteProvider {
    * Stop Vite server when running in development or test
    */
   async shutdown() {
-    if (!this.#shouldRunViteDevServer) return
+    if (!this.#shouldRunViteDevServer) {
+      return
+    }
 
     const vite = await this.app.container.make('vite')
     await vite.stopDevServer()

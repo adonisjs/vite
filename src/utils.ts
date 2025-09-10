@@ -44,5 +44,5 @@ export function makeAttributes(attributes: Record<string, string | boolean>) {
  * Add a trailing slash if missing
  */
 export const addTrailingSlash = (url: string) => {
-  return url.endsWith('/') ? url : url + '/'
+  return url.endsWith('/') ? url : `${url}/`
 }

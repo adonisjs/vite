@@ -8,7 +8,6 @@
  */
 
 import { join } from 'node:path'
-
 import type { ViteOptions } from './types.js'
 
 /**
@@ -16,8 +15,8 @@ import type { ViteOptions } from './types.js'
  */
 export function defineConfig(config: Partial<ViteOptions>): ViteOptions {
   return {
-    buildDirectory: 'public/assets',
     assetsUrl: '/assets',
+    buildDirectory: 'public/assets',
     manifestFile: config.buildDirectory
       ? join(config.buildDirectory, '.vite/manifest.json')
       : 'public/assets/.vite/manifest.json',

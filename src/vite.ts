@@ -8,13 +8,13 @@
  */
 
 import { join } from 'node:path'
+import string from '@poppinss/utils/string'
 import { existsSync, readFileSync } from 'node:fs'
-import { slash } from '@poppinss/utils'
-import { ModuleRunner } from 'vite/module-runner'
+import { type ModuleRunner } from 'vite/module-runner'
 import type {
-  InlineConfig,
   Manifest,
   ModuleNode,
+  InlineConfig,
   ViteDevServer,
   ServerModuleRunnerOptions,
 } from 'vite'
@@ -22,7 +22,7 @@ import type {
 import { makeAttributes, uniqBy } from './utils.js'
 import type { AdonisViteElement, SetAttributes, ViteOptions } from './types.js'
 
-const styleFileRegex = /\.(css|less|sass|scss|styl|stylus|pcss|postcss)($|\?)/
+const STYLE_FILE_REGEX = /\.(css|less|sass|scss|styl|stylus|pcss|postcss)($|\?)/
 
 /**
  * Vite class exposes the APIs to generate tags and URLs for
@@ -92,7 +92,7 @@ export class Vite {
    * Check if the given path is a CSS path
    */
   #isCssPath(path: string) {
-    return path.match(styleFileRegex) !== null
+    return path.match(STYLE_FILE_REGEX) !== null
   }
 
   /**
@@ -234,7 +234,7 @@ export class Vite {
      */
     for (const entryPoint of jsEntrypoints) {
       const filePath = join(server.config.root, entryPoint)
-      const entryMod = server.moduleGraph.getModuleById(slash(filePath))
+      const entryMod = server.moduleGraph.getModuleById(string.toUnixSlash(filePath))
       if (entryMod) this.#collectCss(entryMod, preloadUrls, visitedModules)
     }
 

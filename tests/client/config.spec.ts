@@ -8,7 +8,7 @@
  */
 
 import { test } from '@japa/runner'
-import { Plugin, build } from 'vite'
+import { type Plugin, build } from 'vite'
 import adonisjs from '../../src/client/main.js'
 
 test.group('Vite plugin', () => {
