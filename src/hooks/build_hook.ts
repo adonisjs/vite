@@ -7,7 +7,7 @@
  * file that was distributed with this source code.
  */
 
-import { hooks } from '@adonisjs/assembler'
+import { hooks } from '@adonisjs/core/app'
 import { createBuilder } from 'vite'
 
 /**
