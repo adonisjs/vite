@@ -236,7 +236,9 @@ export class Vite {
     for (const entryPoint of jsEntrypoints) {
       const filePath = join(server.config.root, entryPoint)
       const entryMod = server.moduleGraph.getModuleById(string.toUnixSlash(filePath))
-      if (entryMod) this.#collectCss(entryMod, preloadUrls, visitedModules)
+      if (entryMod) {
+        this.#collectCss(entryMod, preloadUrls, visitedModules)
+      }
     }
 
     /**
@@ -246,7 +248,7 @@ export class Vite {
     const elements = Array.from(preloadUrls).map((href) =>
       this.#generateElement({
         tag: 'link',
-        attributes: { rel: 'stylesheet', as: 'style', href: href },
+        attributes: { rel: 'stylesheet', href: href },
       })
     )
     elements.forEach((element) => cssTagsElement.add(element))
