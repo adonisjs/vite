@@ -584,7 +584,7 @@ test.group('Vite | collect css', () => {
     assert.deepEqual(
       result.map((tag) => tag.toString()),
       [
-        '<link rel="stylesheet" as="style" href="/style.css"/>',
+        '<link rel="stylesheet" href="/style.css"/>',
         '<script type="module" src="/@vite/client"></script>',
         '<script type="module" src="/foo.ts"></script>',
       ]
@@ -646,8 +646,8 @@ test.group('Vite | collect css', () => {
     assert.deepEqual(
       result.map((tag) => tag.toString()),
       [
-        '<link rel="stylesheet" as="style" href="/pages/home/style2.css"/>',
-        '<link rel="stylesheet" as="style" href="/style.css"/>',
+        '<link rel="stylesheet" href="/pages/home/style2.css"/>',
+        '<link rel="stylesheet" href="/style.css"/>',
         '<script type="module" src="/@vite/client"></script>',
         '<script type="module" src="/app.ts"></script>',
         '<script type="module" src="/pages/home/main.tsx"></script>',
