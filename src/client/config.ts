@@ -15,11 +15,11 @@ import type { PluginFullOptions } from './types.ts'
 
 /**
  * Resolves the base URL for Vite configuration based on command and options
- * 
+ *
  * @param config - User-provided Vite configuration
  * @param options - Plugin options containing assetsUrl
  * @param command - Vite command being executed ('build' or 'serve')
- * 
+ *
  * @example
  * const base = resolveBase(userConfig, { assetsUrl: '/assets' }, 'build')
  * // Returns: '/assets/' for build, '/' for serve
@@ -39,11 +39,11 @@ export function resolveBase(
 
 /**
  * Merges user Vite configuration with AdonisJS-specific defaults and requirements
- * 
+ *
  * @param options - Plugin options containing build directory and entry points
  * @param userConfig - User-provided Vite configuration
  * @param command - Vite environment command
- * 
+ *
  * @example
  * const mergedConfig = configHook(pluginOptions, userViteConfig, { command: 'build' })
  */

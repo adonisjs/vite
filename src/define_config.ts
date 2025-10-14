@@ -12,9 +12,9 @@ import type { ViteOptions } from './types.ts'
 
 /**
  * Creates a complete Vite configuration by merging provided options with sensible defaults
- * 
+ *
  * @param config - Partial Vite configuration options to override defaults
- * 
+ *
  * @example
  * const viteConfig = defineConfig({
  *   assetsUrl: '/static',

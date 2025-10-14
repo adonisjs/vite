@@ -28,9 +28,9 @@ export default class ViteMiddleware {
 
   /**
    * Creates a new ViteMiddleware instance
-   * 
+   *
    * @param vite - The Vite instance containing the dev server
-   * 
+   *
    * @example
    * const middleware = new ViteMiddleware(viteInstance)
    */
@@ -40,11 +40,11 @@ export default class ViteMiddleware {
 
   /**
    * Handles HTTP requests by proxying them to the Vite dev server when appropriate
-   * 
+   *
    * @param request - The HTTP request object from AdonisJS context
    * @param response - The HTTP response object from AdonisJS context
    * @param next - Function to call the next middleware in the chain
-   * 
+   *
    * @example
    * await middleware.handle(ctx, next)
    */

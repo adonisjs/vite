@@ -37,7 +37,7 @@ export class Vite {
   #options: ViteOptions
   #devServer?: ViteDevServer
   #createServerPromise?: Promise<ViteDevServer>
-  
+
   /**
    * Indicates whether the Vite manifest file exists on disk
    */
@@ -45,9 +45,9 @@ export class Vite {
 
   /**
    * Creates a new Vite instance for managing asset compilation and serving
-   * 
+   *
    * @param options - Configuration options for Vite integration
-   * 
+   *
    * @example
    * const vite = new Vite({
    *   buildDirectory: 'build',
@@ -380,21 +380,21 @@ export class Vite {
 
   /**
    * Generate HTML tags (script and link) for the specified entry points
-   * 
+   *
    * In development mode, includes HMR script and dynamically discovers CSS files.
    * In production mode, uses the manifest file to generate optimized tags with preloading.
-   * 
+   *
    * @param entryPoints - Single entry point or array of entry points to generate tags for
    * @param attributes - Additional HTML attributes to apply to the generated tags
-   * 
+   *
    * @example
    * // Generate tags for a single entry point
    * const tags = await vite.generateEntryPointsTags('app.js')
-   * 
+   *
    * @example
    * // Generate tags for multiple entry points with custom attributes
    * const tags = await vite.generateEntryPointsTags(
-   *   ['app.js', 'admin.js'], 
+   *   ['app.js', 'admin.js'],
    *   { defer: true }
    * )
    */
@@ -413,7 +413,7 @@ export class Vite {
 
   /**
    * Returns the base URL for serving static assets
-   * 
+   *
    * @example
    * const url = vite.assetsUrl()
    * // Returns: '/assets' or '/build' depending on configuration
@@ -424,12 +424,12 @@ export class Vite {
 
   /**
    * Returns the full URL path to a specific asset file
-   * 
+   *
    * In development mode, returns the asset path with leading slash.
    * In production mode, uses the manifest file to return the versioned/hashed asset URL.
-   * 
+   *
    * @param asset - The relative path to the asset file
-   * 
+   *
    * @example
    * const path = vite.assetPath('images/logo.png')
    * // Dev: '/images/logo.png'
@@ -446,12 +446,12 @@ export class Vite {
 
   /**
    * Returns the parsed Vite manifest file contents
-   * 
+   *
    * The manifest file contains information about compiled assets including
    * file paths, integrity hashes, and import dependencies.
    *
    * @throws Will throw an exception when running in development mode
-   * 
+   *
    * @example
    * const manifest = vite.manifest()
    * console.log(manifest['app.js'].file) // 'assets/app-abc123.js'
@@ -470,12 +470,12 @@ export class Vite {
 
   /**
    * Creates and initializes the Vite development server
-   * 
+   *
    * Lazy loads Vite APIs to avoid importing them in production.
    * The server runs in middleware mode and is configured for custom app integration.
    *
    * @param options - Additional Vite configuration options to merge with defaults
-   * 
+   *
    * @example
    * await vite.createDevServer({
    *   root: './src',
@@ -500,12 +500,12 @@ export class Vite {
 
   /**
    * Creates a server-side module runner for executing modules in Node.js context
-   * 
+   *
    * Only available in development mode as it requires the Vite dev server.
    * Useful for server-side rendering and module transformation.
    *
    * @param options - Configuration options for the module runner
-   * 
+   *
    * @example
    * const runner = await vite.createModuleRunner({
    *   hmr: { port: 24678 }
@@ -519,9 +519,9 @@ export class Vite {
 
   /**
    * Gracefully stops the Vite development server
-   * 
+   *
    * Waits for the server creation promise to complete before closing.
-   * 
+   *
    * @example
    * await vite.stopDevServer()
    */
@@ -532,10 +532,10 @@ export class Vite {
 
   /**
    * Returns the Vite development server instance
-   * 
+   *
    * Only available in development mode after calling createDevServer().
    * Returns undefined in production or if the server hasn't been created yet.
-   * 
+   *
    * @example
    * const server = vite.getDevServer()
    * if (server) {
@@ -548,12 +548,12 @@ export class Vite {
 
   /**
    * Generates the React Hot Module Replacement (HMR) script for development
-   * 
+   *
    * Only returns a script element in development mode. In production mode,
    * returns null since HMR is not needed.
    *
    * @param attributes - Additional HTML attributes to apply to the script tag
-   * 
+   *
    * @example
    * const hmrScript = vite.getReactHmrScript({ async: true })
    * if (hmrScript) {
