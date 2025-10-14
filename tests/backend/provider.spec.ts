@@ -52,6 +52,7 @@ test.group('Vite Provider', () => {
     const app = ignitor.createApp('web')
     await app.init()
     await app.boot()
+    await app.start(() => {})
 
     const vite = await app.container.make('vite')
 
@@ -97,6 +98,7 @@ test.group('Vite Provider', () => {
     const app = ignitor.createApp('test')
     await app.init()
     await app.boot()
+    await app.start(() => {})
 
     const vite = await app.container.make('vite')
     await setTimeout(200)
