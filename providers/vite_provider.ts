@@ -89,7 +89,9 @@ export default class ViteProvider {
   async boot() {
     await this.registerEdgePlugin()
     await this.registerShieldKeywords()
+  }
 
+  async ready() {
     if (!this.#shouldRunViteDevServer) {
       return
     }
