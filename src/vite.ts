@@ -37,8 +37,24 @@ export class Vite {
   #options: ViteOptions
   #devServer?: ViteDevServer
   #createServerPromise?: Promise<ViteDevServer>
+  
+  /**
+   * Indicates whether the Vite manifest file exists on disk
+   */
   hasManifestFile: boolean
 
+  /**
+   * Creates a new Vite instance for managing asset compilation and serving
+   * 
+   * @param options - Configuration options for Vite integration
+   * 
+   * @example
+   * const vite = new Vite({
+   *   buildDirectory: 'build',
+   *   assetsUrl: '/assets',
+   *   manifestFile: 'build/manifest.json'
+   * })
+   */
   constructor(options: ViteOptions) {
     this.#options = options
     this.#options.assetsUrl = (this.#options.assetsUrl || '/').replace(/\/$/, '')
@@ -363,7 +379,24 @@ export class Vite {
   }
 
   /**
-   * Generate tags for the entry points
+   * Generate HTML tags (script and link) for the specified entry points
+   * 
+   * In development mode, includes HMR script and dynamically discovers CSS files.
+   * In production mode, uses the manifest file to generate optimized tags with preloading.
+   * 
+   * @param entryPoints - Single entry point or array of entry points to generate tags for
+   * @param attributes - Additional HTML attributes to apply to the generated tags
+   * 
+   * @example
+   * // Generate tags for a single entry point
+   * const tags = await vite.generateEntryPointsTags('app.js')
+   * 
+   * @example
+   * // Generate tags for multiple entry points with custom attributes
+   * const tags = await vite.generateEntryPointsTags(
+   *   ['app.js', 'admin.js'], 
+   *   { defer: true }
+   * )
    */
   async generateEntryPointsTags(
     entryPoints: string[] | string,
@@ -379,14 +412,28 @@ export class Vite {
   }
 
   /**
-   * Returns the explicitly configured assetsUrl
+   * Returns the base URL for serving static assets
+   * 
+   * @example
+   * const url = vite.assetsUrl()
+   * // Returns: '/assets' or '/build' depending on configuration
    */
   assetsUrl() {
     return this.#options.assetsUrl
   }
 
   /**
-   * Returns path to a given asset file using the manifest file
+   * Returns the full URL path to a specific asset file
+   * 
+   * In development mode, returns the asset path with leading slash.
+   * In production mode, uses the manifest file to return the versioned/hashed asset URL.
+   * 
+   * @param asset - The relative path to the asset file
+   * 
+   * @example
+   * const path = vite.assetPath('images/logo.png')
+   * // Dev: '/images/logo.png'
+   * // Prod: '/assets/images/logo-abc123.png'
    */
   assetPath(asset: string): string {
     if (!this.hasManifestFile) {
@@ -398,9 +445,16 @@ export class Vite {
   }
 
   /**
-   * Returns the manifest file contents
+   * Returns the parsed Vite manifest file contents
+   * 
+   * The manifest file contains information about compiled assets including
+   * file paths, integrity hashes, and import dependencies.
    *
-   * @throws Will throw an exception when running in dev
+   * @throws Will throw an exception when running in development mode
+   * 
+   * @example
+   * const manifest = vite.manifest()
+   * console.log(manifest['app.js'].file) // 'assets/app-abc123.js'
    */
   manifest(): Manifest {
     if (!this.hasManifestFile) {
@@ -415,10 +469,18 @@ export class Vite {
   }
 
   /**
-   * Create the Vite Dev Server and runtime
+   * Creates and initializes the Vite development server
+   * 
+   * Lazy loads Vite APIs to avoid importing them in production.
+   * The server runs in middleware mode and is configured for custom app integration.
    *
-   * We lazy load the APIs to avoid loading it in production
-   * since we don't need it
+   * @param options - Additional Vite configuration options to merge with defaults
+   * 
+   * @example
+   * await vite.createDevServer({
+   *   root: './src',
+   *   server: { port: 3000 }
+   * })
    */
   async createDevServer(options?: InlineConfig) {
     const { createServer } = await import('vite')
@@ -437,9 +499,18 @@ export class Vite {
   }
 
   /**
-   * Create a serverModuleRunner instance
-   * Will not be available when running in production since
-   * it needs the Vite Dev server
+   * Creates a server-side module runner for executing modules in Node.js context
+   * 
+   * Only available in development mode as it requires the Vite dev server.
+   * Useful for server-side rendering and module transformation.
+   *
+   * @param options - Configuration options for the module runner
+   * 
+   * @example
+   * const runner = await vite.createModuleRunner({
+   *   hmr: { port: 24678 }
+   * })
+   * const mod = await runner.import('./app.js')
    */
   async createModuleRunner(options: ServerModuleRunnerOptions = {}): Promise<ModuleRunner> {
     const { createServerModuleRunner } = await import('vite')
@@ -447,7 +518,12 @@ export class Vite {
   }
 
   /**
-   * Stop the Vite Dev server
+   * Gracefully stops the Vite development server
+   * 
+   * Waits for the server creation promise to complete before closing.
+   * 
+   * @example
+   * await vite.stopDevServer()
    */
   async stopDevServer() {
     await this.#createServerPromise
@@ -455,15 +531,34 @@ export class Vite {
   }
 
   /**
-   * Get the Vite Dev server instance
-   * Will not be available when running in production
+   * Returns the Vite development server instance
+   * 
+   * Only available in development mode after calling createDevServer().
+   * Returns undefined in production or if the server hasn't been created yet.
+   * 
+   * @example
+   * const server = vite.getDevServer()
+   * if (server) {
+   *   console.log('Dev server is running on', server.config.server.port)
+   * }
    */
   getDevServer() {
     return this.#devServer
   }
 
   /**
-   * Returns the script needed for the HMR working with React
+   * Generates the React Hot Module Replacement (HMR) script for development
+   * 
+   * Only returns a script element in development mode. In production mode,
+   * returns null since HMR is not needed.
+   *
+   * @param attributes - Additional HTML attributes to apply to the script tag
+   * 
+   * @example
+   * const hmrScript = vite.getReactHmrScript({ async: true })
+   * if (hmrScript) {
+   *   console.log(hmrScript.toString()) // <script type="module" async>...</script>
+   * }
    */
   getReactHmrScript(attributes?: Record<string, any>): AdonisViteElement | null {
     if (this.hasManifestFile) {

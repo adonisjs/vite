@@ -14,8 +14,20 @@ import type { PluginFn } from 'edge.js/types'
 import type { Vite } from '../vite.ts'
 
 /**
- * The edge plugin for vite to share vite service with edge
- * and register custom tags
+ * Creates an Edge.js plugin that integrates Vite functionality into templates
+ * 
+ * Registers global helpers and custom tags (@vite, @viteReactRefresh) for use in Edge templates.
+ * Provides access to asset paths and HMR functionality within template rendering.
+ * 
+ * @param vite - The Vite instance to integrate with Edge templates
+ * 
+ * @example
+ * const plugin = edgePluginVite(viteInstance)
+ * edge.use(plugin)
+ * 
+ * // In templates:
+ * // @vite('app.js')
+ * // @viteReactRefresh({ nonce: 'abc123' })
  */
 export const edgePluginVite: (vite: Vite) => PluginFn<undefined> = (vite) => {
   const edgeVite = (edge: Edge) => {

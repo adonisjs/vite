@@ -20,13 +20,41 @@ declare module '@adonisjs/core/types' {
   }
 }
 
+/**
+ * AdonisJS service provider for integrating Vite build tool and development server
+ * 
+ * Handles lifecycle management of Vite integration including:
+ * - Registering Vite service in the container
+ * - Setting up Edge.js plugin for template integration
+ * - Managing development server startup/shutdown
+ * - Configuring CSP keywords for @adonisjs/shield
+ */
 export default class ViteProvider {
+  /**
+   * Flag indicating whether the Vite development server should be started
+   * Set to true when manifest file doesn't exist and running in web/test environment
+   */
   #shouldRunViteDevServer = false
 
+  /**
+   * Creates a new ViteProvider instance
+   * 
+   * @param app - The AdonisJS application service instance
+   * 
+   * @example
+   * const provider = new ViteProvider(app)
+   */
   constructor(protected app: ApplicationService) {}
 
   /**
-   * Registers edge plugin when edge is installed
+   * Registers the Vite Edge.js plugin if Edge.js is available in the application
+   * 
+   * Adds global helpers and custom tags (@vite, @viteReactRefresh) to Edge templates.
+   * Only registers the plugin if the application is using Edge.js.
+   * 
+   * @example
+   * await provider.registerEdgePlugin()
+   * // Enables @vite('app.js') in Edge templates
    */
   protected async registerEdgePlugin() {
     if (this.app.usingEdgeJS) {
@@ -38,7 +66,14 @@ export default class ViteProvider {
   }
 
   /**
-   * Registers CSP keywords when @adonisjs/shield is installed
+   * Registers Content Security Policy keywords when @adonisjs/shield is installed
+   * 
+   * Adds the '@viteUrl' keyword for CSP directives that returns the Vite assets URL
+   * when it's an HTTP/HTTPS URL, or an empty string otherwise.
+   * 
+   * @example
+   * await provider.registerShieldKeywords()
+   * // Enables @viteUrl in CSP directives
    */
   protected async registerShieldKeywords() {
     let cspKeywords: typeof ShieldCSPKeywords | null = null
@@ -69,7 +104,14 @@ export default class ViteProvider {
   }
 
   /**
-   * Register Vite bindings
+   * Registers Vite service and middleware bindings in the IoC container
+   * 
+   * Creates a Vite instance using configuration and determines whether
+   * the development server should run based on environment and manifest file presence.
+   * 
+   * @example
+   * provider.register()
+   * // Vite service is now available via container.make('vite')
    */
   register() {
     const appEnvironment = this.app.getEnvironment()
@@ -83,14 +125,29 @@ export default class ViteProvider {
   }
 
   /**
-   * - Register edge tags
-   * - Start Vite server when running in development or test
+   * Boots the Vite provider by registering plugins and integrations
+   * 
+   * Registers Edge.js plugin and Shield CSP keywords if the respective
+   * packages are available in the application.
+   * 
+   * @example
+   * await provider.boot()
    */
   async boot() {
     await this.registerEdgePlugin()
     await this.registerShieldKeywords()
   }
 
+  /**
+   * Starts the Vite development server when the application is ready
+   * 
+   * Only starts the server if running in development/test mode and
+   * no manifest file exists (indicating development mode).
+   * 
+   * @example
+   * await provider.ready()
+   * // Dev server starts on configured port
+   */
   async ready() {
     if (!this.#shouldRunViteDevServer) {
       return
@@ -101,7 +158,13 @@ export default class ViteProvider {
   }
 
   /**
-   * Stop Vite server when running in development or test
+   * Gracefully stops the Vite development server during application shutdown
+   * 
+   * Only attempts to stop the server if it was started during the ready phase.
+   * Ensures clean shutdown of the development server and its resources.
+   * 
+   * @example
+   * await provider.shutdown()
    */
   async shutdown() {
     if (!this.#shouldRunViteDevServer) {
