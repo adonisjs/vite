@@ -8,8 +8,8 @@
  */
 
 import type { ViteDevServer } from 'vite'
-import type { HttpContext } from '@adonisjs/core/http'
 import type { NextFn } from '@adonisjs/core/types/http'
+import type { HttpContext } from '@adonisjs/core/http'
 
 import type { Vite } from './vite.ts'
 
@@ -53,19 +53,42 @@ export default class ViteMiddleware {
       return next()
     }
 
-    /**
-     * @adonisjs/cors should handle the CORS instead of Vite
-     */
-    if (this.#devServer.config.server.cors === false) {
-      response.relayHeaders()
-    }
+    return new Promise<void>((resolve, reject) => {
+      function done(error?: any) {
+        response.response.removeListener('finish', done)
+        if (error) {
+          reject(error)
+        } else {
+          resolve()
+        }
+      }
 
-    /**
-     * Proxy the request to the vite dev server
-     */
-    await new Promise((resolve) => {
-      this.#devServer.middlewares.handle(request.request, response.response, () => {
-        return resolve(next())
+      /**
+       * When vite handles the request, we will resolve this promise after the
+       * response is sent.
+       */
+      response.response.addListener('finish', done)
+
+      /**
+       * Even if the request is not handled by Vite, we will relay headers
+       * to Node.js.
+       */
+      response.relayHeaders()
+
+      this.#devServer.middlewares.handle(request.request, response.response, async () => {
+        /**
+         * This callback is invoked when Vite does not handle the request. In that
+         * case, we will call next and resolve this promise. Also we remove the
+         * unneeded "finish" listener
+         */
+        response.response.removeListener('finish', done)
+
+        try {
+          await next()
+          done()
+        } catch (error) {
+          done(error)
+        }
       })
     })
   }
