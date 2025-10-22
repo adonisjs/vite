@@ -120,7 +120,7 @@ export default class ViteProvider {
     const vite = new Vite(this.app.config.get<ViteOptions>('vite'))
     this.#shouldRunViteDevServer = !vite.hasManifestFile && isWebOrTestEnvironment
 
-    this.app.container.bind('vite', () => vite)
+    this.app.container.singleton('vite', () => vite)
     this.app.container.singleton(ViteMiddleware, () => new ViteMiddleware(vite))
   }
 
