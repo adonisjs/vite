@@ -36,7 +36,6 @@ export class Vite {
   #manifestCache?: Manifest
   #options: ViteOptions
   #devServer?: ViteDevServer
-  #createServerPromise?: Promise<ViteDevServer>
 
   /**
    * Indicates whether the Vite manifest file exists on disk
@@ -489,13 +488,11 @@ export class Vite {
      * We do not await the server creation since it will
      * slow down the boot process of AdonisJS
      */
-    this.#createServerPromise = createServer({
+    this.#devServer = await createServer({
       server: { middlewareMode: true },
       appType: 'custom',
       ...options,
     })
-
-    this.#devServer = await this.#createServerPromise
   }
 
   /**
@@ -526,7 +523,6 @@ export class Vite {
    * await vite.stopDevServer()
    */
   async stopDevServer() {
-    await this.#createServerPromise
     await this.#devServer?.close()
   }
 
