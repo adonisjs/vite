@@ -483,13 +483,17 @@ export class Vite {
    */
   async createDevServer(options?: InlineConfig) {
     const { createServer } = await import('vite')
+    const hmrPort = Number(process.env.VITE_HMR_PORT)
 
     /**
      * We do not await the server creation since it will
      * slow down the boot process of AdonisJS
      */
     this.#devServer = await createServer({
-      server: { middlewareMode: true },
+      server: {
+        middlewareMode: true,
+        ...(hmrPort && !Number.isNaN(hmrPort) ? { hmr: { port: hmrPort } } : {}),
+      },
       appType: 'custom',
       ...options,
     })
