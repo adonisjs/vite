@@ -41,7 +41,12 @@ test.group('Vite Provider', () => {
     await app.terminate()
   })
 
-  test('launch dev server in dev mode', async ({ assert }) => {
+  test('launch dev server in dev mode', async ({ assert, cleanup }) => {
+    process.env.DEV_MODE = 'true'
+    cleanup(() => {
+      delete process.env.DEV_MODE
+    })
+
     const ignitor = new IgnitorFactory()
       .merge({ rcFileContents: { providers: [() => import('../../providers/vite_provider.js')] } })
       .withCoreConfig()

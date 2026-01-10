@@ -115,11 +115,14 @@ export default class ViteProvider {
    */
   register() {
     const appEnvironment = this.app.getEnvironment()
-    const isWebOrTestEnvironment = appEnvironment === 'web' || appEnvironment === 'test'
 
     const vite = new Vite(this.app.config.get<ViteOptions>('vite'))
-    this.#shouldRunViteDevServer = !vite.hasManifestFile && isWebOrTestEnvironment
 
+    /**
+     * DEV_MODE is injected when the dev server is started
+     * by assembler
+     */
+    this.#shouldRunViteDevServer = appEnvironment === 'test' || !!process.env.DEV_MODE
     this.app.container.singleton(Vite, () => vite)
     this.app.container.singleton(ViteMiddleware, () => new ViteMiddleware(vite))
     this.app.container.alias('vite', Vite)
