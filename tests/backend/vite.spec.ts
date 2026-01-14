@@ -208,9 +208,6 @@ test.group('Vite | manifest', () => {
       buildDirectory: join(fs.basePath, 'public/assets'),
     })
 
-    await vite.createDevServer()
-    cleanup(() => vite.stopDevServer())
-
     await fs.create(
       'public/assets/.vite/manifest.json',
       JSON.stringify({ 'test.js': { file: 'test-12345.js', src: 'test.js' } })

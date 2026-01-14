@@ -42,6 +42,10 @@ export class Vite {
    */
   hasManifestFile: boolean
 
+  get useDevServer() {
+    return !!this.#devServer
+  }
+
   /**
    * Creates a new Vite instance for managing asset compilation and serving
    *
@@ -163,7 +167,7 @@ export class Vite {
    */
   #generateTag(asset: string, attributes?: Record<string, any>): AdonisViteElement {
     let url = ''
-    if (!this.hasManifestFile) {
+    if (this.useDevServer) {
       url = `/${asset}`
     } else {
       url = this.#generateAssetUrl(asset)
@@ -403,7 +407,7 @@ export class Vite {
   ): Promise<AdonisViteElement[]> {
     entryPoints = Array.isArray(entryPoints) ? entryPoints : [entryPoints]
 
-    if (!this.hasManifestFile) {
+    if (this.useDevServer) {
       return this.#generateEntryPointsTagsForDevMode(entryPoints, attributes)
     }
 
@@ -435,7 +439,7 @@ export class Vite {
    * // Prod: '/assets/images/logo-abc123.png'
    */
   assetPath(asset: string): string {
-    if (!this.hasManifestFile) {
+    if (this.useDevServer) {
       return `/${asset}`
     }
 
@@ -456,8 +460,12 @@ export class Vite {
    * console.log(manifest['app.js'].file) // 'assets/app-abc123.js'
    */
   manifest(): Manifest {
-    if (!this.hasManifestFile) {
+    if (this.useDevServer) {
       throw new Error('Cannot read the manifest file when running in dev mode')
+    }
+
+    if (!this.hasManifestFile) {
+      throw new Error('Missing manifest file. Make sure to first create a build')
     }
 
     if (!this.#manifestCache) {
@@ -561,7 +569,7 @@ export class Vite {
    * }
    */
   getReactHmrScript(attributes?: Record<string, any>): AdonisViteElement | null {
-    if (this.hasManifestFile) {
+    if (!this.useDevServer) {
       return null
     }
 
