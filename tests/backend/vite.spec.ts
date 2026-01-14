@@ -22,7 +22,7 @@ test.group('Vite | dev', () => {
 
     const output = await vite.generateEntryPointsTags('test.js')
 
-    assert.containsSubset(output, [
+    assert.containSubset(output, [
       {
         tag: 'script',
         attributes: { type: 'module', src: '/@vite/client' },
@@ -53,7 +53,7 @@ test.group('Vite | dev', () => {
 
     const output = await vite.generateEntryPointsTags('test.js')
 
-    assert.containsSubset(output, [
+    assert.containSubset(output, [
       {
         tag: 'script',
         attributes: { type: 'module', src: '/@vite/client' },
@@ -109,7 +109,7 @@ test.group('Vite | dev', () => {
       })
     )
 
-    assert.containsSubset(vite.getReactHmrScript(), {
+    assert.containSubset(vite.getReactHmrScript(), {
       tag: 'script',
       attributes: {
         type: 'module',
@@ -139,7 +139,7 @@ test.group('Vite | dev', () => {
 
     const output = await vite.generateEntryPointsTags('test.js')
 
-    assert.containsSubset(output, [
+    assert.containSubset(output, [
       {
         tag: 'script',
         attributes: { type: 'module', src: '/@vite/client' },
@@ -177,7 +177,7 @@ test.group('Vite | dev', () => {
 
     const output = await vite.generateEntryPointsTags('app.css')
 
-    assert.containsSubset(output, [
+    assert.containSubset(output, [
       {
         tag: 'script',
         attributes: { type: 'module', src: '/@vite/client' },
@@ -203,7 +203,7 @@ test.group('Vite | dev', () => {
 })
 
 test.group('Vite | manifest', () => {
-  test('generate entrypoints tags for a file', async ({ assert, fs, cleanup }) => {
+  test('generate entrypoints tags for a file', async ({ assert, fs }) => {
     const vite = await setupViteWithManifest({
       buildDirectory: join(fs.basePath, 'public/assets'),
     })
@@ -215,14 +215,14 @@ test.group('Vite | manifest', () => {
 
     const output = await vite.generateEntryPointsTags('test.js')
 
-    assert.containsSubset(output, [
+    assert.containSubset(output, [
       {
         tag: 'script',
         attributes: { type: 'module', src: '/assets/test-12345.js' },
         children: [],
       },
     ])
-    assert.containsSubset(
+    assert.containSubset(
       output.map((element) => String(element)),
       ['<script type="module" src="/assets/test-12345.js"></script>']
     )
@@ -243,7 +243,7 @@ test.group('Vite | manifest', () => {
 
     const output = await vite.generateEntryPointsTags('test.js')
 
-    assert.containsSubset(output, [
+    assert.containSubset(output, [
       {
         tag: 'link',
         attributes: { rel: 'stylesheet', href: '/assets/main.b82dbe22.css' },
@@ -254,7 +254,7 @@ test.group('Vite | manifest', () => {
         children: [],
       },
     ])
-    assert.containsSubset(
+    assert.containSubset(
       output.map((element) => String(element)),
       [
         '<link rel="stylesheet" href="/assets/main.b82dbe22.css"/>',
@@ -276,14 +276,14 @@ test.group('Vite | manifest', () => {
 
     const output = await vite.generateEntryPointsTags('test.js')
 
-    assert.containsSubset(output, [
+    assert.containSubset(output, [
       {
         tag: 'script',
         attributes: { type: 'module', src: 'https://cdn.url.com/test-12345.js' },
         children: [],
       },
     ])
-    assert.containsSubset(
+    assert.containSubset(
       output.map((element) => String(element)),
       ['<script type="module" src="https://cdn.url.com/test-12345.js"></script>']
     )
@@ -374,7 +374,7 @@ test.group('Vite | manifest', () => {
 
     const output = await vite.generateEntryPointsTags('test.js')
 
-    assert.containsSubset(output, [
+    assert.containSubset(output, [
       {
         tag: 'script',
         attributes: {
@@ -385,7 +385,7 @@ test.group('Vite | manifest', () => {
         children: [],
       },
     ])
-    assert.containsSubset(
+    assert.containSubset(
       output.map((element) => String(element)),
       ['<script type="module" data-test="test" src="https://cdn.url.com/test-12345.js"></script>']
     )
@@ -407,7 +407,7 @@ test.group('Vite | manifest', () => {
 
     const output = await vite.generateEntryPointsTags('app.css')
 
-    assert.containsSubset(output, [
+    assert.containSubset(output, [
       {
         tag: 'link',
         attributes: {
@@ -417,7 +417,7 @@ test.group('Vite | manifest', () => {
         },
       },
     ])
-    assert.containsSubset(
+    assert.containSubset(
       output.map((element) => String(element)),
       ['<link rel="stylesheet" data-test="test" href="https://cdn.url.com/app-12345.css"/>']
     )
@@ -443,7 +443,7 @@ test.group('Vite | manifest', () => {
 
     const output = await vite.generateEntryPointsTags('test.js')
 
-    assert.containsSubset(output, [
+    assert.containSubset(output, [
       {
         tag: 'link',
         attributes: {
@@ -461,7 +461,7 @@ test.group('Vite | manifest', () => {
         children: [],
       },
     ])
-    assert.containsSubset(
+    assert.containSubset(
       output.map((element) => String(element)),
       [
         '<link rel="stylesheet" href="https://cdn.url.com/app-12345.css"/>',
