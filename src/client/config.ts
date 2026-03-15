@@ -70,7 +70,7 @@ export function configHook(
       outDir: userConfig.build?.outDir ?? options.buildDirectory,
       assetsInlineLimit: userConfig.build?.assetsInlineLimit ?? 0,
 
-      rollupOptions: {
+      rolldownOptions: {
         input: options.entrypoints.map((entrypoint) => join(userConfig.root || '', entrypoint)),
       },
     },
