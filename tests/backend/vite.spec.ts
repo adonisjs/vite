@@ -570,7 +570,7 @@ test.group('Preloading', () => {
 test.group('Vite | collect css', () => {
   test('collect and preload css files of entrypoint', async ({ assert, fs }) => {
     const vite = await createVite(defineConfig({}), {
-      build: { rollupOptions: { input: 'foo.ts' } },
+      build: { rolldownOptions: { input: 'foo.ts' } },
     })
 
     await fs.create('foo.ts', `import './style.css'`)
@@ -590,7 +590,7 @@ test.group('Vite | collect css', () => {
 
   test('collect recursively css files of entrypoint', async ({ assert, fs }) => {
     const vite = await createVite(defineConfig({}), {
-      build: { rollupOptions: { input: 'foo.ts' } },
+      build: { rolldownOptions: { input: 'foo.ts' } },
     })
 
     await fs.create(
@@ -623,7 +623,7 @@ test.group('Vite | collect css', () => {
 
   test('collect css rendered page', async ({ assert, fs }) => {
     const vite = await createVite(defineConfig({}), {
-      build: { rollupOptions: { input: 'foo.ts' } },
+      build: { rolldownOptions: { input: 'foo.ts' } },
     })
 
     await fs.create(
