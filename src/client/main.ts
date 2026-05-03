@@ -8,9 +8,9 @@
  */
 
 import { type PluginOption } from 'vite'
-import PluginRestart from 'vite-plugin-restart'
 
 import { config } from './config.ts'
+import { reload } from './reload.ts'
 import type { PluginOptions } from './types.ts'
 
 declare module 'vite' {
@@ -32,5 +32,5 @@ export default function adonisjs(options: PluginOptions): PluginOption[] {
     options
   )
 
-  return [PluginRestart({ reload: fullOptions.reload }), config(fullOptions)]
+  return [reload(fullOptions.reload), config(fullOptions)]
 }
