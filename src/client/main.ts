@@ -11,6 +11,7 @@ import { type PluginOption } from 'vite'
 
 import { config } from './config.ts'
 import { reload } from './reload.ts'
+import { resolveAssets } from './resolve_assets.ts'
 import type { PluginOptions } from './types.ts'
 
 declare module 'vite' {
@@ -32,5 +33,5 @@ export default function adonisjs(options: PluginOptions): PluginOption[] {
     options
   )
 
-  return [reload(fullOptions.reload), config(fullOptions)]
+  return [reload(fullOptions.reload), ...resolveAssets(options.assets), config(fullOptions)]
 }
