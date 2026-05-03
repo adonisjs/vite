@@ -158,7 +158,9 @@ export default class ViteProvider {
     }
 
     const vite = await this.app.container.make('vite')
-    await vite.createDevServer()
+    const { DevRuntime } = await import('../src/runtime/dev_runtime.ts')
+    const runtime = await DevRuntime.create(this.app.config.get<ViteOptions>('vite'))
+    vite.useRuntime(runtime)
   }
 
   /**
