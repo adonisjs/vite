@@ -618,7 +618,7 @@ test.group('Vite | collect css', () => {
     )
   }).skip(
     true,
-    'Doesnt work since we moved from executeEntrypoint to transformRequest, but in real application it seems to work fine ?'
+    'Server-side warmupRequest only loads the direct entrypoint; nested imports are not transitively fetched the way a browser would. In a real app the browser drives the cascade and CSS is collected correctly.'
   )
 
   test('collect css rendered page', async ({ assert, fs }) => {

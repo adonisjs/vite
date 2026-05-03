@@ -117,4 +117,77 @@ test.group('Vite Middleware', () => {
     const res = await supertest(server).get('/resources/js/app.ts')
     assert.equal(res.text, 'handled by next middleware')
   })
+
+  test('proxy /@vite/client request through middleware', async ({ assert, fs }) => {
+    await fs.create('resources/js/app.ts', 'console.log("Hello world")')
+
+    const vite = await createVite(
+      { buildDirectory: 'foo', manifestFile: 'bar.json' },
+      { plugins: [adonisjs({ entrypoints: ['./resources/js/app.ts'] })] }
+    )
+
+    const server = createServer(async (req, res) => {
+      const middleware = new ViteMiddleware(vite)
+      const request = new RequestFactory().merge({ req, res }).create()
+      const response = new ResponseFactory().merge({ req, res }).create()
+      const ctx = new HttpContextFactory().merge({ request, response }).create()
+
+      await middleware.handle(ctx, () => {
+        ctx.response.status(404).send('not handled by vite')
+      })
+    })
+
+    const res = await supertest(server).get('/@vite/client')
+    assert.equal(res.status, 200)
+    assert.match(res.headers['content-type'], /javascript/)
+  })
+
+  test('proxy a typescript entrypoint and return transformed JS', async ({ assert, fs }) => {
+    await fs.create('resources/js/app.ts', `export const hello: string = 'world'`)
+
+    const vite = await createVite(
+      { buildDirectory: 'foo', manifestFile: 'bar.json' },
+      { plugins: [adonisjs({ entrypoints: ['./resources/js/app.ts'] })] }
+    )
+
+    const server = createServer(async (req, res) => {
+      const middleware = new ViteMiddleware(vite)
+      const request = new RequestFactory().merge({ req, res }).create()
+      const response = new ResponseFactory().merge({ req, res }).create()
+      const ctx = new HttpContextFactory().merge({ request, response }).create()
+
+      await middleware.handle(ctx, () => {
+        ctx.response.status(404).send('not handled by vite')
+      })
+    })
+
+    const res = await supertest(server).get('/resources/js/app.ts')
+    assert.equal(res.status, 200)
+    assert.match(res.headers['content-type'], /javascript/)
+    assert.include(res.text, 'hello')
+    assert.notInclude(res.text, ': string')
+  })
+
+  test('proxy a CSS file through middleware', async ({ assert, fs }) => {
+    await fs.create('resources/css/app.css', 'body { color: red }')
+
+    const vite = await createVite(
+      { buildDirectory: 'foo', manifestFile: 'bar.json' },
+      { plugins: [adonisjs({ entrypoints: ['./resources/css/app.css'] })] }
+    )
+
+    const server = createServer(async (req, res) => {
+      const middleware = new ViteMiddleware(vite)
+      const request = new RequestFactory().merge({ req, res }).create()
+      const response = new ResponseFactory().merge({ req, res }).create()
+      const ctx = new HttpContextFactory().merge({ request, response }).create()
+
+      await middleware.handle(ctx, () => {
+        ctx.response.status(404).send('not handled by vite')
+      })
+    })
+
+    const res = await supertest(server).get('/resources/css/app.css')
+    assert.equal(res.status, 200)
+  })
 })
