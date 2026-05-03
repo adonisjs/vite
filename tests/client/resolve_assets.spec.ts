@@ -67,9 +67,7 @@ test.group('resolveAssets | chunks (glob)', () => {
     })
 
     const manifest = await readManifest(fs.basePath)
-    const chunkEntries = Object.values(manifest).filter((c: any) =>
-      c.file?.match(/\.(svg|js)$/)
-    )
+    const chunkEntries = Object.values(manifest).filter((c: any) => c.file?.match(/\.(svg|js)$/))
     assert.isAbove(chunkEntries.length, 1)
   })
 })

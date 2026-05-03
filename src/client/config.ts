@@ -29,7 +29,10 @@ export function resolveBase(
   options: PluginFullOptions,
   command: 'build' | 'serve'
 ): string {
-  if (config.base) return config.base
+  if (config.base) {
+    return config.base
+  }
+
   if (command === 'build') {
     return addTrailingSlash(options.assetsUrl)
   }
