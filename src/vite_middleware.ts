@@ -7,7 +7,6 @@
  * file that was distributed with this source code.
  */
 
-import type { ViteDevServer } from 'vite'
 import type { NextFn } from '@adonisjs/core/types/http'
 import type { HttpContext } from '@adonisjs/core/http'
 
@@ -24,8 +23,6 @@ import type { Vite } from './vite.ts'
  * AdonisJS server.
  */
 export default class ViteMiddleware {
-  #devServer: ViteDevServer
-
   /**
    * Creates a new ViteMiddleware instance
    *
@@ -34,9 +31,7 @@ export default class ViteMiddleware {
    * @example
    * const middleware = new ViteMiddleware(viteInstance)
    */
-  constructor(protected vite: Vite) {
-    this.#devServer = this.vite.getDevServer()!
-  }
+  constructor(protected vite: Vite) {}
 
   /**
    * Handles HTTP requests by proxying them to the Vite dev server when appropriate
@@ -49,7 +44,9 @@ export default class ViteMiddleware {
    * await middleware.handle(ctx, next)
    */
   async handle({ request, response }: HttpContext, next: NextFn) {
-    if (!this.#devServer) {
+    const devServer = this.vite.getDevServer()
+
+    if (!devServer) {
       return next()
     }
 
@@ -75,7 +72,7 @@ export default class ViteMiddleware {
        */
       response.relayHeaders()
 
-      this.#devServer.middlewares.handle(request.request, response.response, async () => {
+      devServer.middlewares.handle(request.request, response.response, async () => {
         /**
          * This callback is invoked when Vite does not handle the request. In that
          * case, we will call next and resolve this promise. Also we remove the
