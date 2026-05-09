@@ -621,6 +621,48 @@ test.group('Vite | collect css', () => {
     'Server-side warmupRequest only loads the direct entrypoint; nested imports are not transitively fetched the way a browser would. In a real app the browser drives the cascade and CSS is collected correctly.'
   )
 
+  test('emit css link tags when ssr graph populated by a different module (issue #29)', async ({
+    assert,
+    fs,
+  }) => {
+    const vite = await createVite(defineConfig({}), {
+      build: { rolldownOptions: { input: 'app.ts' } },
+    })
+
+    await fs.create('app.ts', `import './style.css'`)
+    await fs.create('style.css', 'body { color: red }')
+    await fs.create('ssr.ts', `console.log('ssr')`)
+
+    /**
+     * Simulate Inertia SSR running before the Edge template hits @vite():
+     * SSR runner loads `ssr.ts` (a different entry than the client `app.ts`),
+     * populating server.environments.ssr.moduleGraph. server.moduleGraph is
+     * a union wrapper, so its size > 0 even though the client graph is
+     * empty — the buggy check skips the client warmup, getModuleById
+     * returns undefined for app.ts, and no <link> tag for style.css is
+     * emitted.
+     */
+    const server = vite.getDevServer()!
+    await server.environments.ssr.warmupRequest('/ssr.ts')
+    assert.isAbove(server.moduleGraph.idToModuleMap.size, 0, 'expected union graph non-empty')
+    assert.equal(
+      server.environments.client.moduleGraph.idToModuleMap.size,
+      0,
+      'expected client graph still empty before @vite()'
+    )
+
+    const result = await vite.generateEntryPointsTags('app.ts')
+
+    assert.deepEqual(
+      result.map((tag) => tag.toString()),
+      [
+        '<link rel="stylesheet" href="/style.css"/>',
+        '<script type="module" src="/@vite/client"></script>',
+        '<script type="module" src="/app.ts"></script>',
+      ]
+    )
+  })
+
   test('collect css rendered page', async ({ assert, fs }) => {
     const vite = await createVite(defineConfig({}), {
       build: { rolldownOptions: { input: 'foo.ts' } },

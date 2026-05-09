@@ -16,6 +16,7 @@ import type {
   ModuleNode,
   InlineConfig,
   ViteDevServer,
+  EnvironmentModuleNode,
   ServerModuleRunnerOptions,
 } from 'vite'
 
@@ -113,7 +114,7 @@ export class Vite {
   /**
    * If the module is a style module
    */
-  #isStyleModule(mod: ModuleNode) {
+  #isStyleModule(mod: ModuleNode | EnvironmentModuleNode) {
     if (this.#isCssPath(mod.url) || (mod.id && /\?vue&type=style/.test(mod.id))) {
       return true
     }
@@ -184,10 +185,10 @@ export class Vite {
    * Collect CSS files from the module graph recursively
    */
   #collectCss(
-    mod: ModuleNode,
+    mod: ModuleNode | EnvironmentModuleNode,
     styleUrls: Set<string>,
     visitedModules: Set<string>,
-    importer?: ModuleNode
+    importer?: ModuleNode | EnvironmentModuleNode
   ): void {
     if (!mod.url) {
       return
@@ -230,11 +231,17 @@ export class Vite {
     const jsEntrypoints = entryPoints.filter((entrypoint) => !this.#isCssPath(entrypoint))
 
     /**
-     * If the module graph is empty, that means we didn't execute the entrypoint
-     * yet : we just started the AdonisJS dev server.
-     * So let's execute the entrypoints to populate the module graph
+     * If the client module graph is empty, that means we didn't execute the
+     * entrypoint yet : we just started the AdonisJS dev server. So let's
+     * execute the entrypoints to populate the client module graph.
+     *
+     * Use the per-environment client graph instead of the backward-compat
+     * `server.moduleGraph` union (client + ssr). Otherwise an SSR runner
+     * (e.g. @adonisjs/inertia rendering before @vite()) populates the ssr
+     * graph, the union check returns non-empty, the client warmup is
+     * skipped, and no <link rel="stylesheet"> tags are emitted.
      */
-    if (server?.moduleGraph.idToModuleMap.size === 0) {
+    if (server?.environments.client.moduleGraph.idToModuleMap.size === 0) {
       await Promise.allSettled(
         jsEntrypoints.map((entrypoint) => server.warmupRequest(`/${entrypoint}`))
       )
@@ -254,7 +261,9 @@ export class Vite {
      */
     for (const entryPoint of jsEntrypoints) {
       const filePath = join(server.config.root, entryPoint)
-      const entryMod = server.moduleGraph.getModuleById(string.toUnixSlash(filePath))
+      const entryMod = server.environments.client.moduleGraph.getModuleById(
+        string.toUnixSlash(filePath)
+      )
       if (entryMod) {
         this.#collectCss(entryMod, preloadUrls, visitedModules)
       }
