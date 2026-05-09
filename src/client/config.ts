@@ -8,6 +8,7 @@
  */
 
 import { join } from 'node:path'
+import string from '@poppinss/utils/string'
 import type { ConfigEnv, Plugin, UserConfig } from 'vite'
 
 import { addTrailingSlash } from '../utils.ts'
@@ -77,7 +78,9 @@ export function configHook(
         input:
           userConfig.build?.rolldownOptions?.input ??
           userConfig.build?.rollupOptions?.input ??
-          options.entrypoints.map((entrypoint) => join(userConfig.root || '', entrypoint)),
+          options.entrypoints.map((entrypoint) =>
+            string.toUnixSlash(join(userConfig.root || '', entrypoint))
+          ),
       },
     },
   }
