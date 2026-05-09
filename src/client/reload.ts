@@ -9,6 +9,7 @@
 
 import path from 'node:path'
 import picomatch from 'picomatch'
+import string from '@poppinss/utils/string'
 import type { Plugin } from 'vite'
 
 export interface ReloadOptions {
@@ -47,7 +48,11 @@ export function reload(patterns: string | string[], options: ReloadOptions = {})
     name: 'adonisjs:reload',
     apply: 'serve',
     configureServer(server) {
-      const root = server.config.root
+      /**
+       * Normalize paths to forward slashes so picomatch (POSIX-only) can
+       * match against chokidar's native-separator paths on Windows.
+       */
+      const root = string.toUnixSlash(server.config.root)
       const absolutePatterns = patternList.map((pattern) => path.posix.join(root, pattern))
       const isMatch = picomatch(absolutePatterns)
 
@@ -59,7 +64,7 @@ export function reload(patterns: string | string[], options: ReloadOptions = {})
       server.watcher.add(baseDirs)
 
       const trigger = (file: string) => {
-        if (!isMatch(file)) {
+        if (!isMatch(string.toUnixSlash(file))) {
           return
         }
 

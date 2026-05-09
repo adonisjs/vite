@@ -9,6 +9,7 @@
 
 import type { Plugin } from 'vite'
 import { globSync } from 'tinyglobby'
+import string from '@poppinss/utils/string'
 import { readFileSync, statSync, writeFileSync } from 'node:fs'
 import { basename, isAbsolute, join, normalize, resolve } from 'node:path'
 import type { PluginOptions } from './types.ts'
@@ -48,7 +49,13 @@ export function resolveAssets(input: PluginOptions['assets']): Plugin[] {
   }
 
   const assetRefToSource = new Map<string, string>()
-  const toAbsolute = (file: string) => (isAbsolute(file) ? file : resolve(root, file))
+  /**
+   * Resolve to an absolute path with forward slashes — tinyglobby and the
+   * manifest both expect POSIX-style paths, so normalizing here keeps
+   * Windows builds aligned with Linux/macOS.
+   */
+  const toAbsolute = (file: string) =>
+    string.toUnixSlash(isAbsolute(file) ? file : resolve(root, file))
 
   let manifestFileName = '.vite/manifest.json'
   let manifestEnabled = true
@@ -76,7 +83,7 @@ export function resolveAssets(input: PluginOptions['assets']): Plugin[] {
             name: basename(file),
             source: readFileSync(absolute),
           })
-          assetRefToSource.set(refId, normalize(file))
+          assetRefToSource.set(refId, string.toUnixSlash(normalize(file)))
         }
       },
     },
