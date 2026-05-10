@@ -47,11 +47,7 @@ export class DevModuleRunner {
    * Imports a module through the runner. Recreates the runner if the
    * dev server's SSR environment was swapped underneath us.
    */
-  async import<T>(
-    server: ViteDevServer,
-    entry: string,
-    opts: LoadServerModuleOptions
-  ): Promise<T> {
+  async import<T>(server: ViteDevServer, entry: string, opts: LoadServerModuleOptions): Promise<T> {
     const currentSsrEnv = server.environments.ssr
 
     if (this.#ssrEnvironment !== currentSsrEnv) {

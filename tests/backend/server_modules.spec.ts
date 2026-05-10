@@ -35,10 +35,7 @@ test.group('Vite | loadServerModule (dev)', () => {
   })
 
   test('imports a JSX module after Vite transform', async ({ assert, fs }) => {
-    await fs.create(
-      'render.tsx',
-      `export default () => ({ tag: 'div', kids: ['hi'] })`
-    )
+    await fs.create('render.tsx', `export default () => ({ tag: 'div', kids: ['hi'] })`)
 
     const vite = await createVite(defineConfig({}))
     const mod = await vite.loadServerModule<{ default: () => any }>('/render.tsx')
