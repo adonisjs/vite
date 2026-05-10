@@ -17,7 +17,24 @@ import { createBuilder } from 'vite'
  * The hook is responsible for launching a Vite multi-build process.
  */
 export default hooks.buildStarting(async (parent) => {
+  /**
+   * Vite's CLI sets NODE_ENV to 'production' automatically when running
+   * `vite build`, but the programmatic `createBuilder` API does not.
+   * Without this, framework plugins (React, Vue, MDX, …) emit dev-only
+   * code paths in the production bundle.
+   *
+   * See https://github.com/remix-run/remix/issues/4081
+   */
+  process.env.NODE_ENV = 'production'
+
   parent.ui.logger.info('building assets with vite')
-  const builder = await createBuilder({}, null)
+
+  /**
+   * Force multi-environment builder mode (`useLegacyBuilder = false`).
+   * Vite's default builder builds every declared environment when no
+   * plugin contributes a custom `buildApp`, which is what we want for
+   * apps that declare both client `entrypoints` and `serverEntrypoints`.
+   */
+  const builder = await createBuilder({}, false)
   await builder.buildApp()
 })
