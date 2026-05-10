@@ -36,6 +36,16 @@ export interface PluginOptions {
   buildDirectory?: string
 
   /**
+   * Server-side entrypoints bundled into the SSR build output. Each
+   * entry is emitted as a single bundle (no hash, no shared chunks)
+   * under `<buildDirectory>/server/<name>.js` and becomes loadable
+   * through `vite.loadServerModule()` at runtime.
+   *
+   * Paths are relative to the project root.
+   */
+  serverEntrypoints?: string[]
+
+  /**
    * Additional files to include in the build that are not imported by the
    * entrypoints.
    *

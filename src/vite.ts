@@ -21,7 +21,14 @@ import type {
 } from 'vite'
 
 import { makeAttributes, uniqBy } from './utils.ts'
-import type { AdonisViteElement, SetAttributes, ViteOptions } from './types.ts'
+import { ServerModuleLoader } from './server_modules/server_module_loader.ts'
+import type {
+  AdonisViteElement,
+  LoadServerModuleOptions,
+  ServerModuleMap,
+  SetAttributes,
+  ViteOptions,
+} from './types.ts'
 
 const STYLE_FILE_REGEX = /\.(css|less|sass|scss|styl|stylus|pcss|postcss)($|\?)/
 
@@ -37,6 +44,12 @@ export class Vite {
   #manifestCache?: Manifest
   #options: ViteOptions
   #devServer?: ViteDevServer
+
+  /**
+   * Loads server-side TypeScript modules through Vite. Picks between
+   * the dev `ModuleRunner` and the production SSR bundle automatically.
+   */
+  #serverModuleLoader: ServerModuleLoader
 
   /**
    * Indicates whether the Vite manifest file exists on disk
@@ -63,6 +76,11 @@ export class Vite {
     this.#options = options
     this.#options.assetsUrl = (this.#options.assetsUrl || '/').replace(/\/$/, '')
     this.hasManifestFile = existsSync(this.#options.manifestFile)
+    this.#serverModuleLoader = new ServerModuleLoader(
+      () => this.#devServer,
+      this.#options.buildDirectory,
+      () => this.createModuleRunner()
+    )
   }
 
   /**
@@ -536,6 +554,34 @@ export class Vite {
   }
 
   /**
+   * Loads a server-side module that has been processed by Vite.
+   *
+   * In development, the entry is evaluated through Vite's `ModuleRunner`,
+   * giving full TypeScript / JSX / plugin support and HMR-driven cache
+   * invalidation. In production, the entry is imported from the
+   * pre-built SSR bundle on disk.
+   *
+   * The entry path must be declared in `serverEntrypoints` for the
+   * production import to succeed — otherwise the bundle won't exist.
+   *
+   * @example
+   * const mod = await vite.loadServerModule('inertia/app/ssr.ts')
+   * const html = await mod.default(payload)
+   *
+   * @example
+   * // Force re-evaluation (clear runner cache before import)
+   * await vite.loadServerModule('emails/welcome.ts', { fresh: true })
+   */
+  loadServerModule<K extends keyof ServerModuleMap>(
+    entry: K,
+    opts?: LoadServerModuleOptions
+  ): Promise<ServerModuleMap[K]>
+  loadServerModule<T = unknown>(entry: string, opts?: LoadServerModuleOptions): Promise<T>
+  loadServerModule(entry: string, opts?: LoadServerModuleOptions): Promise<unknown> {
+    return this.#serverModuleLoader.load(entry, opts)
+  }
+
+  /**
    * Gracefully stops the Vite development server
    *
    * Waits for the server creation promise to complete before closing.
@@ -544,6 +590,7 @@ export class Vite {
    * await vite.stopDevServer()
    */
   async stopDevServer() {
+    await this.#serverModuleLoader.close()
     await this.#devServer?.close()
   }
 

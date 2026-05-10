@@ -77,9 +77,40 @@ export function configHook(
         input:
           userConfig.build?.rolldownOptions?.input ??
           userConfig.build?.rollupOptions?.input ??
-          options.entrypoints.map((entrypoint) => join(userConfig.root || '', entrypoint)),
+          options.entrypoints,
       },
     },
+  }
+
+  /**
+   * When server-side entrypoints are declared, configure the SSR build
+   * environment so it mirrors the client setup: raw array input, manifest
+   * emitted alongside the output. `loadServerModule` reads that manifest
+   * at runtime to resolve a source path to the bundled file.
+   *
+   * Each field defers to a user/plugin-supplied value when present so
+   * other plugins contributing to `environments.ssr` cooperate rather
+   * than collide.
+   */
+  if (options.serverEntrypoints.length > 0) {
+    const userSsrBuild = userConfig.environments?.ssr?.build
+    config.environments = {
+      ssr: {
+        build: {
+          ssr: userSsrBuild?.ssr ?? true,
+          emptyOutDir: userSsrBuild?.emptyOutDir ?? true,
+          emitAssets: userSsrBuild?.emitAssets ?? false,
+          manifest: userSsrBuild?.manifest ?? true,
+          outDir: userSsrBuild?.outDir ?? join(options.buildDirectory, 'server'),
+          rolldownOptions: {
+            input:
+              userSsrBuild?.rolldownOptions?.input ??
+              (userSsrBuild as any)?.rollupOptions?.input ??
+              options.serverEntrypoints,
+          },
+        },
+      },
+    }
   }
 
   return config

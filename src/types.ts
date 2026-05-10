@@ -74,3 +74,36 @@ export interface ViteOptions {
    */
   scriptAttributes?: SetAttributes
 }
+
+/**
+ * Augmentable map for typing entries passed to `vite.loadServerModule`.
+ * Apps and packages merge into this interface to associate entrypoint
+ * paths with the shape of their default exports.
+ *
+ * @example
+ * declare module '@adonisjs/vite/types' {
+ *   interface ServerModuleMap {
+ *     'inertia/app/ssr.ts': typeof import('../inertia/app/ssr.ts')
+ *   }
+ * }
+ */
+export interface ServerModuleMap {}
+
+/**
+ * Options accepted by `vite.loadServerModule`.
+ */
+export interface LoadServerModuleOptions {
+  /**
+   * Clear the module runner cache before importing in dev mode.
+   *
+   * Defaults to `false` — Vite's HMR pushes invalidations into the
+   * runner, so cached modules are already kept fresh on file change.
+   * Set to `true` only when the entrypoint registers top-level state
+   * that must be reset on every load.
+   *
+   * Has no effect in production (bundled imports are always cached).
+   *
+   * @default false
+   */
+  fresh?: boolean
+}
