@@ -159,7 +159,7 @@ test.group('Vite | configHook serverEntrypoints', () => {
       manifest: true,
       outDir: join('public/assets', 'server'),
       rolldownOptions: {
-        input: [join('/project', 'inertia/ssr.ts')],
+        input: ['inertia/ssr.ts'],
       },
     })
   })

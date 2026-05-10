@@ -67,8 +67,8 @@ test.group('Vite plugin', () => {
     // @ts-ignore
     const config = plugin!.config!({ root: '/app' }, { command: 'build' })
     assert.deepEqual(config.build?.rolldownOptions?.input, [
-      '/app/resources/js/app.ts',
-      '/app/resources/js/admin.ts',
+      './resources/js/app.ts',
+      './resources/js/admin.ts',
     ])
   })
 

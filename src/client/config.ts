@@ -77,7 +77,7 @@ export function configHook(
         input:
           userConfig.build?.rolldownOptions?.input ??
           userConfig.build?.rollupOptions?.input ??
-          options.entrypoints.map((entrypoint) => join(userConfig.root || '', entrypoint)),
+          options.entrypoints,
       },
     },
   }
@@ -106,9 +106,7 @@ export function configHook(
             input:
               userSsrBuild?.rolldownOptions?.input ??
               (userSsrBuild as any)?.rollupOptions?.input ??
-              options.serverEntrypoints.map((entrypoint) =>
-                join(userConfig.root || '', entrypoint)
-              ),
+              options.serverEntrypoints,
           },
         },
       },

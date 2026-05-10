@@ -9,7 +9,7 @@
 
 import path from 'node:path'
 import picomatch from 'picomatch'
-import type { Plugin } from 'vite'
+import { type Plugin, normalizePath } from 'vite'
 
 export interface ReloadOptions {
   delay?: number
@@ -47,8 +47,15 @@ export function reload(patterns: string | string[], options: ReloadOptions = {})
     name: 'adonisjs:reload',
     apply: 'serve',
     configureServer(server) {
-      const root = server.config.root
-      const absolutePatterns = patternList.map((pattern) => path.posix.join(root, pattern))
+      /**
+       * Vite's `normalizePath` converts platform-native separators to
+       * POSIX so glob patterns and chokidar-emitted file paths line up
+       * on Windows.
+       */
+      const root = normalizePath(server.config.root)
+      const absolutePatterns = patternList.map((pattern) =>
+        path.posix.join(root, normalizePath(pattern))
+      )
       const isMatch = picomatch(absolutePatterns)
 
       /**
@@ -59,7 +66,7 @@ export function reload(patterns: string | string[], options: ReloadOptions = {})
       server.watcher.add(baseDirs)
 
       const trigger = (file: string) => {
-        if (!isMatch(file)) {
+        if (!isMatch(normalizePath(file))) {
           return
         }
 

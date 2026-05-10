@@ -41,11 +41,10 @@ test.group('resolveAssets | shape', () => {
     )
   })
 
-  test('returns two plugins when chunks are provided', ({ assert }) => {
+  test('returns plugin when chunks are provided', ({ assert }) => {
     const plugins = resolveAssets({ chunks: ['./resources/images/**/*.svg'] })
-    assert.lengthOf(plugins, 2)
+    assert.lengthOf(plugins, 1)
     assert.equal(plugins[0].name, 'adonisjs:resolve-assets')
-    assert.equal(plugins[1].name, 'adonisjs:resolve-assets:manifest')
   })
 })
 
