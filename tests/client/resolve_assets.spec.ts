@@ -59,7 +59,7 @@ test.group('resolveAssets | chunks (glob)', () => {
       logLevel: 'silent',
       plugins: [
         adonisjs({
-          entrypoints: ['./resources/js/app.ts'],
+          entryPoints: ['./resources/js/app.ts'],
           assets: { chunks: ['./resources/images/**/*.svg'] },
         }),
       ],
@@ -81,7 +81,7 @@ test.group('resolveAssets | assets (raw)', () => {
       logLevel: 'silent',
       plugins: [
         adonisjs({
-          entrypoints: ['./resources/js/app.ts'],
+          entryPoints: ['./resources/js/app.ts'],
           assets: { assets: ['./resources/images/logo.svg'] },
         }),
       ],
@@ -104,7 +104,7 @@ test.group('resolveAssets | assets (raw)', () => {
       logLevel: 'silent',
       plugins: [
         adonisjs({
-          entrypoints: ['./resources/js/app.ts'],
+          entryPoints: ['./resources/js/app.ts'],
           assets: { assets: ['./resources/images/logo.svg'] },
         }),
       ],
@@ -124,7 +124,7 @@ test.group('resolveAssets | assets (raw)', () => {
       logLevel: 'silent',
       plugins: [
         adonisjs({
-          entrypoints: ['./resources/js/app.ts'],
+          entryPoints: ['./resources/js/app.ts'],
           assets: { assets: ['./resources/images/logo.svg'] },
         }),
       ],
@@ -145,7 +145,7 @@ test.group('resolveAssets | assets (raw)', () => {
       logLevel: 'silent',
       plugins: [
         adonisjs({
-          entrypoints: ['./resources/js/app.ts'],
+          entryPoints: ['./resources/js/app.ts'],
           assets: { assets: ['./resources/images/logo.svg'] },
         }),
       ],
@@ -166,7 +166,7 @@ test.group('resolveAssets | assets (raw)', () => {
       logLevel: 'silent',
       plugins: [
         adonisjs({
-          entrypoints: ['./resources/js/app.ts'],
+          entryPoints: ['./resources/js/app.ts'],
           assets: { assets: ['./resources/images/logo.svg'] },
         }),
       ],
@@ -184,7 +184,7 @@ test.group('resolveAssets | assets (raw)', () => {
       logLevel: 'silent',
       plugins: [
         adonisjs({
-          entrypoints: ['./resources/js/app.ts'],
+          entryPoints: ['./resources/js/app.ts'],
           assets: {
             chunks: ['./resources/svg/**/*.svg'],
             assets: ['./resources/images/logo.svg'],

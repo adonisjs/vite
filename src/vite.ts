@@ -251,7 +251,7 @@ export class Vite {
     /**
      * If the client module graph is empty, that means we didn't execute the
      * entrypoint yet : we just started the AdonisJS dev server. So let's
-     * execute the entrypoints to populate the client module graph.
+     * execute the entry points to populate the client module graph.
      *
      * Use the per-environment client graph instead of the backward-compat
      * `server.moduleGraph` union (client + ssr). Otherwise an SSR runner
@@ -266,7 +266,7 @@ export class Vite {
     }
 
     /**
-     * We need to collect the CSS files imported by the entrypoints
+     * We need to collect the CSS files imported by the entry points
      * Otherwise, we gonna have a FOUC each time we full reload the page
      */
     const preloadUrls = new Set<string>()
@@ -339,7 +339,7 @@ export class Vite {
   }
 
   /**
-   * Generate style and script tags for the given entrypoints
+   * Generate style and script tags for the given entry points
    * using the manifest file
    */
   #generateEntryPointsTagsWithManifest(

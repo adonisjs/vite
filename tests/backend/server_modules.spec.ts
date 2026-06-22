@@ -122,15 +122,15 @@ test.group('Vite | loadServerModule (prod)', () => {
   })
 })
 
-test.group('Vite | configHook serverEntrypoints', () => {
-  test('does not configure ssr environment when serverEntrypoints is empty', ({ assert }) => {
+test.group('Vite | configHook serverEntryPoints', () => {
+  test('does not configure ssr environment when serverEntryPoints is empty', ({ assert }) => {
     const result = configHook(
       {
         assetsUrl: '/assets',
         buildDirectory: 'public/assets',
         reload: [],
-        entrypoints: ['app.ts'],
-        serverEntrypoints: [],
+        entryPoints: ['app.ts'],
+        serverEntryPoints: [],
       },
       { root: '/project' },
       { command: 'build' } as any
@@ -139,14 +139,14 @@ test.group('Vite | configHook serverEntrypoints', () => {
     assert.notProperty(result, 'environments')
   })
 
-  test('configures ssr environment when serverEntrypoints is non-empty', ({ assert }) => {
+  test('configures ssr environment when serverEntryPoints is non-empty', ({ assert }) => {
     const result = configHook(
       {
         assetsUrl: '/assets',
         buildDirectory: 'public/assets',
         reload: [],
-        entrypoints: ['app.ts'],
-        serverEntrypoints: ['inertia/ssr.ts'],
+        entryPoints: ['app.ts'],
+        serverEntryPoints: ['inertia/ssr.ts'],
       },
       { root: '/project' },
       { command: 'build' } as any
@@ -170,8 +170,8 @@ test.group('Vite | configHook serverEntrypoints', () => {
         assetsUrl: '/assets',
         buildDirectory: 'public/assets',
         reload: [],
-        entrypoints: ['app.ts'],
-        serverEntrypoints: ['inertia/ssr.ts'],
+        entryPoints: ['app.ts'],
+        serverEntryPoints: ['inertia/ssr.ts'],
       },
       {
         root: '/project',

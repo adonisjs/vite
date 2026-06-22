@@ -29,7 +29,7 @@ export default function adonisjs(options: PluginOptions): PluginOption[] {
       assetsUrl: '/assets',
       buildDirectory: 'public/assets',
       reload: ['./resources/views/**/*.edge'],
-      serverEntrypoints: [] as string[],
+      serverEntryPoints: [] as string[],
     },
     options
   )

@@ -25,7 +25,7 @@ test.group('Vite Middleware', () => {
     const vite = await createVite(
       { buildDirectory: 'foo', manifestFile: 'bar.json' },
       {
-        plugins: [adonisjs({ entrypoints: ['./resources/js/app.ts'] })],
+        plugins: [adonisjs({ entryPoints: ['./resources/js/app.ts'] })],
       }
     )
 
@@ -123,7 +123,7 @@ test.group('Vite Middleware', () => {
 
     const vite = await createVite(
       { buildDirectory: 'foo', manifestFile: 'bar.json' },
-      { plugins: [adonisjs({ entrypoints: ['./resources/js/app.ts'] })] }
+      { plugins: [adonisjs({ entryPoints: ['./resources/js/app.ts'] })] }
     )
 
     const server = createServer(async (req, res) => {
@@ -147,7 +147,7 @@ test.group('Vite Middleware', () => {
 
     const vite = await createVite(
       { buildDirectory: 'foo', manifestFile: 'bar.json' },
-      { plugins: [adonisjs({ entrypoints: ['./resources/js/app.ts'] })] }
+      { plugins: [adonisjs({ entryPoints: ['./resources/js/app.ts'] })] }
     )
 
     const server = createServer(async (req, res) => {
@@ -173,7 +173,7 @@ test.group('Vite Middleware', () => {
 
     const vite = await createVite(
       { buildDirectory: 'foo', manifestFile: 'bar.json' },
-      { plugins: [adonisjs({ entrypoints: ['./resources/css/app.css'] })] }
+      { plugins: [adonisjs({ entryPoints: ['./resources/css/app.css'] })] }
     )
 
     const server = createServer(async (req, res) => {

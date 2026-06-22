@@ -116,11 +116,11 @@ export const edgePluginVite: (vite: Vite) => PluginFn<undefined> = (vite) => {
           parser
         )
 
-        const entrypoints = parser.utils.stringify(parsed)
+        const entryPoints = parser.utils.stringify(parsed)
         const methodCall =
           parsed.type === 'SequenceExpression'
-            ? `generateEntryPointsTags${entrypoints}`
-            : `generateEntryPointsTags(${entrypoints})`
+            ? `generateEntryPointsTags${entryPoints}`
+            : `generateEntryPointsTags(${entryPoints})`
 
         buffer.outputExpression(
           `(await state.vite.${methodCall}).join('\\n')`,

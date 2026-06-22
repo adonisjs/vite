@@ -27,8 +27,8 @@ import type { LoadServerModuleOptions } from '../types.ts'
  *   imports the pre-built bundle from disk.
  *
  * Entry strings are passed through verbatim to mirror how client
- * `entrypoints` are handled — the caller is responsible for using the
- * exact string declared in `serverEntrypoints`.
+ * `entryPoints` are handled — the caller is responsible for using the
+ * exact string declared in `serverEntryPoints`.
  */
 export class ServerModuleLoader {
   #getDevServer: () => ViteDevServer | undefined

@@ -18,7 +18,7 @@ test.group('Vite plugin', () => {
     await build({
       root: fs.basePath,
       logLevel: 'warn',
-      plugins: [adonisjs({ entrypoints: ['./resources/js/app.ts'] })],
+      plugins: [adonisjs({ entryPoints: ['./resources/js/app.ts'] })],
     })
 
     await assert.fileContains('public/assets/.vite/manifest.json', 'resources/js/app.ts')
@@ -30,7 +30,7 @@ test.group('Vite plugin', () => {
     await build({
       root: fs.basePath,
       logLevel: 'warn',
-      plugins: [adonisjs({ entrypoints: ['./resources/js/app.ts'] })],
+      plugins: [adonisjs({ entryPoints: ['./resources/js/app.ts'] })],
       build: { manifest: 'foo.json' },
     })
 
@@ -39,7 +39,7 @@ test.group('Vite plugin', () => {
 
   test('define the asset url', async ({ assert }) => {
     const plugin = adonisjs({
-      entrypoints: ['./resources/js/app.ts'],
+      entryPoints: ['./resources/js/app.ts'],
       assetsUrl: 'https://cdn.com',
       buildDirectory: 'my-assets',
     })[1] as Plugin
@@ -51,7 +51,7 @@ test.group('Vite plugin', () => {
 
   test('disable vite dev server cors handling', async ({ assert }) => {
     const plugin = adonisjs({
-      entrypoints: ['./resources/js/app.ts'],
+      entryPoints: ['./resources/js/app.ts'],
     })[1] as Plugin
 
     // @ts-ignore
@@ -59,9 +59,9 @@ test.group('Vite plugin', () => {
     assert.deepEqual(config.server?.cors, false)
   })
 
-  test('emit rolldownOptions.input from entrypoints', async ({ assert }) => {
+  test('emit rolldownOptions.input from entry points', async ({ assert }) => {
     const plugin = adonisjs({
-      entrypoints: ['./resources/js/app.ts', './resources/js/admin.ts'],
+      entryPoints: ['./resources/js/app.ts', './resources/js/admin.ts'],
     })[1] as Plugin
 
     // @ts-ignore
@@ -74,7 +74,7 @@ test.group('Vite plugin', () => {
 
   test('respect user-provided build.rolldownOptions.input', async ({ assert }) => {
     const plugin = adonisjs({
-      entrypoints: ['./resources/js/app.ts'],
+      entryPoints: ['./resources/js/app.ts'],
     })[1] as Plugin
 
     // @ts-ignore
@@ -87,7 +87,7 @@ test.group('Vite plugin', () => {
 
   test('respect legacy build.rollupOptions.input for backwards compat', async ({ assert }) => {
     const plugin = adonisjs({
-      entrypoints: ['./resources/js/app.ts'],
+      entryPoints: ['./resources/js/app.ts'],
     })[1] as Plugin
 
     // @ts-ignore
@@ -102,7 +102,7 @@ test.group('Vite plugin', () => {
     assert,
   }) => {
     const plugin = adonisjs({
-      entrypoints: ['./resources/js/app.ts'],
+      entryPoints: ['./resources/js/app.ts'],
     })[1] as Plugin
 
     // @ts-ignore
@@ -116,7 +116,7 @@ test.group('Vite plugin', () => {
 
   test('user manifest filename overrides default', async ({ assert }) => {
     const plugin = adonisjs({
-      entrypoints: ['./resources/js/app.ts'],
+      entryPoints: ['./resources/js/app.ts'],
     })[1] as Plugin
 
     // @ts-ignore
@@ -129,7 +129,7 @@ test.group('Vite plugin', () => {
 
   test('user outDir overrides buildDirectory', async ({ assert }) => {
     const plugin = adonisjs({
-      entrypoints: ['./resources/js/app.ts'],
+      entryPoints: ['./resources/js/app.ts'],
       buildDirectory: 'public/assets',
     })[1] as Plugin
 
@@ -140,7 +140,7 @@ test.group('Vite plugin', () => {
 
   test('preserve user cors config when defined', async ({ assert }) => {
     const plugin = adonisjs({
-      entrypoints: ['./resources/js/app.ts'],
+      entryPoints: ['./resources/js/app.ts'],
     })[1] as Plugin
 
     // @ts-ignore

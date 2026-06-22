@@ -15,8 +15,8 @@ import type { Manifest } from 'vite'
 /**
  * Resolves and imports server-side modules from the production SSR build.
  *
- * In production there is no Vite dev server — entrypoints declared as
- * `serverEntrypoints` are pre-built into `<buildDirectory>/server` and
+ * In production there is no Vite dev server — entry points declared as
+ * `serverEntryPoints` are pre-built into `<buildDirectory>/server` and
  * recorded in `<buildDirectory>/server/.vite/manifest.json`. The
  * resolver reads that manifest to map an entry source path to the
  * emitted bundle file, then imports it through Node's native `import()`.
@@ -54,7 +54,7 @@ export class BundledModuleResolver {
         throw new Error(
           `Cannot loadServerModule("${entry}"): no chunk for this entry in ` +
             `the SSR manifest. Make sure the entry is declared in ` +
-            `serverEntrypoints and the application has been rebuilt.`
+            `serverEntryPoints and the application has been rebuilt.`
         )
       }
 
