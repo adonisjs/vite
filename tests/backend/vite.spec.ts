@@ -569,12 +569,12 @@ test.group('Preloading', () => {
 
 test.group('Vite | collect css', () => {
   test('collect and preload css files of entrypoint', async ({ assert, fs }) => {
+    await fs.create('foo.ts', `import './style.css'`)
+    await fs.create('style.css', 'body { color: red }')
+
     const vite = await createVite(defineConfig({}), {
       build: { rolldownOptions: { input: 'foo.ts' } },
     })
-
-    await fs.create('foo.ts', `import './style.css'`)
-    await fs.create('style.css', 'body { color: red }')
 
     const result = await vite.generateEntryPointsTags('foo.ts')
 
@@ -589,10 +589,6 @@ test.group('Vite | collect css', () => {
   })
 
   test('collect recursively css files of entry point', async ({ assert, fs }) => {
-    const vite = await createVite(defineConfig({}), {
-      build: { rolldownOptions: { input: 'foo.ts' } },
-    })
-
     await fs.create(
       'foo.ts',
       `
@@ -604,6 +600,10 @@ test.group('Vite | collect css', () => {
     await fs.create('foo2.ts', `import './style2.css'`)
     await fs.create('style.css', 'body { color: red }')
     await fs.create('style2.css', 'body { color: blue }')
+
+    const vite = await createVite(defineConfig({}), {
+      build: { rolldownOptions: { input: 'foo.ts' } },
+    })
 
     const result = await vite.generateEntryPointsTags('foo.ts')
 
@@ -625,13 +625,13 @@ test.group('Vite | collect css', () => {
     assert,
     fs,
   }) => {
-    const vite = await createVite(defineConfig({}), {
-      build: { rolldownOptions: { input: 'app.ts' } },
-    })
-
     await fs.create('app.ts', `import './style.css'`)
     await fs.create('style.css', 'body { color: red }')
     await fs.create('ssr.ts', `console.log('ssr')`)
+
+    const vite = await createVite(defineConfig({}), {
+      build: { rolldownOptions: { input: 'app.ts' } },
+    })
 
     /**
      * Simulate Inertia SSR running before the Edge template hits @vite():
@@ -664,10 +664,6 @@ test.group('Vite | collect css', () => {
   })
 
   test('collect css rendered page', async ({ assert, fs }) => {
-    const vite = await createVite(defineConfig({}), {
-      build: { rolldownOptions: { input: 'foo.ts' } },
-    })
-
     await fs.create(
       'app.ts',
       `
@@ -679,6 +675,10 @@ test.group('Vite | collect css', () => {
 
     await fs.create('./pages/home/main.tsx', `import './style2.css'`)
     await fs.create('./pages/home/style2.css', 'body { color: blue }')
+
+    const vite = await createVite(defineConfig({}), {
+      build: { rolldownOptions: { input: 'foo.ts' } },
+    })
 
     const result = await vite.generateEntryPointsTags(['app.ts', 'pages/home/main.tsx'])
 
