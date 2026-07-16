@@ -77,13 +77,13 @@ export function configHook(
         input:
           userConfig.build?.rolldownOptions?.input ??
           userConfig.build?.rollupOptions?.input ??
-          options.entrypoints,
+          options.entryPoints,
       },
     },
   }
 
   /**
-   * When server-side entrypoints are declared, configure the SSR build
+   * When server-side entry points are declared, configure the SSR build
    * environment so it mirrors the client setup: raw array input, manifest
    * emitted alongside the output. `loadServerModule` reads that manifest
    * at runtime to resolve a source path to the bundled file.
@@ -92,7 +92,7 @@ export function configHook(
    * other plugins contributing to `environments.ssr` cooperate rather
    * than collide.
    */
-  if (options.serverEntrypoints.length > 0) {
+  if (options.serverEntryPoints.length > 0) {
     const userSsrBuild = userConfig.environments?.ssr?.build
     config.environments = {
       ssr: {
@@ -106,7 +106,7 @@ export function configHook(
             input:
               userSsrBuild?.rolldownOptions?.input ??
               (userSsrBuild as any)?.rollupOptions?.input ??
-              options.serverEntrypoints,
+              options.serverEntryPoints,
           },
         },
       },

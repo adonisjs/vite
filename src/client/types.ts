@@ -24,9 +24,9 @@ export interface PluginOptions {
   reload?: string[]
 
   /**
-   * Paths to the entrypoints files
+   * Paths to the entry points files
    */
-  entrypoints: string[]
+  entryPoints: string[]
 
   /**
    * Public directory where the assets will be compiled.
@@ -36,18 +36,18 @@ export interface PluginOptions {
   buildDirectory?: string
 
   /**
-   * Server-side entrypoints bundled into the SSR build output. Each
+   * Server-side entry points bundled into the SSR build output. Each
    * entry is emitted as a single bundle (no hash, no shared chunks)
    * under `<buildDirectory>/server/<name>.js` and becomes loadable
    * through `vite.loadServerModule()` at runtime.
    *
    * Paths are relative to the project root.
    */
-  serverEntrypoints?: string[]
+  serverEntryPoints?: string[]
 
   /**
    * Additional files to include in the build that are not imported by the
-   * entrypoints.
+   * entry points.
    *
    * - When passed as a `string[]`, every entry is treated as a chunk: glob
    *   patterns are expanded and each matching file is emitted via Vite's

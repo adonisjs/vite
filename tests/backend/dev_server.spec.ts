@@ -104,7 +104,7 @@ test.group('Vite dev server', () => {
     await fs.create('resources/js/app.ts', 'console.log("ok")')
 
     const vite = await createVite(defineConfig({}), {
-      plugins: [adonisjs({ entrypoints: ['./resources/js/app.ts'] })],
+      plugins: [adonisjs({ entryPoints: ['./resources/js/app.ts'] })],
     })
 
     const server = vite.getDevServer()!

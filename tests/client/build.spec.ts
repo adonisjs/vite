@@ -26,7 +26,7 @@ test.group('Vite 8 build | manifest', () => {
     await build({
       root: fs.basePath,
       logLevel: 'silent',
-      plugins: [adonisjs({ entrypoints: ['./resources/js/app.ts'] })],
+      plugins: [adonisjs({ entryPoints: ['./resources/js/app.ts'] })],
     })
 
     const manifest = await readManifest(fs.basePath)
@@ -44,7 +44,7 @@ test.group('Vite 8 build | manifest', () => {
     await build({
       root: fs.basePath,
       logLevel: 'silent',
-      plugins: [adonisjs({ entrypoints: ['./resources/js/app.ts'] })],
+      plugins: [adonisjs({ entryPoints: ['./resources/js/app.ts'] })],
     })
 
     const manifest = await readManifest(fs.basePath)
@@ -61,7 +61,7 @@ test.group('Vite 8 build | manifest', () => {
     await build({
       root: fs.basePath,
       logLevel: 'silent',
-      plugins: [adonisjs({ entrypoints: ['./resources/js/app.ts'] })],
+      plugins: [adonisjs({ entryPoints: ['./resources/js/app.ts'] })],
     })
 
     const manifest = await readManifest(fs.basePath)
@@ -77,7 +77,7 @@ test.group('Vite 8 build | manifest', () => {
       await build({
         root: fs.basePath,
         logLevel: 'silent',
-        plugins: [adonisjs({ entrypoints: ['./resources/js/app.ts'] })],
+        plugins: [adonisjs({ entryPoints: ['./resources/js/app.ts'] })],
       })
     } catch (error) {
       caught = error
@@ -94,7 +94,7 @@ test.group('Vite 8 build | createBuilder', () => {
     const builder = await createBuilder({
       root: fs.basePath,
       logLevel: 'silent',
-      plugins: [adonisjs({ entrypoints: ['./resources/js/app.ts'] })],
+      plugins: [adonisjs({ entryPoints: ['./resources/js/app.ts'] })],
       configFile: false,
     })
     await builder.buildApp()
@@ -114,7 +114,7 @@ test.group('Vite 8 build | plugin compat', () => {
     await build({
       root: fs.basePath,
       logLevel: 'silent',
-      plugins: [adonisjs({ entrypoints: ['./resources/js/app.ts'] })],
+      plugins: [adonisjs({ entryPoints: ['./resources/js/app.ts'] })],
     })
 
     const manifest = await readManifest(fs.basePath)
@@ -127,7 +127,7 @@ test.group('Vite 8 build | plugin compat', () => {
     await build({
       root: fs.basePath,
       logLevel: 'silent',
-      plugins: [adonisjs({ entrypoints: ['./resources/js/app.ts'] })],
+      plugins: [adonisjs({ entryPoints: ['./resources/js/app.ts'] })],
       build: { outDir: 'dist' },
     })
 

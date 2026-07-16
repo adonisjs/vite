@@ -33,7 +33,7 @@ export default hooks.buildStarting(async (parent) => {
    * Force multi-environment builder mode (`useLegacyBuilder = false`).
    * Vite's default builder builds every declared environment when no
    * plugin contributes a custom `buildApp`, which is what we want for
-   * apps that declare both client `entrypoints` and `serverEntrypoints`.
+   * apps that declare both client `entryPoints` and `serverEntryPoints`.
    */
   const builder = await createBuilder({}, false)
   await builder.buildApp()

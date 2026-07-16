@@ -15,7 +15,7 @@ import { createVite, setupViteWithManifest } from './helpers.ts'
 import { defineConfig } from '../../src/define_config.ts'
 
 test.group('Vite | dev', () => {
-  test('generate entrypoints tags for a file', async ({ assert, fs }) => {
+  test('generate entry points tags for a file', async ({ assert, fs }) => {
     const vite = await createVite(
       defineConfig({ buildDirectory: join(fs.basePath, 'public/assets') })
     )
@@ -126,7 +126,7 @@ test.group('Vite | dev', () => {
     })
   })
 
-  test('add custom attributes to the entrypoints script tags', async ({ assert, fs }) => {
+  test('add custom attributes to the entry points script tags', async ({ assert, fs }) => {
     const vite = await createVite(
       defineConfig({
         buildDirectory: join(fs.basePath, 'public/assets'),
@@ -164,7 +164,7 @@ test.group('Vite | dev', () => {
     )
   })
 
-  test('add custom attributes to the entrypoints style tags', async ({ assert, fs }) => {
+  test('add custom attributes to the entry points style tags', async ({ assert, fs }) => {
     const vite = await createVite(
       defineConfig({
         buildDirectory: join(fs.basePath, 'public/assets'),
@@ -203,7 +203,7 @@ test.group('Vite | dev', () => {
 })
 
 test.group('Vite | manifest', () => {
-  test('generate entrypoints tags for a file', async ({ assert, fs }) => {
+  test('generate entry points tags for a file', async ({ assert, fs }) => {
     const vite = await setupViteWithManifest({
       buildDirectory: join(fs.basePath, 'public/assets'),
     })
@@ -228,7 +228,7 @@ test.group('Vite | manifest', () => {
     )
   })
 
-  test('generate entrypoints with css imported inside js', async ({ assert, fs }) => {
+  test('generate entry points with css imported inside js', async ({ assert, fs }) => {
     const vite = await setupViteWithManifest({
       buildDirectory: join(fs.basePath, 'public/assets'),
     })
@@ -356,7 +356,7 @@ test.group('Vite | manifest', () => {
     assert.isNull(vite.getReactHmrScript())
   })
 
-  test('add custom attributes to the entrypoints script tags', async ({ assert, fs }) => {
+  test('add custom attributes to the entry points script tags', async ({ assert, fs }) => {
     const vite = await setupViteWithManifest({
       buildDirectory: join(fs.basePath, 'public/assets'),
       assetsUrl: 'https://cdn.url.com',
@@ -391,7 +391,7 @@ test.group('Vite | manifest', () => {
     )
   })
 
-  test('add custom attributes to the entrypoints link tags', async ({ assert, fs }) => {
+  test('add custom attributes to the entry points link tags', async ({ assert, fs }) => {
     const vite = await setupViteWithManifest({
       buildDirectory: join(fs.basePath, 'public/assets'),
       assetsUrl: 'https://cdn.url.com',
@@ -484,20 +484,20 @@ test.group('Preloading', () => {
     manifestFile: fileURLToPath(new URL('fixtures/adonis_packages_manifest.json', import.meta.url)),
   }
 
-  test('Preload root entrypoints', async ({ assert }) => {
+  test('Preload root entry points', async ({ assert }) => {
     const vite = await setupViteWithManifest(config)
-    const entrypoints = await vite.generateEntryPointsTags('resources/pages/home/main.vue')
+    const entryPoints = await vite.generateEntryPointsTags('resources/pages/home/main.vue')
 
-    const result = entrypoints.map((tag) => tag.toString())
+    const result = entryPoints.map((tag) => tag.toString())
 
     assert.include(result, '<link rel="modulepreload" href="/assets/main-CKiOIoD7.js"/>')
   })
 
-  test('Preload files imported from entrypoints', async ({ assert }) => {
+  test('Preload files imported from entry points', async ({ assert }) => {
     const vite = await setupViteWithManifest(config)
-    const entrypoints = await vite.generateEntryPointsTags('resources/pages/home/main.vue')
+    const entryPoints = await vite.generateEntryPointsTags('resources/pages/home/main.vue')
 
-    const result = entrypoints.map((tag) => tag.toString())
+    const result = entryPoints.map((tag) => tag.toString())
 
     assert.includeMembers(result, [
       '<link rel="modulepreload" href="/assets/app-CGO3UiiC.js"/>',
@@ -510,22 +510,22 @@ test.group('Preloading', () => {
     ])
   })
 
-  test('Preload entrypoints css files', async ({ assert }) => {
+  test('Preload entry points css files', async ({ assert }) => {
     const vite = await setupViteWithManifest(config)
-    const entrypoints = await vite.generateEntryPointsTags('resources/pages/home/main.vue')
+    const entryPoints = await vite.generateEntryPointsTags('resources/pages/home/main.vue')
 
-    const result = entrypoints.map((tag) => tag.toString())
+    const result = entryPoints.map((tag) => tag.toString())
 
     assert.includeMembers(result, [
       '<link rel="preload" as="style" href="/assets/main-BcGYH63d.css"/>',
     ])
   })
 
-  test('Preload css files of imported files of entrypoint', async ({ assert }) => {
+  test('Preload css files of imported files of entry point', async ({ assert }) => {
     const vite = await setupViteWithManifest(config)
-    const entrypoints = await vite.generateEntryPointsTags('resources/pages/home/main.vue')
+    const entryPoints = await vite.generateEntryPointsTags('resources/pages/home/main.vue')
 
-    const result = entrypoints.map((tag) => tag.toString())
+    const result = entryPoints.map((tag) => tag.toString())
 
     assert.includeMembers(result, [
       '<link rel="preload" as="style" href="/assets/main-BcGYH63d.css"/>',
@@ -538,9 +538,9 @@ test.group('Preloading', () => {
 
   test('css preload should be ordered before js preload', async ({ assert }) => {
     const vite = await setupViteWithManifest(config)
-    const entrypoints = await vite.generateEntryPointsTags('resources/pages/home/main.vue')
+    const entryPoints = await vite.generateEntryPointsTags('resources/pages/home/main.vue')
 
-    const result = entrypoints.map((tag) => tag.toString())
+    const result = entryPoints.map((tag) => tag.toString())
 
     const cssPreloadIndex = result.findIndex((tag) => tag.includes('rel="preload" as="style"'))
     const jsPreloadIndex = result.findIndex((tag) => tag.includes('rel="modulepreload"'))
@@ -550,9 +550,9 @@ test.group('Preloading', () => {
 
   test('preloads should use assetsUrl when defined', async ({ assert }) => {
     const vite = await setupViteWithManifest({ ...config, assetsUrl: 'https://cdn.url.com' })
-    const entrypoints = await vite.generateEntryPointsTags('resources/pages/home/main.vue')
+    const entryPoints = await vite.generateEntryPointsTags('resources/pages/home/main.vue')
 
-    const result = entrypoints.map((tag) => tag.toString())
+    const result = entryPoints.map((tag) => tag.toString())
 
     assert.includeMembers(result, [
       '<link rel="modulepreload" href="https://cdn.url.com/main-CKiOIoD7.js"/>',
@@ -588,7 +588,7 @@ test.group('Vite | collect css', () => {
     )
   })
 
-  test('collect recursively css files of entrypoint', async ({ assert, fs }) => {
+  test('collect recursively css files of entry point', async ({ assert, fs }) => {
     const vite = await createVite(defineConfig({}), {
       build: { rolldownOptions: { input: 'foo.ts' } },
     })
@@ -618,7 +618,7 @@ test.group('Vite | collect css', () => {
     )
   }).skip(
     true,
-    'Server-side warmupRequest only loads the direct entrypoint; nested imports are not transitively fetched the way a browser would. In a real app the browser drives the cascade and CSS is collected correctly.'
+    'Server-side warmupRequest only loads the direct entry point; nested imports are not transitively fetched the way a browser would. In a real app the browser drives the cascade and CSS is collected correctly.'
   )
 
   test('emit css link tags when ssr graph populated by a different module (issue #29)', async ({
