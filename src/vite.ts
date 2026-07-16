@@ -527,7 +527,7 @@ export class Vite {
     this.#devServer = await createServer({
       server: {
         middlewareMode: true,
-        ...(hmrPort && !Number.isNaN(hmrPort) ? { hmr: { port: hmrPort } } : {}),
+        ...(hmrPort && !Number.isNaN(hmrPort) ? { ws: { port: hmrPort } } : {}),
       },
       appType: 'custom',
       ...options,
@@ -543,9 +543,7 @@ export class Vite {
    * @param options - Configuration options for the module runner
    *
    * @example
-   * const runner = await vite.createModuleRunner({
-   *   hmr: { port: 24678 }
-   * })
+   * const runner = await vite.createModuleRunner()
    * const mod = await runner.import('./app.js')
    */
   async createModuleRunner(options: ServerModuleRunnerOptions = {}): Promise<ModuleRunner> {

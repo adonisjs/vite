@@ -41,7 +41,7 @@ test.group('Vite dev server', () => {
     assert.isTrue(vite.useDevServer)
   })
 
-  test('VITE_HMR_PORT env is forwarded to server.config.server.hmr.port', async ({
+  test('VITE_HMR_PORT env is forwarded to server.config.server.ws.port', async ({
     assert,
     cleanup,
   }) => {
@@ -52,7 +52,7 @@ test.group('Vite dev server', () => {
 
     const vite = await createVite(defineConfig({}))
     const server = vite.getDevServer()!
-    assert.deepInclude(server.config.server.hmr, { port: 24999 })
+    assert.deepInclude(server.config.server.ws, { port: 24999 })
   })
 
   test('moduleGraph exposes warmed-up entries via getModuleById', async ({ fs, assert }) => {
