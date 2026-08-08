@@ -57,7 +57,7 @@
     "@japa/snapshot": "^2.0.10",
     "@poppinss/ts-exec": "^1.4.4",
     "@release-it/conventional-changelog": "^12.0.0",
-    "@types/node": "^26.1.2",
+    "@types/node": "^26.2.0",
     "@types/picomatch": "^4.0.3",
     "@types/supertest": "^7.2.1",
     "c8": "^12.0.0",
@@ -65,14 +65,14 @@
     "cross-env": "^10.1.0",
     "del-cli": "^7.0.0",
     "edge.js": "^6.5.1",
-    "eslint": "^10.8.0",
+    "eslint": "^10.8.1",
     "prettier": "^3.9.6",
     "release-it": "^21.0.1",
     "supertest": "^7.2.2",
     "tsdown": "^0.22.14",
     "typedoc": "^0.28.20",
     "typescript": "~6.0.3",
-    "vite": "^8.2.0"
+    "vite": "^8.2.1"
   },
   "dependencies": {
     "@poppinss/utils": "^7.0.1",
