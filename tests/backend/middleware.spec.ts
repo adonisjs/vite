@@ -118,6 +118,46 @@ test.group('Vite Middleware', () => {
     assert.equal(res.text, 'handled by next middleware')
   })
 
+  test('call getDevServer for each request rather than cache it', async ({ assert, fs }) => {
+    await fs.create('resources/js/app.ts', 'console.log("Hello world")')
+
+    const vite = await createVite(
+      { buildDirectory: 'foo', manifestFile: 'bar.json' },
+      {
+        plugins: [adonisjs({ entryPoints: ['./resources/js/app.ts'] })],
+      }
+    )
+
+    const originalGetDevServer = vite.getDevServer.bind(vite)
+    vite.getDevServer = () => undefined
+
+    const middleware = new ViteMiddleware(vite)
+
+    const server = createServer(async (req, res) => {
+      const request = new RequestFactory().merge({ req, res }).create()
+      const response = new ResponseFactory().merge({ req, res }).create()
+      const ctx = new HttpContextFactory().merge({ request, response }).create()
+
+      await middleware.handle(ctx, () => {
+        ctx.response.status(200).send('vite server not ready, handled by next middleware')
+      })
+
+      if (!ctx.response.finished) {
+        ctx.response.finish()
+      }
+    })
+
+    // Simulate vite server not yet ready
+    const firstRes = await supertest(server).get('/resources/js/app.ts')
+    assert.equal(firstRes.text, 'vite server not ready, handled by next middleware')
+
+    // Simulate vite server now ready
+    vite.getDevServer = originalGetDevServer
+
+    const secondRes = await supertest(server).get('/resources/js/app.ts')
+    assert.include(secondRes.text, 'Hello world')
+  })
+
   test('proxy /@vite/client request through middleware', async ({ assert, fs }) => {
     await fs.create('resources/js/app.ts', 'console.log("Hello world")')
 
