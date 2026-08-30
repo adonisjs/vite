@@ -41,7 +41,7 @@ test.group('Vite Provider', () => {
     await app.terminate()
   })
 
-  test('launch dev server in dev mode', async ({ assert, cleanup }) => {
+  test('launch dev server before starting the application', async ({ assert, cleanup }) => {
     process.env.DEV_MODE = 'true'
     cleanup(() => {
       delete process.env.DEV_MODE
@@ -57,12 +57,10 @@ test.group('Vite Provider', () => {
     const app = ignitor.createApp('web')
     await app.init()
     await app.boot()
-    await app.start(() => {})
-
-    const vite = await app.container.make('vite')
-
-    await setTimeout(200)
-    assert.isDefined(vite.getDevServer()?.restart)
+    await app.start(async () => {
+      const vite = await app.container.make('vite')
+      assert.isDefined(vite.getDevServer()?.restart)
+    })
 
     await app.terminate()
   })

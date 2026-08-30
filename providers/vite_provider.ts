@@ -143,16 +143,12 @@ export default class ViteProvider {
   }
 
   /**
-   * Starts the Vite development server when the application is ready
-   *
-   * Only starts the server if running in development/test mode and
-   * no manifest file exists (indicating development mode).
+   * Starts the Vite development server before the application starts accepting requests
    *
    * @example
-   * await provider.ready()
-   * // Dev server starts on configured port
+   * await provider.start()
    */
-  async ready() {
+  async start() {
     if (!this.#shouldRunViteDevServer) {
       return
     }
@@ -164,7 +160,7 @@ export default class ViteProvider {
   /**
    * Gracefully stops the Vite development server during application shutdown
    *
-   * Only attempts to stop the server if it was started during the ready phase.
+   * Only attempts to stop the server if it was started during the start phase.
    * Ensures clean shutdown of the development server and its resources.
    *
    * @example
