@@ -590,6 +590,7 @@ export class Vite {
   async stopDevServer() {
     await this.#serverModuleLoader.close()
     await this.#devServer?.close()
+    this.#devServer = undefined
   }
 
   /**

@@ -89,12 +89,15 @@ test.group('Vite dev server', () => {
     assert.isFunction(server.middlewares.use)
   })
 
-  test('stopDevServer closes cleanly without throw', async ({ fs }) => {
+  test('stopDevServer clears the dev server after closing it', async ({ fs, assert }) => {
     const vite = new Vite(defineConfig({ buildDirectory: 'foo', manifestFile: 'bar.json' }))
     await fs.create('dummy.txt', 'dummy')
     await vite.createDevServer({ logLevel: 'silent', clearScreen: false, root: fs.basePath })
 
     await vite.stopDevServer()
+
+    assert.isFalse(vite.useDevServer)
+    assert.isUndefined(vite.getDevServer())
   })
 
   test('createDevServer accepts adonisjs plugin and resolves rolldownOptions input', async ({
