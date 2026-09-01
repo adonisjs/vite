@@ -65,6 +65,30 @@ test.group('Vite Provider', () => {
     await app.terminate()
   })
 
+  test('doesnt launch dev server when warming up the application', async ({ assert, cleanup }) => {
+    process.env.DEV_MODE = 'true'
+    cleanup(() => {
+      delete process.env.DEV_MODE
+    })
+
+    const ignitor = new IgnitorFactory()
+      .merge({ rcFileContents: { providers: [() => import('../../providers/vite_provider.js')] } })
+      .withCoreConfig()
+      .withCoreProviders()
+      .merge({ config: { vite: defineConfig({}) } })
+      .create(BASE_URL, { importer: IMPORTER })
+
+    const app = ignitor.createApp('web').setMode('warmup')
+    await app.init()
+    await app.boot()
+    await app.warmUp()
+
+    const vite = await app.container.make('vite')
+    assert.isUndefined(vite.getDevServer())
+
+    await app.terminate()
+  })
+
   test('doesnt launch dev server if manifest exist', async ({ assert, fs }) => {
     const ignitor = new IgnitorFactory()
       .merge({ rcFileContents: { providers: [() => import('../../providers/vite_provider.js')] } })

@@ -149,7 +149,7 @@ export default class ViteProvider {
    * await provider.start()
    */
   async start() {
-    if (!this.#shouldRunViteDevServer) {
+    if (this.app.getMode() === 'warmup' || !this.#shouldRunViteDevServer) {
       return
     }
 
