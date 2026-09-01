@@ -41,7 +41,7 @@ test.group('Vite Provider', () => {
     await app.terminate()
   })
 
-  test('launch dev server in dev mode', async ({ assert, cleanup }) => {
+  test('launch dev server before starting the application', async ({ assert, cleanup }) => {
     process.env.DEV_MODE = 'true'
     cleanup(() => {
       delete process.env.DEV_MODE
@@ -57,12 +57,34 @@ test.group('Vite Provider', () => {
     const app = ignitor.createApp('web')
     await app.init()
     await app.boot()
-    await app.start(() => {})
+    await app.start(async () => {
+      const vite = await app.container.make('vite')
+      assert.isDefined(vite.getDevServer()?.restart)
+    })
+
+    await app.terminate()
+  })
+
+  test('doesnt launch dev server when warming up the application', async ({ assert, cleanup }) => {
+    process.env.DEV_MODE = 'true'
+    cleanup(() => {
+      delete process.env.DEV_MODE
+    })
+
+    const ignitor = new IgnitorFactory()
+      .merge({ rcFileContents: { providers: [() => import('../../providers/vite_provider.js')] } })
+      .withCoreConfig()
+      .withCoreProviders()
+      .merge({ config: { vite: defineConfig({}) } })
+      .create(BASE_URL, { importer: IMPORTER })
+
+    const app = ignitor.createApp('web').setMode('warmup')
+    await app.init()
+    await app.boot()
+    await app.warmUp()
 
     const vite = await app.container.make('vite')
-
-    await setTimeout(200)
-    assert.isDefined(vite.getDevServer()?.restart)
+    assert.isUndefined(vite.getDevServer())
 
     await app.terminate()
   })

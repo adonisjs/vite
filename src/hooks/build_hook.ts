@@ -7,6 +7,7 @@
  * file that was distributed with this source code.
  */
 
+import type { Bundler } from '@adonisjs/assembler'
 import { hooks } from '@adonisjs/core/app'
 import { createBuilder } from 'vite'
 
@@ -16,7 +17,7 @@ import { createBuilder } from 'vite'
  *
  * The hook is responsible for launching a Vite multi-build process.
  */
-export default hooks.buildStarting(async (parent) => {
+export default hooks.buildStarting(async (parent: Bundler) => {
   /**
    * Vite's CLI sets NODE_ENV to 'production' automatically when running
    * `vite build`, but the programmatic `createBuilder` API does not.
