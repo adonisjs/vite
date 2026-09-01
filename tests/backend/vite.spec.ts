@@ -470,6 +470,60 @@ test.group('Vite | manifest', () => {
     )
   })
 
+  test('add integrity attribute to CSS imported by a chunk', async ({ assert, fs }) => {
+    const vite = await setupViteWithManifest({
+      buildDirectory: join(fs.basePath, 'public/assets'),
+    })
+
+    await fs.create(
+      'public/assets/.vite/manifest.json',
+      JSON.stringify({
+        'app.js': { file: 'app-12345.js', imports: ['vendor.js'] },
+        'vendor.js': { file: 'vendor-12345.js', css: ['vendor-12345.css'] },
+        'vendor.css': {
+          file: 'vendor-12345.css',
+          integrity: 'sha384-vendor',
+        },
+      })
+    )
+
+    const output = await vite.generateEntryPointsTags('app.js')
+
+    assert.include(
+      output.map((element) => String(element)),
+      '<link rel="stylesheet" integrity="sha384-vendor" href="/assets/vendor-12345.css"/>'
+    )
+  })
+
+  test('use the first chunk integrity when files are duplicated', async ({ assert, fs }) => {
+    const vite = await setupViteWithManifest({
+      buildDirectory: join(fs.basePath, 'public/assets'),
+    })
+
+    await fs.create(
+      'public/assets/.vite/manifest.json',
+      JSON.stringify({
+        'app.js': { file: 'app-12345.js', imports: ['vendor.js'] },
+        'vendor.js': { file: 'vendor-12345.js', css: ['vendor-12345.css'] },
+        'first.css': {
+          file: 'vendor-12345.css',
+          integrity: 'sha384-first',
+        },
+        'second.css': {
+          file: 'vendor-12345.css',
+          integrity: 'sha384-second',
+        },
+      })
+    )
+
+    const output = await vite.generateEntryPointsTags('app.js')
+
+    assert.include(
+      output.map((element) => String(element)),
+      '<link rel="stylesheet" integrity="sha384-first" href="/assets/vendor-12345.css"/>'
+    )
+  })
+
   test('return path to assets directory', async ({ assert, fs }) => {
     const vite = await setupViteWithManifest({
       buildDirectory: join(fs.basePath, 'public/assets'),

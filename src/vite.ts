@@ -42,6 +42,7 @@ export class Vite {
    * to avoid reading the file multiple times
    */
   #manifestCache?: Manifest
+  #manifestChunksByFile?: Map<string, Manifest[string]>
   #options: ViteOptions
   #devServer?: ViteDevServer
 
@@ -319,12 +320,10 @@ export class Vite {
   }
 
   /**
-   * Get a list of chunks for a given filename
+   * Get a chunk from the manifest file for a given filename
    */
-  #chunksByFile(manifest: Manifest, file: string) {
-    return Object.entries(manifest)
-      .filter(([, chunk]) => chunk.file === file)
-      .map(([_, chunk]) => chunk)
+  #chunkByFile(file: string) {
+    return this.#manifestChunksByFile?.get(file)
   }
 
   /**
@@ -381,14 +380,14 @@ export class Vite {
          * of the entrypoint
          */
         for (const css of manifest[importNode].css || []) {
-          const subChunk = this.#chunksByFile(manifest, css)
+          const subChunk = this.#chunkByFile(css)
 
           preloads.push({ path: this.#generateAssetUrl(css) })
           tags.push({
             path: this.#generateAssetUrl(css),
             tag: this.#generateTag(css, {
               ...attributes,
-              integrity: subChunk[0]?.integrity,
+              integrity: subChunk?.integrity,
             }),
           })
         }
@@ -496,7 +495,17 @@ export class Vite {
     }
 
     if (!this.#manifestCache) {
-      this.#manifestCache = this.#readFileAsJSON(this.#options.manifestFile)
+      const manifest: Manifest = this.#readFileAsJSON(this.#options.manifestFile)
+      const chunksByFile = new Map<string, Manifest[string]>()
+
+      for (const chunk of Object.values(manifest)) {
+        if (!chunksByFile.has(chunk.file)) {
+          chunksByFile.set(chunk.file, chunk)
+        }
+      }
+
+      this.#manifestCache = manifest
+      this.#manifestChunksByFile = chunksByFile
     }
 
     return this.#manifestCache!
