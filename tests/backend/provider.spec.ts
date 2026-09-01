@@ -9,7 +9,9 @@
 
 import { test } from '@japa/runner'
 import { setTimeout } from 'node:timers/promises'
+import type { IncomingMessage, ServerResponse } from 'node:http'
 import { IgnitorFactory } from '@adonisjs/core/factories'
+import { cspKeywords } from '@adonisjs/shield'
 
 import { defineConfig } from '../../index.ts'
 import ViteMiddleware from '../../src/vite_middleware.ts'
@@ -177,5 +179,36 @@ test.group('Vite Provider', () => {
     assert.isDefined(edge.default.tags.vite)
 
     await app.terminate()
+  })
+
+  test('register @viteUrl Shield keyword for absolute HTTP URLs', async ({ assert }) => {
+    const urls = [
+      ['http://localhost:5173', 'http://localhost:5173'],
+      ['https://cdn.example.com', 'https://cdn.example.com'],
+      ['/assets', ''],
+    ]
+
+    for (const [assetsUrl, expected] of urls) {
+      const ignitor = new IgnitorFactory()
+        .merge({
+          rcFileContents: { providers: [() => import('../../providers/vite_provider.js')] },
+        })
+        .withCoreConfig()
+        .withCoreProviders()
+        .merge({ config: { vite: defineConfig({ assetsUrl }) } })
+        .create(BASE_URL, { importer: IMPORTER })
+
+      const app = ignitor.createApp('web')
+      await app.init()
+      await app.boot()
+
+      const [viteUrl] = cspKeywords.resolve(['@viteUrl']) as [
+        (request: IncomingMessage, response: ServerResponse) => string,
+      ]
+
+      assert.equal(viteUrl({} as IncomingMessage, {} as ServerResponse), expected)
+
+      await app.terminate()
+    }
   })
 })

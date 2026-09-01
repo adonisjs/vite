@@ -95,7 +95,7 @@ export default class ViteProvider {
      */
     cspKeywords.register('@viteUrl', function () {
       const assetsURL = vite.assetsUrl()
-      if (!assetsURL || !assetsURL.startsWith('http://') || assetsURL.startsWith('https://')) {
+      if (!assetsURL || (!assetsURL.startsWith('http://') && !assetsURL.startsWith('https://'))) {
         return ''
       }
 
