@@ -7,9 +7,9 @@
  * file that was distributed with this source code.
  */
 
+import { join } from 'node:path'
 import { test } from '@japa/runner'
 import string from '@poppinss/utils/string'
-import { join } from 'node:path'
 
 import { Vite } from '../../index.ts'
 import { createVite } from './helpers.ts'
@@ -111,7 +111,7 @@ test.group('Vite dev server', () => {
     })
 
     const server = vite.getDevServer()!
-    const input = (server.config.build as any).rolldownOptions?.input
+    const input = server.environments.client.config.build.rolldownOptions.input
     assert.exists(input, 'expected rolldownOptions.input to be set')
   })
 })

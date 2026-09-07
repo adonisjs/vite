@@ -102,6 +102,53 @@ test.group('Vite 8 build | createBuilder', () => {
     const manifest = await readManifest(fs.basePath)
     assert.exists(manifest['resources/js/app.ts'])
   })
+
+  test('removes an SSR environment when there is no server entry point', async ({ fs, assert }) => {
+    await fs.create('resources/js/app.ts', 'console.log("from client")')
+
+    const builder = await createBuilder(
+      {
+        root: fs.basePath,
+        logLevel: 'silent',
+        plugins: [
+          { name: 'ssr-config', config: () => ({ ssr: { external: [] } }) },
+          adonisjs({ entryPoints: ['./resources/js/app.ts'] }),
+        ],
+        configFile: false,
+      },
+      false
+    )
+
+    await builder.buildApp()
+
+    assert.isTrue(builder.environments.client.isBuilt)
+    assert.notProperty(builder.environments, 'ssr')
+  })
+
+  test('builds the SSR environment when it has an entry point', async ({ fs, assert }) => {
+    await fs.create('resources/js/app.ts', 'console.log("from client")')
+    await fs.create('resources/js/ssr.ts', 'export const render = () => "from server"')
+
+    const builder = await createBuilder(
+      {
+        root: fs.basePath,
+        logLevel: 'silent',
+        plugins: [
+          adonisjs({
+            entryPoints: ['./resources/js/app.ts'],
+            serverEntryPoints: ['./resources/js/ssr.ts'],
+          }),
+        ],
+        configFile: false,
+      },
+      false
+    )
+
+    await builder.buildApp()
+
+    assert.isTrue(builder.environments.client.isBuilt)
+    assert.isTrue(builder.environments.ssr.isBuilt)
+  })
 })
 
 test.group('Vite 8 build | plugin compat', () => {

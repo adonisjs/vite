@@ -55,6 +55,11 @@ export function configHook(
   userConfig: UserConfig,
   { command }: ConfigEnv
 ): UserConfig {
+  if (command === 'build' && options.serverEntryPoints.length === 0) {
+    delete userConfig.ssr
+    delete userConfig.environments?.ssr
+  }
+
   const config: UserConfig = {
     publicDir: userConfig.publicDir ?? false,
     base: resolveBase(userConfig, options, command),
@@ -72,12 +77,18 @@ export function configHook(
       manifest: userConfig.build?.manifest ?? true,
       outDir: userConfig.build?.outDir ?? options.buildDirectory,
       assetsInlineLimit: userConfig.build?.assetsInlineLimit ?? 0,
+    },
 
-      rolldownOptions: {
-        input:
-          userConfig.build?.rolldownOptions?.input ??
-          userConfig.build?.rollupOptions?.input ??
-          options.entryPoints,
+    environments: {
+      client: {
+        build: {
+          rolldownOptions: {
+            input:
+              userConfig.build?.rolldownOptions?.input ??
+              userConfig.build?.rollupOptions?.input ??
+              options.entryPoints,
+          },
+        },
       },
     },
   }
@@ -95,6 +106,7 @@ export function configHook(
   if (options.serverEntryPoints.length > 0) {
     const userSsrBuild = userConfig.environments?.ssr?.build
     config.environments = {
+      ...config.environments,
       ssr: {
         build: {
           ssr: userSsrBuild?.ssr ?? true,

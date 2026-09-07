@@ -12,8 +12,8 @@ import { test } from '@japa/runner'
 
 import { Vite } from '../../index.ts'
 import { createVite } from './helpers.ts'
-import { defineConfig } from '../../src/define_config.ts'
 import { configHook } from '../../src/client/config.ts'
+import { defineConfig } from '../../src/define_config.ts'
 import { BundledModuleResolver } from '../../src/server_modules/bundled_module_resolver.ts'
 
 test.group('Vite | loadServerModule (dev)', () => {
@@ -123,7 +123,7 @@ test.group('Vite | loadServerModule (prod)', () => {
 })
 
 test.group('Vite | configHook serverEntryPoints', () => {
-  test('does not configure ssr environment when serverEntryPoints is empty', ({ assert }) => {
+  test('configures only the client environment when serverEntryPoints is empty', ({ assert }) => {
     const result = configHook(
       {
         assetsUrl: '/assets',
@@ -136,7 +136,8 @@ test.group('Vite | configHook serverEntryPoints', () => {
       { command: 'build' } as any
     )
 
-    assert.notProperty(result, 'environments')
+    assert.deepEqual(result.environments?.client?.build?.rolldownOptions?.input, ['app.ts'])
+    assert.notProperty(result.environments!, 'ssr')
   })
 
   test('configures ssr environment when serverEntryPoints is non-empty', ({ assert }) => {

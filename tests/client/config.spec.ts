@@ -66,10 +66,11 @@ test.group('Vite plugin', () => {
 
     // @ts-ignore
     const config = plugin!.config!({ root: '/app' }, { command: 'build' })
-    assert.deepEqual(config.build?.rolldownOptions?.input, [
+    assert.deepEqual(config.environments?.client?.build?.rolldownOptions?.input, [
       './resources/js/app.ts',
       './resources/js/admin.ts',
     ])
+    assert.notProperty(config.build!, 'rolldownOptions')
   })
 
   test('respect user-provided build.rolldownOptions.input', async ({ assert }) => {
@@ -82,7 +83,7 @@ test.group('Vite plugin', () => {
       { build: { rolldownOptions: { input: 'custom/entry.ts' } } },
       { command: 'build' }
     )
-    assert.equal(config.build?.rolldownOptions?.input, 'custom/entry.ts')
+    assert.equal(config.environments?.client?.build?.rolldownOptions?.input, 'custom/entry.ts')
   })
 
   test('respect legacy build.rollupOptions.input for backwards compat', async ({ assert }) => {
@@ -95,7 +96,7 @@ test.group('Vite plugin', () => {
       { build: { rollupOptions: { input: 'legacy/entry.ts' } } },
       { command: 'build' }
     )
-    assert.equal(config.build?.rolldownOptions?.input, 'legacy/entry.ts')
+    assert.equal(config.environments?.client?.build?.rolldownOptions?.input, 'legacy/entry.ts')
   })
 
   test('apply build defaults: publicDir, assetsDir, emptyOutDir, manifest, assetsInlineLimit', async ({
