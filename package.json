@@ -44,7 +44,7 @@
     "docs": "typedoc"
   },
   "devDependencies": {
-    "@adonisjs/assembler": "^8.4.0",
+    "@adonisjs/assembler": "^8.5.1",
     "@adonisjs/core": "^7.5.0",
     "@adonisjs/eslint-config": "^3.1.0",
     "@adonisjs/prettier-config": "^1.5.0",
@@ -57,7 +57,7 @@
     "@japa/snapshot": "^2.0.10",
     "@poppinss/ts-exec": "^1.4.4",
     "@release-it/conventional-changelog": "^12.0.0",
-    "@types/node": "^26.2.0",
+    "@types/node": "^26.4.1",
     "@types/picomatch": "^4.0.3",
     "@types/supertest": "^7.2.1",
     "c8": "^12.0.0",
@@ -65,19 +65,19 @@
     "cross-env": "^10.1.0",
     "del-cli": "^7.0.0",
     "edge.js": "^6.5.1",
-    "eslint": "^10.8.1",
+    "eslint": "^10.10.0",
     "prettier": "^3.9.6",
-    "release-it": "^21.0.1",
+    "release-it": "^21.0.2",
     "supertest": "^7.2.2",
-    "tsdown": "^0.22.14",
+    "tsdown": "^0.23.0",
     "typedoc": "^0.28.20",
     "typescript": "~6.0.3",
-    "vite": "^8.2.1"
+    "vite": "^8.2.2"
   },
   "dependencies": {
-    "@poppinss/utils": "^7.0.1",
+    "@poppinss/utils": "^7.1.0",
     "edge-error": "^4.0.2",
-    "picomatch": "^4.0.5"
+    "picomatch": "^4.0.7"
   },
   "peerDependencies": {
     "@adonisjs/assembler": "^8.0.0-next.10 || ^8.0.0",
