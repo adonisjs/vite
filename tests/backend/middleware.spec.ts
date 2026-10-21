@@ -9,7 +9,9 @@
 
 import supertest from 'supertest'
 import { test } from '@japa/runner'
-import { createServer } from 'node:http'
+import type { AddressInfo } from 'node:net'
+import { setTimeout } from 'node:timers/promises'
+import { createServer, get } from 'node:http'
 import { RequestFactory, ResponseFactory, HttpContextFactory } from '@adonisjs/core/factories/http'
 
 import { Vite } from '../../index.ts'
@@ -89,6 +91,47 @@ test.group('Vite Middleware', () => {
     })
 
     await supertest(server).get('/resources/js/app.ts')
+  })
+
+  test('settle when the client aborts the request before vite finishes', async ({ assert }) => {
+    const vite = await createVite(
+      { buildDirectory: 'foo', manifestFile: 'bar.json' },
+      {
+        plugins: [
+          {
+            name: 'slow-asset',
+            configureServer(server) {
+              server.middlewares.use((_, res) => res.writeHead(200).flushHeaders())
+            },
+          },
+        ],
+      }
+    )
+
+    const { promise: handled, resolve } = Promise.withResolvers<void>()
+    const server = createServer((req, res) => {
+      const request = new RequestFactory().merge({ req, res }).create()
+      const response = new ResponseFactory().merge({ req, res }).create()
+      const ctx = new HttpContextFactory().merge({ request, response }).create()
+
+      new ViteMiddleware(vite).handle(ctx, () => {}).then(resolve)
+    })
+
+    await new Promise<void>((listening) => server.listen(0, listening))
+    const { port } = server.address() as AddressInfo
+
+    /**
+     * Abort as soon as the headers arrive, so Node emits "close" on the
+     * response without ever emitting "finish"
+     */
+    get(`http://localhost:${port}/slow.js`, (res) => res.destroy()).on('error', () => {})
+
+    const settled = await Promise.race([
+      handled.then(() => true),
+      setTimeout(1000).then(() => false),
+    ])
+    server.close()
+    assert.isTrue(settled)
   })
 
   test('if vite dev server is not available, call next middleware', async ({ assert }) => {

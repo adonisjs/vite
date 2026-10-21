@@ -53,6 +53,7 @@ export default class ViteMiddleware {
     return new Promise<void>((resolve, reject) => {
       function done(error?: any) {
         response.response.removeListener('finish', done)
+        response.response.removeListener('close', done)
         if (error) {
           reject(error)
         } else {
@@ -62,9 +63,11 @@ export default class ViteMiddleware {
 
       /**
        * When vite handles the request, we will resolve this promise after the
-       * response is sent.
+       * response is sent, or after the connection is closed when the client
+       * aborts the request (in which case "finish" is never emitted).
        */
       response.response.addListener('finish', done)
+      response.response.addListener('close', done)
 
       /**
        * Even if the request is not handled by Vite, we will relay headers
@@ -76,9 +79,10 @@ export default class ViteMiddleware {
         /**
          * This callback is invoked when Vite does not handle the request. In that
          * case, we will call next and resolve this promise. Also we remove the
-         * unneeded "finish" listener
+         * unneeded "finish" and "close" listeners
          */
         response.response.removeListener('finish', done)
+        response.response.removeListener('close', done)
 
         try {
           await next()
