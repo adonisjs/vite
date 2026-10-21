@@ -50,6 +50,14 @@ export default class ViteMiddleware {
       return next()
     }
 
+    /**
+     * The client is already gone: "close" has been emitted and "finish" never
+     * will be, so there is nothing left to serve.
+     */
+    if (response.response.destroyed) {
+      return
+    }
+
     return new Promise<void>((resolve, reject) => {
       function done(error?: any) {
         response.response.removeListener('finish', done)
@@ -83,6 +91,15 @@ export default class ViteMiddleware {
          */
         response.response.removeListener('finish', done)
         response.response.removeListener('close', done)
+
+        /**
+         * The client aborted before Vite passed on the request. The "close"
+         * listener has already resolved this promise, so the application
+         * must not handle the abandoned request.
+         */
+        if (response.response.destroyed) {
+          return
+        }
 
         try {
           await next()

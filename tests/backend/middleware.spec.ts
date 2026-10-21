@@ -134,6 +134,83 @@ test.group('Vite Middleware', () => {
     assert.isTrue(settled)
   })
 
+  test('do not call next when the client aborts before vite passes the request', async ({
+    assert,
+  }) => {
+    const received = Promise.withResolvers<void>()
+    const vite = await createVite(
+      { buildDirectory: 'foo', manifestFile: 'bar.json' },
+      {
+        plugins: [
+          {
+            name: 'late-pass',
+            configureServer(server) {
+              server.middlewares.use((_, res, next) => {
+                received.resolve()
+                res.once('close', () => next())
+              })
+            },
+          },
+        ],
+      }
+    )
+
+    let nextCalled = false
+    const { promise: handled, resolve } = Promise.withResolvers<void>()
+    const server = createServer((req, res) => {
+      const request = new RequestFactory().merge({ req, res }).create()
+      const response = new ResponseFactory().merge({ req, res }).create()
+      const ctx = new HttpContextFactory().merge({ request, response }).create()
+
+      new ViteMiddleware(vite)
+        .handle(ctx, () => {
+          nextCalled = true
+        })
+        .then(resolve)
+    })
+
+    await new Promise<void>((listening) => server.listen(0, listening))
+    const { port } = server.address() as AddressInfo
+
+    const clientRequest = get(`http://localhost:${port}/page`).on('error', () => {})
+    await received.promise
+    clientRequest.destroy()
+
+    await handled
+    await setTimeout(50)
+    server.close()
+    assert.isFalse(nextCalled)
+  })
+
+  test('settle when the client is gone before the middleware runs', async ({ assert }) => {
+    const vite = await createVite({ buildDirectory: 'foo', manifestFile: 'bar.json' })
+
+    const received = Promise.withResolvers<void>()
+    const { promise: handled, resolve } = Promise.withResolvers<void>()
+    const server = createServer((req, res) => {
+      const request = new RequestFactory().merge({ req, res }).create()
+      const response = new ResponseFactory().merge({ req, res }).create()
+      const ctx = new HttpContextFactory().merge({ request, response }).create()
+
+      received.resolve()
+      res.once('close', () => new ViteMiddleware(vite).handle(ctx, () => {}).then(resolve))
+    })
+
+    await new Promise<void>((listening) => server.listen(0, listening))
+    const { port } = server.address() as AddressInfo
+
+    const clientRequest = get(`http://localhost:${port}/@vite/client`).on('error', () => {})
+    await received.promise
+    clientRequest.destroy()
+
+    const settled = await Promise.race([
+      handled.then(() => true),
+      setTimeout(1000).then(() => false),
+    ])
+    server.close()
+    assert.isTrue(settled)
+  })
+
   test('if vite dev server is not available, call next middleware', async ({ assert }) => {
     class FakeVite extends Vite {
       getDevServer() {
