@@ -50,9 +50,18 @@ export default class ViteMiddleware {
       return next()
     }
 
+    /**
+     * The client is already gone: "close" has been emitted and "finish" never
+     * will be, so there is nothing left to serve.
+     */
+    if (response.response.destroyed) {
+      return
+    }
+
     return new Promise<void>((resolve, reject) => {
       function done(error?: any) {
         response.response.removeListener('finish', done)
+        response.response.removeListener('close', done)
         if (error) {
           reject(error)
         } else {
@@ -62,9 +71,11 @@ export default class ViteMiddleware {
 
       /**
        * When vite handles the request, we will resolve this promise after the
-       * response is sent.
+       * response is sent, or after the connection is closed when the client
+       * aborts the request (in which case "finish" is never emitted).
        */
       response.response.addListener('finish', done)
+      response.response.addListener('close', done)
 
       /**
        * Even if the request is not handled by Vite, we will relay headers
@@ -76,9 +87,20 @@ export default class ViteMiddleware {
         /**
          * This callback is invoked when Vite does not handle the request. In that
          * case, we will call next and resolve this promise. Also we remove the
-         * unneeded "finish" listener
+         * unneeded "finish" and "close" listeners
          */
         response.response.removeListener('finish', done)
+        response.response.removeListener('close', done)
+
+        /**
+         * The client aborted before Vite passed on the request, so the
+         * application must not handle it. On a TCP reset, the socket is
+         * destroyed before the response. We settle here since "close" may
+         * not have been emitted yet, and its listener is gone.
+         */
+        if (response.response.destroyed || request.request.socket.destroyed) {
+          return done()
+        }
 
         try {
           await next()

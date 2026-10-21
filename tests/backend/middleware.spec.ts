@@ -9,7 +9,9 @@
 
 import supertest from 'supertest'
 import { test } from '@japa/runner'
-import { createServer } from 'node:http'
+import { connect, type AddressInfo } from 'node:net'
+import { setTimeout } from 'node:timers/promises'
+import { createServer, get } from 'node:http'
 import { RequestFactory, ResponseFactory, HttpContextFactory } from '@adonisjs/core/factories/http'
 
 import { Vite } from '../../index.ts'
@@ -89,6 +91,232 @@ test.group('Vite Middleware', () => {
     })
 
     await supertest(server).get('/resources/js/app.ts')
+  })
+
+  test('settle when the client aborts the request before vite finishes', async ({ assert }) => {
+    const vite = await createVite(
+      { buildDirectory: 'foo', manifestFile: 'bar.json' },
+      {
+        plugins: [
+          {
+            name: 'slow-asset',
+            configureServer(server) {
+              server.middlewares.use((_, res) => res.writeHead(200).flushHeaders())
+            },
+          },
+        ],
+      }
+    )
+
+    const { promise: handled, resolve } = Promise.withResolvers<void>()
+    const server = createServer((req, res) => {
+      const request = new RequestFactory().merge({ req, res }).create()
+      const response = new ResponseFactory().merge({ req, res }).create()
+      const ctx = new HttpContextFactory().merge({ request, response }).create()
+
+      new ViteMiddleware(vite).handle(ctx, () => {}).then(resolve)
+    })
+
+    await new Promise<void>((listening) => server.listen(0, listening))
+    const { port } = server.address() as AddressInfo
+
+    /**
+     * Abort as soon as the headers arrive, so Node emits "close" on the
+     * response without ever emitting "finish"
+     */
+    get(`http://localhost:${port}/slow.js`, (res) => res.destroy()).on('error', () => {})
+
+    const settled = await Promise.race([
+      handled.then(() => true),
+      setTimeout(1000).then(() => false),
+    ])
+    server.close()
+    assert.isTrue(settled)
+  })
+
+  test('do not call next when the client aborts before vite passes the request', async ({
+    assert,
+  }) => {
+    const received = Promise.withResolvers<void>()
+    const vite = await createVite(
+      { buildDirectory: 'foo', manifestFile: 'bar.json' },
+      {
+        plugins: [
+          {
+            name: 'late-pass',
+            configureServer(server) {
+              server.middlewares.use((_, res, next) => {
+                received.resolve()
+                res.once('close', () => next())
+              })
+            },
+          },
+        ],
+      }
+    )
+
+    let nextCalled = false
+    const { promise: handled, resolve } = Promise.withResolvers<void>()
+    const server = createServer((req, res) => {
+      const request = new RequestFactory().merge({ req, res }).create()
+      const response = new ResponseFactory().merge({ req, res }).create()
+      const ctx = new HttpContextFactory().merge({ request, response }).create()
+
+      new ViteMiddleware(vite)
+        .handle(ctx, () => {
+          nextCalled = true
+        })
+        .then(resolve)
+    })
+
+    await new Promise<void>((listening) => server.listen(0, listening))
+    const { port } = server.address() as AddressInfo
+
+    const clientRequest = get(`http://localhost:${port}/page`).on('error', () => {})
+    await received.promise
+    clientRequest.destroy()
+
+    await handled
+    await setTimeout(50)
+    server.close()
+    assert.isFalse(nextCalled)
+  })
+
+  test('settle when a vite middleware destroys the response and passes the request', async ({
+    assert,
+  }) => {
+    const vite = await createVite(
+      { buildDirectory: 'foo', manifestFile: 'bar.json' },
+      {
+        plugins: [
+          {
+            name: 'destroy-and-pass',
+            configureServer(server) {
+              /**
+               * Runs after Vite's own middleware. "destroyed" is set right away,
+               * but "close" is emitted later
+               */
+              return () => {
+                server.middlewares.use((_, res, next) => {
+                  res.destroy()
+                  next()
+                })
+              }
+            },
+          },
+        ],
+      }
+    )
+
+    let nextCalled = false
+    const { promise: handled, resolve } = Promise.withResolvers<void>()
+    const server = createServer((req, res) => {
+      const request = new RequestFactory().merge({ req, res }).create()
+      const response = new ResponseFactory().merge({ req, res }).create()
+      const ctx = new HttpContextFactory().merge({ request, response }).create()
+
+      new ViteMiddleware(vite)
+        .handle(ctx, () => {
+          nextCalled = true
+        })
+        .then(resolve)
+    })
+
+    await new Promise<void>((listening) => server.listen(0, listening))
+    const { port } = server.address() as AddressInfo
+    get(`http://localhost:${port}/page`).on('error', () => {})
+
+    const settled = await Promise.race([
+      handled.then(() => true),
+      setTimeout(1000).then(() => false),
+    ])
+    server.close()
+    assert.isTrue(settled)
+    assert.isFalse(nextCalled)
+  })
+
+  test('do not call next when a tcp reset destroys the socket before the response', async ({
+    assert,
+  }) => {
+    const received = Promise.withResolvers<void>()
+    const vite = await createVite(
+      { buildDirectory: 'foo', manifestFile: 'bar.json' },
+      {
+        plugins: [
+          {
+            name: 'pass-on-socket-error',
+            configureServer(server) {
+              /**
+               * On a TCP reset, the socket "error" event fires while the socket
+               * is destroyed but the response is not yet
+               */
+              return () => {
+                server.middlewares.use((req, _, next) => {
+                  req.socket.once('error', () => next())
+                  received.resolve()
+                })
+              }
+            },
+          },
+        ],
+      }
+    )
+
+    let nextCalled = false
+    const { promise: handled, resolve } = Promise.withResolvers<void>()
+    const server = createServer((req, res) => {
+      const request = new RequestFactory().merge({ req, res }).create()
+      const response = new ResponseFactory().merge({ req, res }).create()
+      const ctx = new HttpContextFactory().merge({ request, response }).create()
+
+      new ViteMiddleware(vite)
+        .handle(ctx, () => {
+          nextCalled = true
+        })
+        .then(resolve)
+    })
+
+    await new Promise<void>((listening) => server.listen(0, listening))
+    const { port } = server.address() as AddressInfo
+
+    const client = connect(port, 'localhost', () => {
+      client.write('GET /page HTTP/1.1\r\nHost: localhost\r\n\r\n')
+    }).on('error', () => {})
+    await received.promise
+    client.resetAndDestroy()
+
+    await handled
+    server.close()
+    assert.isFalse(nextCalled)
+  })
+
+  test('settle when the client is gone before the middleware runs', async ({ assert }) => {
+    const vite = await createVite({ buildDirectory: 'foo', manifestFile: 'bar.json' })
+
+    const received = Promise.withResolvers<void>()
+    const { promise: handled, resolve } = Promise.withResolvers<void>()
+    const server = createServer((req, res) => {
+      const request = new RequestFactory().merge({ req, res }).create()
+      const response = new ResponseFactory().merge({ req, res }).create()
+      const ctx = new HttpContextFactory().merge({ request, response }).create()
+
+      received.resolve()
+      res.once('close', () => new ViteMiddleware(vite).handle(ctx, () => {}).then(resolve))
+    })
+
+    await new Promise<void>((listening) => server.listen(0, listening))
+    const { port } = server.address() as AddressInfo
+
+    const clientRequest = get(`http://localhost:${port}/@vite/client`).on('error', () => {})
+    await received.promise
+    clientRequest.destroy()
+
+    const settled = await Promise.race([
+      handled.then(() => true),
+      setTimeout(1000).then(() => false),
+    ])
+    server.close()
+    assert.isTrue(settled)
   })
 
   test('if vite dev server is not available, call next middleware', async ({ assert }) => {
