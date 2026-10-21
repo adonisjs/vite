@@ -93,12 +93,12 @@ export default class ViteMiddleware {
         response.response.removeListener('close', done)
 
         /**
-         * The client aborted before Vite passed on the request. The "close"
-         * listener has already resolved this promise, so the application
-         * must not handle the abandoned request.
+         * The response was destroyed before Vite passed on the request, so
+         * the application must not handle it. We settle here since "close"
+         * may not have been emitted yet, and its listener is gone.
          */
         if (response.response.destroyed) {
-          return
+          return done()
         }
 
         try {

@@ -182,6 +182,59 @@ test.group('Vite Middleware', () => {
     assert.isFalse(nextCalled)
   })
 
+  test('settle when a vite middleware destroys the response and passes the request', async ({
+    assert,
+  }) => {
+    const vite = await createVite(
+      { buildDirectory: 'foo', manifestFile: 'bar.json' },
+      {
+        plugins: [
+          {
+            name: 'destroy-and-pass',
+            configureServer(server) {
+              /**
+               * Runs after Vite's own middleware. "destroyed" is set right away,
+               * but "close" is emitted later
+               */
+              return () => {
+                server.middlewares.use((_, res, next) => {
+                  res.destroy()
+                  next()
+                })
+              }
+            },
+          },
+        ],
+      }
+    )
+
+    let nextCalled = false
+    const { promise: handled, resolve } = Promise.withResolvers<void>()
+    const server = createServer((req, res) => {
+      const request = new RequestFactory().merge({ req, res }).create()
+      const response = new ResponseFactory().merge({ req, res }).create()
+      const ctx = new HttpContextFactory().merge({ request, response }).create()
+
+      new ViteMiddleware(vite)
+        .handle(ctx, () => {
+          nextCalled = true
+        })
+        .then(resolve)
+    })
+
+    await new Promise<void>((listening) => server.listen(0, listening))
+    const { port } = server.address() as AddressInfo
+    get(`http://localhost:${port}/page`).on('error', () => {})
+
+    const settled = await Promise.race([
+      handled.then(() => true),
+      setTimeout(1000).then(() => false),
+    ])
+    server.close()
+    assert.isTrue(settled)
+    assert.isFalse(nextCalled)
+  })
+
   test('settle when the client is gone before the middleware runs', async ({ assert }) => {
     const vite = await createVite({ buildDirectory: 'foo', manifestFile: 'bar.json' })
 
