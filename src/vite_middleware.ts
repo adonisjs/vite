@@ -93,11 +93,12 @@ export default class ViteMiddleware {
         response.response.removeListener('close', done)
 
         /**
-         * The response was destroyed before Vite passed on the request, so
-         * the application must not handle it. We settle here since "close"
-         * may not have been emitted yet, and its listener is gone.
+         * The client aborted before Vite passed on the request, so the
+         * application must not handle it. On a TCP reset, the socket is
+         * destroyed before the response. We settle here since "close" may
+         * not have been emitted yet, and its listener is gone.
          */
-        if (response.response.destroyed) {
+        if (response.response.destroyed || request.request.socket.destroyed) {
           return done()
         }
 

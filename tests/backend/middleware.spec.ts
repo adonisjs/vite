@@ -9,7 +9,7 @@
 
 import supertest from 'supertest'
 import { test } from '@japa/runner'
-import type { AddressInfo } from 'node:net'
+import { connect, type AddressInfo } from 'node:net'
 import { setTimeout } from 'node:timers/promises'
 import { createServer, get } from 'node:http'
 import { RequestFactory, ResponseFactory, HttpContextFactory } from '@adonisjs/core/factories/http'
@@ -232,6 +232,61 @@ test.group('Vite Middleware', () => {
     ])
     server.close()
     assert.isTrue(settled)
+    assert.isFalse(nextCalled)
+  })
+
+  test('do not call next when a tcp reset destroys the socket before the response', async ({
+    assert,
+  }) => {
+    const received = Promise.withResolvers<void>()
+    const vite = await createVite(
+      { buildDirectory: 'foo', manifestFile: 'bar.json' },
+      {
+        plugins: [
+          {
+            name: 'pass-on-socket-error',
+            configureServer(server) {
+              /**
+               * On a TCP reset, the socket "error" event fires while the socket
+               * is destroyed but the response is not yet
+               */
+              return () => {
+                server.middlewares.use((req, _, next) => {
+                  req.socket.once('error', () => next())
+                  received.resolve()
+                })
+              }
+            },
+          },
+        ],
+      }
+    )
+
+    let nextCalled = false
+    const { promise: handled, resolve } = Promise.withResolvers<void>()
+    const server = createServer((req, res) => {
+      const request = new RequestFactory().merge({ req, res }).create()
+      const response = new ResponseFactory().merge({ req, res }).create()
+      const ctx = new HttpContextFactory().merge({ request, response }).create()
+
+      new ViteMiddleware(vite)
+        .handle(ctx, () => {
+          nextCalled = true
+        })
+        .then(resolve)
+    })
+
+    await new Promise<void>((listening) => server.listen(0, listening))
+    const { port } = server.address() as AddressInfo
+
+    const client = connect(port, 'localhost', () => {
+      client.write('GET /page HTTP/1.1\r\nHost: localhost\r\n\r\n')
+    }).on('error', () => {})
+    await received.promise
+    client.resetAndDestroy()
+
+    await handled
+    server.close()
     assert.isFalse(nextCalled)
   })
 
