@@ -37,12 +37,12 @@ export class ServerModuleLoader {
 
   constructor(
     getDevServer: () => ViteDevServer | undefined,
-    buildDirectory: string,
+    serverBuildDirectory: string,
     createRunner: () => Promise<ModuleRunner>
   ) {
     this.#getDevServer = getDevServer
     this.#devRunner = new DevModuleRunner(createRunner)
-    this.#bundled = new BundledModuleResolver(buildDirectory)
+    this.#bundled = new BundledModuleResolver(serverBuildDirectory)
   }
 
   async load<T>(entry: string, opts: LoadServerModuleOptions = {}): Promise<T> {

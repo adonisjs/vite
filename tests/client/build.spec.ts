@@ -12,7 +12,9 @@ import { readFile } from 'node:fs/promises'
 import { test } from '@japa/runner'
 import { build, createBuilder } from 'vite'
 
+import { Vite } from '../../src/vite.ts'
 import adonisjs from '../../src/client/main.ts'
+import { defineConfig } from '../../src/define_config.ts'
 
 async function readManifest(root: string, file = 'public/assets/.vite/manifest.json') {
   const raw = await readFile(join(root, file), 'utf-8')
@@ -148,6 +150,63 @@ test.group('Vite 8 build | createBuilder', () => {
 
     assert.isTrue(builder.environments.client.isBuilt)
     assert.isTrue(builder.environments.ssr.isBuilt)
+  })
+
+  test('loads a server module built to a custom SSR outDir', async ({ fs, assert }) => {
+    await fs.create('resources/js/app.ts', 'console.log("from client")')
+    await fs.create('resources/js/ssr.ts', 'export const render = () => "from custom out dir"')
+
+    const builder = await createBuilder(
+      {
+        root: fs.basePath,
+        logLevel: 'silent',
+        plugins: [
+          adonisjs({
+            entryPoints: ['./resources/js/app.ts'],
+            serverEntryPoints: ['./resources/js/ssr.ts'],
+          }),
+        ],
+        environments: { ssr: { build: { outDir: 'dist/ssr' } } },
+        configFile: false,
+      },
+      false
+    )
+
+    await builder.buildApp()
+
+    const vite = new Vite(
+      defineConfig({
+        buildDirectory: join(fs.basePath, 'public/assets'),
+        serverBuildDirectory: join(fs.basePath, 'dist/ssr'),
+      })
+    )
+    const mod = await vite.loadServerModule<{ render: () => string }>('resources/js/ssr.ts')
+    assert.equal(mod.render(), 'from custom out dir')
+  })
+
+  test('fails the build when the SSR manifest is disabled', async ({ fs, assert }) => {
+    await fs.create('resources/js/app.ts', 'console.log("from client")')
+    await fs.create('resources/js/ssr.ts', 'export const render = () => "from server"')
+
+    await assert.rejects(
+      () =>
+        createBuilder(
+          {
+            root: fs.basePath,
+            logLevel: 'silent',
+            plugins: [
+              adonisjs({
+                entryPoints: ['./resources/js/app.ts'],
+                serverEntryPoints: ['./resources/js/ssr.ts'],
+              }),
+            ],
+            environments: { ssr: { build: { manifest: false } } },
+            configFile: false,
+          },
+          false
+        ).then((builder) => builder.buildApp()),
+      /vite\.loadServerModule\(\) needs the SSR manifest/
+    )
   })
 })
 

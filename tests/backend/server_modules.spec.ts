@@ -107,7 +107,7 @@ test.group('Vite | loadServerModule (prod)', () => {
   test('throws when entry is not present in the manifest', async ({ assert, fs }) => {
     await fs.create('public/assets/server/.vite/manifest.json', JSON.stringify({}))
 
-    const resolver = new BundledModuleResolver(join(fs.basePath, 'public/assets'))
+    const resolver = new BundledModuleResolver(join(fs.basePath, 'public/assets/server'))
 
     await assert.rejects(
       () => resolver.import('missing.ts'),
@@ -116,9 +116,77 @@ test.group('Vite | loadServerModule (prod)', () => {
   })
 
   test('throws when the SSR manifest is missing on disk', async ({ assert, fs }) => {
-    const resolver = new BundledModuleResolver(join(fs.basePath, 'public/assets'))
+    const resolver = new BundledModuleResolver(join(fs.basePath, 'public/assets/server'))
 
     await assert.rejects(() => resolver.import('any.ts'), /SSR manifest not found at /)
+  })
+
+  test('imports the bundle from a custom serverBuildDirectory', async ({ assert, fs }) => {
+    await fs.create('build/ssr/custom_ssr.js', `export default { msg: 'from-custom-out-dir' }`)
+    await fs.create(
+      'build/ssr/.vite/manifest.json',
+      JSON.stringify({
+        'inertia/ssr.ts': { file: 'custom_ssr.js', isEntry: true, src: 'inertia/ssr.ts' },
+      })
+    )
+
+    const vite = new Vite(
+      defineConfig({
+        buildDirectory: join(fs.basePath, 'public/assets'),
+        serverBuildDirectory: join(fs.basePath, 'build/ssr'),
+      })
+    )
+    const mod = await vite.loadServerModule<{ default: { msg: string } }>('inertia/ssr.ts')
+
+    assert.equal(mod.default.msg, 'from-custom-out-dir')
+  })
+
+  test('reads the SSR manifest of a custom serverBuildDirectory only', async ({ assert, fs }) => {
+    await fs.create('public/assets/server/ssr.js', `export default { msg: 'from-default' }`)
+    await fs.create(
+      'public/assets/server/.vite/manifest.json',
+      JSON.stringify({
+        'inertia/ssr.ts': { file: 'ssr.js', isEntry: true, src: 'inertia/ssr.ts' },
+      })
+    )
+
+    const serverBuildDirectory = join(fs.basePath, 'build/ssr')
+    const vite = new Vite(
+      defineConfig({ buildDirectory: join(fs.basePath, 'public/assets'), serverBuildDirectory })
+    )
+
+    const error = await vite.loadServerModule('inertia/ssr.ts').then(
+      () => new Error('expected loadServerModule to fail'),
+      (e: Error) => e
+    )
+    assert.include(
+      error.message,
+      `SSR manifest not found at ${join(serverBuildDirectory, '.vite/manifest.json')}`
+    )
+  })
+
+  test('falls back to <buildDirectory>/server when serverBuildDirectory is not set', async ({
+    assert,
+    fs,
+  }) => {
+    await fs.create(
+      'public/assets/server/fallback_ssr.js',
+      `export default { msg: 'from-fallback' }`
+    )
+    await fs.create(
+      'public/assets/server/.vite/manifest.json',
+      JSON.stringify({
+        'inertia/ssr.ts': { file: 'fallback_ssr.js', isEntry: true, src: 'inertia/ssr.ts' },
+      })
+    )
+
+    const vite = new Vite({
+      buildDirectory: join(fs.basePath, 'public/assets'),
+      manifestFile: join(fs.basePath, 'public/assets/.vite/manifest.json'),
+    })
+    const mod = await vite.loadServerModule<{ default: { msg: string } }>('inertia/ssr.ts')
+
+    assert.equal(mod.default.msg, 'from-fallback')
   })
 })
 
@@ -194,5 +262,39 @@ test.group('Vite | configHook serverEntryPoints', () => {
     assert.deepEqual(result.environments?.ssr?.build?.rolldownOptions?.input, {
       custom: '/project/other.ts',
     })
+  })
+
+  test('fails the build when the ssr manifest is disabled', ({ assert }) => {
+    assert.throws(
+      () =>
+        configHook(
+          {
+            assetsUrl: '/assets',
+            buildDirectory: 'public/assets',
+            reload: [],
+            entryPoints: ['app.ts'],
+            serverEntryPoints: ['inertia/ssr.ts'],
+          },
+          { root: '/project', environments: { ssr: { build: { manifest: false } } } },
+          { command: 'build' } as any
+        ),
+      /vite\.loadServerModule\(\) needs the SSR manifest/
+    )
+  })
+
+  test('allows a disabled ssr manifest when serverEntryPoints is empty', ({ assert }) => {
+    assert.doesNotThrow(() =>
+      configHook(
+        {
+          assetsUrl: '/assets',
+          buildDirectory: 'public/assets',
+          reload: [],
+          entryPoints: ['app.ts'],
+          serverEntryPoints: [],
+        },
+        { root: '/project', environments: { ssr: { build: { manifest: false } } } },
+        { command: 'build' } as any
+      )
+    )
   })
 })

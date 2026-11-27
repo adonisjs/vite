@@ -79,7 +79,7 @@ export class Vite {
     this.hasManifestFile = existsSync(this.#options.manifestFile)
     this.#serverModuleLoader = new ServerModuleLoader(
       () => this.#devServer,
-      this.#options.buildDirectory,
+      this.#options.serverBuildDirectory ?? join(this.#options.buildDirectory, 'server'),
       () => this.createModuleRunner()
     )
   }

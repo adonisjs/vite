@@ -22,12 +22,13 @@ import type { ViteOptions } from './types.ts'
  * })
  */
 export function defineConfig(config: Partial<ViteOptions>): ViteOptions {
+  const buildDirectory = config.buildDirectory ?? 'public/assets'
+
   return {
     assetsUrl: '/assets',
-    buildDirectory: 'public/assets',
-    manifestFile: config.buildDirectory
-      ? join(config.buildDirectory, '.vite/manifest.json')
-      : 'public/assets/.vite/manifest.json',
+    buildDirectory,
+    manifestFile: join(buildDirectory, '.vite/manifest.json'),
+    serverBuildDirectory: join(buildDirectory, 'server'),
     ...config,
   }
 }
