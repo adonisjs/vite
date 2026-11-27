@@ -27,7 +27,9 @@ export function defineConfig(config: Partial<ViteOptions>): ViteOptions {
   return {
     assetsUrl: '/assets',
     buildDirectory,
-    manifestFile: join(buildDirectory, '.vite/manifest.json'),
+    manifestFile: config.buildDirectory
+      ? join(config.buildDirectory, '.vite/manifest.json')
+      : 'public/assets/.vite/manifest.json',
     serverBuildDirectory: join(buildDirectory, 'server'),
     ...config,
   }
