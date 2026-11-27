@@ -105,6 +105,20 @@ export function configHook(
    */
   if (options.serverEntryPoints.length > 0) {
     const userSsrBuild = userConfig.environments?.ssr?.build
+
+    /**
+     * `loadServerModule` reads the SSR manifest in production. A build
+     * with no SSR manifest passes, but the app cannot load its server
+     * modules after the deploy. Fail the build instead.
+     */
+    if (command === 'build' && userSsrBuild?.manifest === false) {
+      throw new Error(
+        'Cannot disable "environments.ssr.build.manifest" when "serverEntryPoints" are declared. ' +
+          'vite.loadServerModule() needs the SSR manifest to find the bundled server modules ' +
+          'in production.'
+      )
+    }
+
     config.environments = {
       ...config.environments,
       ssr: {

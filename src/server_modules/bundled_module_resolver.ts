@@ -16,8 +16,8 @@ import type { Manifest } from 'vite'
  * Resolves and imports server-side modules from the production SSR build.
  *
  * In production there is no Vite dev server — entry points declared as
- * `serverEntryPoints` are pre-built into `<buildDirectory>/server` and
- * recorded in `<buildDirectory>/server/.vite/manifest.json`. The
+ * `serverEntryPoints` are pre-built into `<serverBuildDirectory>` and
+ * recorded in `<serverBuildDirectory>/.vite/manifest.json`. The
  * resolver reads that manifest to map an entry source path to the
  * emitted bundle file, then imports it through Node's native `import()`.
  *
@@ -26,7 +26,8 @@ import type { Manifest } from 'vite'
  */
 export class BundledModuleResolver {
   /**
-   * Absolute path to `<buildDirectory>/server`.
+   * Path to the output directory of the SSR build. Defaults
+   * to `<buildDirectory>/server`.
    */
   #serverDir: string
 
@@ -41,8 +42,8 @@ export class BundledModuleResolver {
    */
   #manifest?: Manifest
 
-  constructor(buildDirectory: string) {
-    this.#serverDir = join(buildDirectory, 'server')
+  constructor(serverBuildDirectory: string) {
+    this.#serverDir = serverBuildDirectory
   }
 
   async import<T>(entry: string): Promise<T> {
@@ -75,7 +76,9 @@ export class BundledModuleResolver {
     if (!existsSync(manifestPath)) {
       throw new Error(
         `SSR manifest not found at ${manifestPath}. Build the application ` +
-          `with at least one declared serverEntrypoint before loading server modules.`
+          `with at least one declared serverEntrypoint before loading server modules. ` +
+          `When the SSR build writes to a custom outDir, set the same path as ` +
+          `serverBuildDirectory in config/vite.ts.`
       )
     }
 

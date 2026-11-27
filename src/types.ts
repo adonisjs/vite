@@ -55,6 +55,18 @@ export interface ViteOptions {
   manifestFile: string
 
   /**
+   * Path to the output directory of the SSR build, relative from the
+   * root of the application. `loadServerModule` reads the SSR manifest
+   * from `<serverBuildDirectory>/.vite/manifest.json` in production.
+   *
+   * The value must match `environments.ssr.build.outDir` of the
+   * `vite.config.ts` file.
+   *
+   * @default '<buildDirectory>/server'
+   */
+  serverBuildDirectory?: string
+
+  /**
    * The URL to prefix when generating assets URLs. For example: This
    * could the CDN URL when generating the production build
    *
